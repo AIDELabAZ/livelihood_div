@@ -107,7 +107,7 @@ if $pack == 1 {
 
 * run div do files for each country
 	run				"$code/ethiopia/eth_build_0"
-	//run 				"$code/malawi/mwi_build_0"
+	run 				"$code/malawi/mwi_build_0"
 	//run				"$code/nigeria/"
 	//run				"$code/nigeria/"
 	//run 				"$code/burkina_faso/"
