@@ -106,15 +106,15 @@ if $pack == 1 {
 * **********************************************************************
 
 * run div do files for each country
-	run				"$code/ethiopia/eth_build_0"
+	run					"$code/ethiopia/eth_build_0"
 	run 				"$code/malawi/mwi_build_0"
-	//run				"$code/nigeria/"
-	//run				"$code/nigeria/"
+	run					"$code/nigeria/nga_build_0"
+	run					"$code/uganda/uga_build_0"
 	//run 				"$code/burkina_faso/"
 	
 	
 * run panel cleaning 
-	//run 				"$code/diversification/analysis/pnl_cleaning_div"
+	run 				"$code/analysis/pnl_cleaning_div"
 	
 	
 * **********************************************************************
