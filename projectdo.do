@@ -15,7 +15,7 @@
 	* access to all data and code
 
 * TO DO:
-	* add all do-files
+	* update pathways for other users 
 
 * **********************************************************************
 * 0 - setup
@@ -43,9 +43,9 @@
     }
 
     if `"`c(username)'"' == "aljosephson" {
-        global 		code  	"C:/Users/aljosephson/git/AIDELabAZ/diversification"
-		global 		data	"G:/My Drive/wb_covid/data"
-		global 		output_f "G:/My Drive/wb_covid/output"
+        global 		code  	"C:/Users/aljosephson/git/AIDELabAZ/livelihood_div"
+		global 		data	"G:/.shortcut-targets-by-id/1wmQb8xn5Qop-2J14D7Z2rdKxJhcwfP_q/wb_covid/data"
+		global 		output_f "G:/.shortcut-targets-by-id/1wmQb8xn5Qop-2J14D7Z2rdKxJhcwfP_q/wb_covid/output"
     }
 
 	if `"`c(username)'"' == "annfu" {
@@ -106,13 +106,13 @@ if $pack == 1 {
 * **********************************************************************
 
 * run div do files for each country
-	//run				"$code/ethiopia/"
+	run				"$code/ethiopia/eth_build_0"
 	//run 				"$code/malawi/mwi_build_0"
 	//run				"$code/nigeria/"
 	//run				"$code/nigeria/"
 	//run 				"$code/burkina_faso/"
 	
-
+	
 * run panel cleaning 
 	//run 				"$code/diversification/analysis/pnl_cleaning_div"
 	
