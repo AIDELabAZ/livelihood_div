@@ -7,7 +7,7 @@
 
 * does
 	* explores: 
-	*** QUESTION: Why do respondents never have unique employment sectors within thier households?
+	*** QUESTION: Why do respondents never have unique employment sectors within their households?
 
 * assumes
 	* see below: need to insert appropriate file paths 
