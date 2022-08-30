@@ -1,8 +1,8 @@
 * Project: diversification
 * Created on: Jan 2022
 * Created by: amf
-* Edited by: jdm, amf
-* Last edited: Jan 2022
+* Edited by: jdm, amf, alj
+* Last edited: Jan 2022 (30 August 2022)
 * Stata v.17.0
 
 * does
@@ -14,7 +14,8 @@
 	* coefplot
 
 * TO DO:
-	* finalize regressions 
+	* DONE
+	* alj confirm similarities  - august 2022
 
 
 * **********************************************************************
