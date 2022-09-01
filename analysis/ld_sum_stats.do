@@ -1,8 +1,8 @@
 * Project: diversification
 * Created on: Dec 2021
 * Created by: amf
-* Edited by: jdm, amf
-* Last edited: Feb 2022
+* Edited by: jdm, amf, alj
+* Last edited: September 1 2022
 * Stata v.17.0
 
 * does
@@ -14,7 +14,7 @@
 	* coefplot
 
 * TO DO:
-	* complete
+	* inc_sum table: issues with multicolumn footer - eliminated for now 
 
 
 * **********************************************************************
@@ -78,26 +78,30 @@ preserve
 		local 				country = "D: Uganda"
 		local 				obs1 = "1642"
 		local 				obs2 = "583"
-		local 				end = "\multicolumn{3}{r}{\small \textit{Note}: The table displays the percent of households engaged in and the mean income earned from each income category. In the LSMS data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates found at \href{https://exchangerates.org}{https://exchangerates.org}. We use LSMS data to generate the table, which covers the pre-COVID-19 period.} \end{longtable}"
-	}
+		local 				end = "   \end{longtable} "
+		}
+		
+		*"\multicolumn{3}{r}{\small \textit{Note}: The table displays the percent of households engaged in and the mean income earned from each income category. In the LSMS data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates found at \href{https://exchangerates.org}{https://exchangerates.org}. We use LSMS data to generate the table, which covers the pre-COVID-19 period.} 
+
+	
 	if 					`c' == 1 {
 		esttab 				using "$export/tables/inc_sum.tex", replace ///
 								prehead("\begin{longtable}{l l l} " ///
 								"\caption{2019 Engagement in and Earnings from Income Sources} \label{incsum} \\ [-1.8ex] \hline \hline & " ///
-								"\multicolumn{1}{c}{\textbf{Percent Engaged}} & \multicolumn{1}{c}{\textbf{Mean Income (USD)}} \\ & " ///
+								"\multicolumn{1}{c}{\textbf{Percent Engaged}} & \multicolumn{1}{c}{\textbf{Mean Income (USD)}} \\  " ///
 								"\endfirsthead " ///
-								"\hline & \multicolumn{1}{c}{\textbf{Percent Engaged}} & \multicolumn{1}{c}{\textbf{Mean Income (USD)}} \\ & " ///
+								"\hline & \multicolumn{1}{c}{\textbf{Percent Engaged}} & \multicolumn{1}{c}{\textbf{Mean Income (USD)}} \\  " ///
 								"\endhead " ///
-								"\multicolumn{3}{c}{{Continued on Next Page\ldots}} " ///
+								"\midrule \multicolumn{3}{c}{{Continued on Next Page\ldots}} " ///
 								"\endfoot " ///
 								"\endlastfoot " ///
-								"\midrule \multicolumn{3}{r}{\textit{Panel A: Ethiopia}} \\ ") ///
+								"\midrule \multicolumn{3}{c}{\textit{Panel A: Ethiopia}} \\ ") ///
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs 
 	} 
 	else 				{
 		esttab 				using "$export/tables/inc_sum.tex", append ///
-								prehead("\multicolumn{3}{r}{\textit{Panel `country' }} \\ ") ///
+								prehead("\multicolumn{3}{c}{\textit{Panel `country' }} \\ ") ///
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs 
 	}
@@ -123,7 +127,7 @@ preserve
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs  ///
 								postfoot("\multicolumn{1}{l}{Observations} & " ///
-								"`obs1'  &  \\ \midrule `end' ")	
+								"\multicolumn{2}{l}{`obs1'} \\ \midrule `end' ")	
 
 	}
 	restore 					
