@@ -756,6 +756,62 @@ preserve
 		grc1leg2 				eth_hhi_sec mwi_hhi_sec nga_hhi_sec uga_hhi_sec, col(2) commonscheme 			
 		graph export 			"$export/figures/hhi_density_sec.png", as(png) replace
 
+* index 1 over time 	
+	foreach 			c in `countries'  {
+		if `c' == 1 {
+			local 			x = "eth"
+			local 			t = "Ethiopia"
+			local 			s = "Specialization Index"
+		}
+		if `c' == 2 {
+			local 			x = "mwi"
+			local 			t = "Malawi"
+			local 			s = " "
+		}
+		if `c' == 3 {
+			local 			x = "nga"
+			local 			t = "Nigeria"
+			local 			s = "Specialization Index"
+		}
+		if `c' == 4 {
+			local 			x = "uga"
+			local 			t = "Uganda"
+			local 			s = " "
+		}
+		preserve
+		keep 				if country == `c'
+		keep 				if std_pp_index != .
+		graph bar 			(mean) std_pp_index [pweight = weight], ///
+								over(wave, lab(labs(med) angle(45))) title("`t'", size(large)) ///
+								bar(2, color(maroon*1.5)) bar(1, color(gray*1.3)) ///
+								ytitle("", margin( 0 -1 -1 10) size(small)) ///
+								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(med))  ///
+								legend(label(1 "Mean of Specialization Index")) ///
+								name(std_pp_index_time_`c', replace)	
+		restore 
+	}
+	
+	* test for significance 
+	foreach 				het in sector sexhh {
+		foreach 				c in 1 2 3 4 {
+			preserve
+			keep 					if country == `c'
+			keep 					if std_pp_index != .
+			levelsof 				wave_, local(waves)
+			foreach 				w in `waves' {
+				di 						"country `c' wave `w'"
+				reg 					std_pp_index `het' if wave_ == `w' [aweight = weight]
+			}
+			restore 
+		}
+	}
+	
+	* export graphics over time by sector
+	grc1leg2 				std_pp_index_time_1 std_pp_index_time_2 std_pp_index_time_3 std_pp_index_time_4, ///
+								col(2) commonscheme 
+	gr export 				"$export/figures/std_pp_index_time.png", as(png) replace
+		
+		
 * index 1 over time by sector	
 	gen 				std_pp_index_sec1 = std_pp_index if sector == 1
 	gen 				std_pp_index_sec2 = std_pp_index if sector == 2
