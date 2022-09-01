@@ -71,10 +71,10 @@
 		
 			
 * **********************************************************************
-**# dynamic panel model with lagged vars (indices 1-2)
+**# dynamic panel model with lagged vars (indices 1-2 / 1+4)
 * **********************************************************************
-
-* food security
+/*
+* food security for 1 and 2
 	foreach 				ind in std_pp_index pp_index {
 	if 						"`ind'" == "std_pp_index" {
 		local 				t = "Index 1"
@@ -126,7 +126,64 @@
 	grc1leg2  				std_pp_index_fs_dyn_eth pp_index_fs_dyn_eth std_pp_index_fs_dyn_mwi pp_index_fs_dyn_mwi, ///
 								col(2) commonscheme
 	graph export			"$export/figures/reg_results/dyn_fs_index1_2.png", as(png) replace
+*/
 	
+* food security for 1 and 4
+	foreach 				ind in std_pp_index std_pre_index_hhi {
+	if 						"`ind'" == "std_pp_index" {
+		local 				t = "Index 1"
+	}
+	else 				if "`ind'" == "std_pre_index_hhi" {
+		local 				t = "Index 4"
+	}
+	foreach 				c in 1 2 {
+		foreach 				fs in mild mod sev std {
+			* balance panel with lagged variables
+			preserve
+			keep 					if country == `c'
+			drop 					if `fs'_fs == . // can never use obs without dependent var
+			egen 					temp = total(inrange(wave_orig, 0, 11)), by(hhid)
+			drop 					if temp < 6 & country == 1 // 3,317 of 17,759 dropped (19%)
+			drop 					if temp < 10 & country == 2 // 2,812 of 16,102 dropped (17%)
+			sort 					hhid wave_, stable 
+			bysort 					hhid (wave_orig): gen `ind'_lag = `ind'[_n-1]
+			bysort 					hhid (wave_orig): gen `fs'_fs_lag = `fs'_fs[_n-1]
+			egen 					wave_temp =  group(country wave_orig)
+			egen 					max = max(wave_temp), by(hhid)
+			drop 					if max == 4 & country == 1 // drops 8
+			* dynamic panel regression
+			xtset 					hhid wave_temp 
+			xtreg 					`fs'_fs c.`fs'_fs_lag##c.`ind'_lag i.wave_temp i.region#c.wave_temp ///
+										[aweight = weight], fe vce(cluster hhid)
+			eststo					`ind'_`fs'_dyn_`c'
+			restore
+		}
+	}
+	* generate graphics 
+	coefplot				`ind'_mild_dyn_1 `ind'_mod_dyn_1 `ind'_sev_dyn_1 `ind'_std_dyn_1, ///
+								drop(*.wave_temp *.country std_pp_index_lag mild_fs_lag mod_fs_lag ///
+								sev_fs_lag std_fs_lag std_pre_index_hhi  _cons) xline(0, lcolor(maroon)) ///
+								xtitle(" ", size(small)) title("Ethiopia `t'") ///
+								levels(95) coeflabels(c.* = " ", notick) xlabel(-1(.2)1, labs(small)) ///
+								legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
+								label(6 "Severe") label(8 "Index")) name(`ind'_fs_dyn_eth, replace)
+								
+	coefplot				`ind'_mild_dyn_2 `ind'_mod_dyn_2 `ind'_sev_dyn_2 `ind'_std_dyn_2, ///
+								drop(*.wave_temp *.country std_pp_index_lag mild_fs_lag mod_fs_lag ///
+								sev_fs_lag std_fs_lag std_pre_index_hhi_lag _cons) xline(0, lcolor(maroon)) ///
+								xtitle("Effect on Food Insecurity", size(small)) title("Malawi `t'") ///
+								levels(95) coeflabels(c.* = " ", notick) xlabel(-1(.2)1, labs(small)) ///
+								legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
+								label(6 "Severe") label(8 "Index")) name(`ind'_fs_dyn_mwi, replace)
+}	
+
+	grc1leg2  				std_pp_index_fs_dyn_eth std_pre_index_hhi_fs_dyn_eth std_pp_index_fs_dyn_mwi std_pre_index_hhi_fs_dyn_mwi, ///
+								col(2) commonscheme
+	graph export			"$export/figures/reg_results/dyn_fs_index1_4.png", as(png) replace
+	
+	
+*** ANNA IS STUCK HERE ****
+*** ERROR: 	_est_std_pre_index_hhi_mild_dyn_1 invalid name" 
 
 * education 
 	foreach 				ind in std_pp_index pp_index {
