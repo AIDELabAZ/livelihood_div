@@ -121,7 +121,7 @@ if $pack == 1 {
 * 2 - run analysis .do files
 * **********************************************************************
 
-	run 				"$code/analysis/ld_sum_stats"
-	run 				"$code/analysis/ld_regressions"
+*	run 				"$code/analysis/ld_sum_stats"
+*	run 				"$code/analysis/ld_regressions"
 
 /* END */

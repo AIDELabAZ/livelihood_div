@@ -44,6 +44,91 @@
 * **********************************************************************
 **# tables
 * **********************************************************************	
+* Aggregate 
+preserve
+	gen 				geo = ea if country != 2
+	replace 			geo = ta_code if country == 2
+	
+	local 				list1 = "crop_inc_ live_inc_ live_prod_ wage_emp_ casual_emp_ temp_emp_ nfe_inc_ kind_trans_ cash_trans_ food_trans_ asst_kind_ asst_cash_ asst_food_ pen_inc_ rent_inc_ asset_ save_inc_ oth_inc_"
+	local 				list2  "crop_inc_ tree_inc_ live_inc_ live_prod_ wage_emp_ casual_emp_ nfe_inc_	cash_trans_ food_trans_ kind_trans_ cash_child_	kind_child_ asst_food_ asst_cash_ for_wrk_ masaf_ pen_inc_ rent_inc_ asset_	save_inc_ oth_inc_"
+	local 				list3 = "crop_inc_ tree_inc_ live_inc_ live_prod_ wage_emp_ nfe_inc_ cash_dom_ cash_for_ kind_inc_ asst_inc_ pen_inc_ rent_nonag_ ag_rent_ save_inc_ oth_inc_"
+	local 				list4 = "crop_inc_ live_inc_ live_prod_ wage_emp_ nfe_inc_ cash_dom_ kind_dom_ cash_for_ kind_for_ sage_ pen_inc_ rent_inc_ interest_ oth_inc_"
+	
+
+	estpost 			sum wave //need random stored variable for esttabs below to work, even though this is not referenced
+	foreach 			c in `countries' {
+	if 					`c' == 1 {
+		local 				obs1 = "977"
+		local 				obs2 = "2270"
+		local 				end = " "
+	}
+	else 				if 	`c' == 2 {
+		local 				country = "B: Malawi"
+		local 				obs1 = "1092"
+		local 				obs2 = "634"
+		local 				end = " "
+	}
+	else 				if `c' == 3 {
+		local 				country = "C: Nigeria"
+		local 				obs1 = "1195"
+		local 				obs2 = "755"
+		local 				end = " "
+	}
+	else 				if `c' == 4 {
+		local 				country = "D: Uganda"
+		local 				obs1 = "1642"
+		local 				obs2 = "583"
+		local 				end = "\multicolumn{3}{r}{\small \textit{Note}: The table displays the percent of households engaged in and the mean income earned from each income category. In the LSMS data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates found at \href{https://exchangerates.org}{https://exchangerates.org}. We use LSMS data to generate the table, which covers the pre-COVID-19 period.} \end{longtable}"
+	}
+	if 					`c' == 1 {
+		esttab 				using "$export/tables/inc_sum.tex", replace ///
+								prehead("\begin{longtable}{l l l} " ///
+								"\caption{2019 Engagement in and Earnings from Income Sources} \label{incsum} \\ [-1.8ex] \hline \hline & " ///
+								"\multicolumn{1}{c}{\textbf{Percent Engaged}} & \multicolumn{1}{c}{\textbf{Mean Income (USD)}} \\ & " ///
+								"\endfirsthead " ///
+								"\hline & \multicolumn{1}{c}{\textbf{Percent Engaged}} & \multicolumn{1}{c}{\textbf{Mean Income (USD)}} \\ & " ///
+								"\endhead " ///
+								"\multicolumn{3}{c}{{Continued on Next Page\ldots}} " ///
+								"\endfoot " ///
+								"\endlastfoot " ///
+								"\midrule \multicolumn{3}{r}{\textit{Panel A: Ethiopia}} \\ ") ///
+								booktabs nonum nomtitle collabels(none) ///
+								nogaps fragment label noobs 
+	} 
+	else 				{
+		esttab 				using "$export/tables/inc_sum.tex", append ///
+								prehead("\multicolumn{3}{r}{\textit{Panel `country' }} \\ ") ///
+								booktabs nonum nomtitle collabels(none) ///
+								nogaps fragment label noobs 
+	}
+	
+	foreach 					var in `list`c'' {
+		replace 					`var'amnt_0 = . if `var'amnt_0 == 0
+		
+		quietly: sum 				`var'0 if country == `c' & wave == 0 [aweight = weight]
+		local 						temp1 = r(mean) 
+		local 						mean1 : display %4.3f `temp1'
+		quietly: sum 				`var'amnt_0 if country == `c' & wave == 0  [aweight = weight]
+		local 						temp1a = r(mean) 
+		local 						mean1a : display %4.0f `temp1a'
+		quietly: sum 				`var'0 if country == `c' & wave == 0 [aweight = weight]
+		
+		local 				label : variable label `var'0
+		esttab 				using "$export/tables/inc_sum.tex", append ///
+								posthead("`label' & `mean1' & `mean1a' \\ ") ///
+								booktabs nonum nomtitle collabels(none) ///
+								nogaps fragment label noobs 
+	}
+	esttab 					using "$export/tables/inc_sum.tex", append ///		
+								booktabs nonum nomtitle collabels(none) ///
+								nogaps fragment label noobs  ///
+								postfoot("\multicolumn{1}{l}{Observations} & " ///
+								"`obs1'  &  \\ \midrule `end' ")	
+
+	}
+	restore 					
+
+
 * Sector 	
 preserve
 	gen 				geo = ea if country != 2
