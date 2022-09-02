@@ -2,7 +2,7 @@
 * Created on: Jan 2022
 * Created by: amf
 * Edited by: jdm, amf, alj
-* Last edited: Jan 2022 (30 August 2022)
+* Last edited: 2 September 2022
 * Stata v.17.0
 
 * does
@@ -15,7 +15,6 @@
 
 * TO DO:
 	* DONE
-	* alj confirm similarities  - august 2022
 
 
 * **********************************************************************
