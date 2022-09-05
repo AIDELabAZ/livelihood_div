@@ -22,11 +22,11 @@
 * **********************************************************************
 
 * set $pack to 0 to skip package installation
-	global 			pack 	0
+	global 			pack 	1
 		
 * Specify Stata version in use
-    *global stataVersion 17.0    // set Stata version
-	global stataVersion 16.1
+    global stataVersion 17.0    // set Stata version
+	*global stataVersion 16.1
     version $stataVersion
 
 	
@@ -67,7 +67,7 @@
 * **********************************************************************
 
 * install packages if global is set to 1
-if $pack == 1 {
+if $pack == 0 {
 	
 	* for packages/commands, make a local containing any required packages
 		loc userpack "blindschemes mdesc estout distinct winsor2 palettes catplot grc1leg2 colrspace" 
