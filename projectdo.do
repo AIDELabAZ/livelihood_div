@@ -2,7 +2,7 @@
 * Created on: Sept 2021
 * Created by: amf
 * Edited by: alj
-* Edited on: 23 August 2022
+* Edited on: 6 September 2022
 * Stata v.17.0 / 16.1
 
 * does
@@ -15,7 +15,7 @@
 	* access to all data and code
 
 * TO DO:
-	* update pathways for other users 
+	* update pathways for users 
 
 * **********************************************************************
 * 0 - setup
@@ -121,7 +121,7 @@ if $pack == 0 {
 * 2 - run analysis .do files
 * **********************************************************************
 
-*	run 				"$code/analysis/ld_sum_stats"
-*	run 				"$code/analysis/ld_regressions"
+	run 				"$code/analysis/ld_sum_stats"
+	run 				"$code/analysis/ld_regressions"
 
 /* END */
