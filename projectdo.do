@@ -3,7 +3,7 @@
 * Created by: amf
 * Edited by: alj
 * Edited on: 6 September 2022
-* Stata v.17.0 / 16.1
+* Stata v.17.0 
 
 * does
 	* establishes an identical workspace between users
@@ -26,7 +26,6 @@
 		
 * Specify Stata version in use
     global stataVersion 17.0    // set Stata version
-	*global stataVersion 16.1
     version $stataVersion
 
 	
@@ -121,7 +120,7 @@ if $pack == 0 {
 * 2 - run analysis .do files
 * **********************************************************************
 
-	run 				"$code/analysis/ld_sum_stats"
-	run 				"$code/analysis/ld_regressions"
+*	run 				"$code/analysis/ld_sum_stats"
+*	run 				"$code/analysis/ld_regressions"
 
 /* END */
