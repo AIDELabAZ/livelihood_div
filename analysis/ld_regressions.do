@@ -526,7 +526,7 @@ eststo 					clear
 	* regressions
 	preserve 
 	drop 						if wave == -1
-	foreach 					c in 1 2 3 {
+/*	foreach 					c in 1 2 3 {
 		if 						`c' == 1 {
 			local 					country = "Ethiopia"
 		}
@@ -591,7 +591,7 @@ eststo 					clear
 		graph export					"$export/figures/reg_results/`r'_index6.png", as(png) replace
 	}
 	
-/*	
+	
 * education
 	* DID & ANCOVA regressions	
 	foreach 				c in 1 2 3 4 {
@@ -681,16 +681,15 @@ eststo 					clear
 		}
 		
 		* regressions 
-		foreach 				ind in std_pre_index_hhi {	
 			* ANCOVA	
-				reg 				edu_act `ind' y0_edu_act ib(1).wave c.wave#i.region ///
+				reg 				edu_act std_pre_index_hhi y0_edu_act ib(1).wave c.wave#i.region ///
 										[aweight = weight] if wave != 0 & country == `c', vce(cluster hhid) 
-				eststo				edu_anc_`ind'`c'
-			* DID
-				reg 				edu_act c.`ind'##i.post ib(1).wave c.wave#i.region ///
+				eststo				edu_anc_std_pre_index_hhi`c'
+	/*		* DID
+				reg 				edu_act c.std_pre_index_hhi##i.post ib(1).wave c.wave#i.region ///
 										[aweight = weight] if country == `c', vce(cluster hhid) 	
-				eststo				edu_did_`ind'`c'	
-		}
+				eststo				edu_did_std_pre_index_hhi`c'	
+
 	
 		* plot coefficients by index for each country
 		* DID
@@ -701,23 +700,24 @@ eststo 					clear
 								levels(95) coeflabels( ///
 								1.post#c.std_pre_index_hhi = "HHI", notick) xlabel(-1(.2)1, labs(small))  ///
 								legend(off) name(edu_did_`c', replace)
-		* ANCOVA
+		* ANCOVA 
 		coefplot			edu_anc_std_pre_index_hhi`c' ///
 								drop(*.wave y0* _cons) ///
 								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
 								xtitle("`xt'") title("`country'") ///
 								levels(95) coeflabels(std_pre_index_hhi = "HHI", notick) xlabel(-1(.2)1, labs(small))  ///
-								legend(off) name(edu_anc_`c', replace)
+								legend(off) name(edu_anc_`c', replace) 
+								*/
 	}
+
+		coefplot			edu_anc_std_pre_index_hhi1 edu_anc_std_pre_index_hhi2 edu_anc_std_pre_index_hhi3 edu_anc_std_pre_index_hhi4, ///
+								drop(*.wave y0_edu_act _cons) ///
+								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
+								xtitle("`xt'") title("HHI") ///
+								levels(95) coeflabels(std_pre_index_hhi = "HHI", notick) xlabel(-.2(.05).2, labs(small))  ///
+								legend(off) name(edu_anc_cty, replace)
+								*** this figure is not currently replicable as in the paper - still working on labels 
 	
-	
-	* graph export - all 
-	gr combine 				edu_did_1 edu_did_2 edu_did_3 edu_did_4, commonscheme
-	graph export			"$export/figures/reg_results/edu_did_only.png", as(png) replace
-	
-	gr combine 				edu_anc_1 edu_anc_2 edu_anc_3 edu_anc_4, commonscheme
-	graph export			"$export/figures/reg_results/edu_anc_only.png", as(png) replace
-		
 
 	restore 
 
