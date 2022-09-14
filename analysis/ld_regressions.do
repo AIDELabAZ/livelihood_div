@@ -2,7 +2,7 @@
 * Created on: Jan 2022
 * Created by: amf
 * Edited by: jdm, amf, alj
-* Last edited: 7 September 2022
+* Last edited: 13 September 2022
 * Stata v.17.0
 
 * does
@@ -160,7 +160,7 @@
 	* generate graphics 
 	coefplot				`ind'_mild_dyn_1 `ind'_mod_dyn_1 `ind'_sev_dyn_1 `ind'_std_dyn_1, ///
 								drop(*.wave_temp *.country std_pp_index_lag mild_fs_lag mod_fs_lag ///
-								sev_fs_lag std_fs_lag std_pre_index_hhi  _cons) xline(0, lcolor(maroon)) ///
+								sev_fs_lag std_fs_lag std_pre_index_hhi _cons) xline(0, lcolor(maroon)) ///
 								xtitle(" ", size(small)) title("Ethiopia `t'") ///
 								levels(95) coeflabels(c.* = " ", notick) xlabel(-1(.2)1, labs(small)) ///
 								legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
