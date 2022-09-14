@@ -2,7 +2,7 @@
 * Created on: Jan 2022
 * Created by: amf
 * Edited by: jdm, amf, alj
-* Last edited: 13 September 2022
+* Last edited: 14 September 2022
 * Stata v.17.0
 
 * does
@@ -14,7 +14,7 @@
 	* coefplot
 
 * TO DO:
-	* DONE
+	* update to include indices 1 and 4 - focus of publication 
 
 * **********************************************************************
 **# setup
@@ -69,7 +69,7 @@
 		
 			
 * **********************************************************************
-**# dynamic panel model with lagged vars (indices 1-2 / 1+4)
+**# dynamic panel model with lagged vars (indices 1-2 / 1&4)
 * **********************************************************************
 /*
 * food security for 1 and 2
@@ -126,14 +126,12 @@
 	graph export			"$export/figures/reg_results/dyn_fs_index1_2.png", as(png) replace
 */
 	
-* food security for 1 and 4
-	foreach 				ind in std_pp_index std_pre_index_hhi {
+* food security for 1 
+	foreach 				ind in std_pp_index {
 	if 						"`ind'" == "std_pp_index" {
-		local 				t = "Index 1"
+		local 				t = "Fractional Index"
 	}
-	else 				if "`ind'" == "std_pre_index_hhi" {
-		local 				t = "Index 4"
-	}
+
 	foreach 				c in 1 2 {
 		foreach 				fs in mild mod sev std {
 			* balance panel with lagged variables
@@ -160,7 +158,7 @@
 	* generate graphics 
 	coefplot				`ind'_mild_dyn_1 `ind'_mod_dyn_1 `ind'_sev_dyn_1 `ind'_std_dyn_1, ///
 								drop(*.wave_temp *.country std_pp_index_lag mild_fs_lag mod_fs_lag ///
-								sev_fs_lag std_fs_lag std_pre_index_hhi _cons) xline(0, lcolor(maroon)) ///
+								sev_fs_lag std_fs_lag _cons) xline(0, lcolor(maroon)) ///
 								xtitle(" ", size(small)) title("Ethiopia `t'") ///
 								levels(95) coeflabels(c.* = " ", notick) xlabel(-1(.2)1, labs(small)) ///
 								legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
@@ -168,22 +166,20 @@
 								
 	coefplot				`ind'_mild_dyn_2 `ind'_mod_dyn_2 `ind'_sev_dyn_2 `ind'_std_dyn_2, ///
 								drop(*.wave_temp *.country std_pp_index_lag mild_fs_lag mod_fs_lag ///
-								sev_fs_lag std_fs_lag std_pre_index_hhi_lag _cons) xline(0, lcolor(maroon)) ///
+								sev_fs_lag std_fs_lag _cons) xline(0, lcolor(maroon)) ///
 								xtitle("Effect on Food Insecurity", size(small)) title("Malawi `t'") ///
 								levels(95) coeflabels(c.* = " ", notick) xlabel(-1(.2)1, labs(small)) ///
 								legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
 								label(6 "Severe") label(8 "Index")) name(`ind'_fs_dyn_mwi, replace)
 }	
 
-	grc1leg2  				std_pp_index_fs_dyn_eth std_pre_index_hhi_fs_dyn_eth std_pp_index_fs_dyn_mwi std_pre_index_hhi_fs_dyn_mwi, ///
+	grc1leg2  				std_pp_index_fs_dyn_eth std_pp_index_fs_dyn_mwi, ///
 								col(2) commonscheme
-	graph export			"$export/figures/reg_results/dyn_fs_index1_4.png", as(png) replace
+	graph export			"$export/figures/reg_results/dyn_fs_index1.png", as(png) replace
 	
-	
-*** ANNA IS STUCK HERE ****
-*** ERROR: 	_est_std_pre_index_hhi_mild_dyn_1 invalid name" 
 
-* education 
+* education - index 1 and 2
+/*
 	foreach 				ind in std_pp_index pp_index {
 	if 						"`ind'" == "std_pp_index" {
 		local 				t = "Index 1"
@@ -241,14 +237,68 @@
 								"\multicolumn{5}{J{13.5cm}}{\small \noindent \textit{Note}: The table displays regression results from our dynamic panel empirical specification with region and round controls and standard errors clustered at the household level (see Equation \ref{eq:dyn}). Columns represent the four countries of interest and we display results for Indices 1 and 2. Cells report coefficients and standard errors are reported in parentheses (*** p$<$0.001, ** p$<$0.01, * p$<$0.05).}  \end{tabular}") 
 	
 	drop 					*_lag
+*/
+	
+* education - index 1 
+
+	foreach 				ind in std_pp_index {
+	if 						"`ind'" == "std_pp_index" {
+		local 				t = "Fractional Index"
+	}
+	
+	foreach 				c in 1 2 3 4 {
+		* balance panel with lagged variables 
+		preserve
+		keep 					if country == `c'
+		drop 					if edu_act == . // can never use obs without dependent var
+		egen 					temp = total(inrange(wave_orig, 0, 11)), by(hhid)
+		drop 					if temp < 7 & country == 1 // 5,561 of 11,854 dropped (47%)
+		drop 					if temp < 5 & country == 2 // 1,349 of 6,039 dropped (22%)
+		drop 					if temp < 9 & country == 3 // 3,772 of 12,997 dropped (29%)
+		drop 					if temp < 6 & country == 4 // 1,704 of 10,380 dropped (16%)
+		sort 					hhid wave_, stable 
+		bysort 					hhid (wave_): 	gen `ind'_lag = `ind'[_n-1]
+		bysort					hhid (wave_): 	gen edu_act_lag = edu_act[_n-1]
+		egen 					wave_temp =  group(country wave_orig)
+		* dynamic panel regression
+		xtset 					hhid wave_temp
+		xtreg 					edu_act i.edu_act_lag##c.`ind'_lag i.wave_temp i.region#c.wave_temp ///
+									[aweight = weight], fe vce(cluster hhid)	
+		eststo					`ind'_edu_dyn_`c'
+		restore
+		}
+	}
+	
+	* generate variables for labels 
+	gen 					std_pp_index_lag = .
+	lab var 				std_pp_index_lag "Lagged Index 1"
+	gen 					std_pre_index_hhi_lag = . 
+	lab var 				std_pre_index_hhi_lag "Lagged Index 2"
+	gen 					edu_act_lag = .
+	lab var 				edu_act_lag "Lagged Education"
+	
+	* generate table
+	esttab 					std_pp_index_edu_dyn_1 std_pp_index_edu_dyn_2 std_pp_index_edu_dyn_3 std_pp_index_edu_dyn_4 ///
+								using "$export/tables/dyn_edu.tex", b(3) se(3) replace ///
+								prehead("\begin{tabular}{l*{4}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] & " ///
+								"\multicolumn{4}{c}{\textbf{Index 1}} \\ " ///
+								"& \multicolumn{1}{c}{Ethiopia} & \multicolumn{1}{c}{Malawi} & \multicolumn{1}{c}{Nigeria} & " ///
+								"\multicolumn{1}{c}{Uganda} \\ ") drop(*wave* _cons) noobs ///
+								booktabs nonum nomtitle collabels(none) nobaselevels nogaps ///
+								stat(N, labels("Observations") fmt(%9.0fc)) nogaps ///
+								fragment label postfoot("\hline \hline \\[-1.8ex] " ///
+								"\multicolumn{5}{J{13.5cm}}{\small \noindent \textit{Note}: The table displays regression results from our dynamic panel empirical specification with region and round controls and standard errors clustered at the household level (see Equation \ref{eq:dyn}). Columns represent the four countries of interest and we display results for our fractional index. Cells report coefficients and standard errors are reported in parentheses (*** p$<$0.001, ** p$<$0.01, * p$<$0.05).}  \end{tabular}") 
+	
+	drop 					*_lag
 	
 	
 * **********************************************************************
-**# dynamic panel model with lagged vars and stringency interactions (indices 1-2)
+**# dynamic panel model with lagged vars and stringency interactions (indices 1-2 and 1)
 * **********************************************************************
+/*
 graph 					drop _all
 eststo 					clear
-* food security
+* food security - index 1 and 2
 	foreach 				c in 1 2 {
 		if 						`c' == 1 {
 			local 					country = "Ethiopia"
@@ -298,9 +348,64 @@ eststo 					clear
 	grc1leg2  				std_pp_index_fs_inter_1 pp_index_fs_inter_1 std_pp_index_fs_inter_2 pp_index_fs_inter_2, ///
 								col(2) commonscheme
 	graph export			"$export/figures/reg_results/inter_fs_index1_2.png", as(png) replace
+*/
 	
+*
+graph 					drop _all
+eststo 					clear
+* food security - index 1
+	foreach 				c in 1 2 {
+		if 						`c' == 1 {
+			local 					country = "Ethiopia"
+		}
+		else 					if 	`c' == 2 {
+			local 					country = "Malawi"
+		}
+		foreach 				ind in std_pp_index {
+		if 						"`ind'" == "std_pp_index" {
+			local 				t = "Fractional Index"
+		}
 
-* education
+			foreach 				fs in mild mod sev std {
+				* balance panel with lagged variables 
+				preserve
+				keep 					if country == `c'
+				drop 					if `fs'_fs == . // can never use obs without dependent var
+				egen 					temp = total(inrange(wave_orig, 0, 11)), by(hhid)
+				drop 					if temp < 6 & country == 1 // 3,317 of 17,759 dropped (19%)
+			drop 					if temp < 10 & country == 2 // 2,812 of 16,102 dropped (17%)
+				sort 					hhid wave_, stable 
+				bysort hhid (wave_): 	gen `ind'_lag = `ind'[_n-1]
+				drop 					if `ind'_lag == . // can never use obs without lagged index
+				bysort hhid (wave_): 	gen `fs'_fs_lag = `fs'_fs[_n-1]
+				egen 					wave_temp =  group(country wave_orig)
+				* dynamic panel regression with interactions
+				xtset 					hhid wave_temp
+				xtreg 					`fs'_fs c.stringency_index##c.`fs'_fs_lag##c.`ind'_lag i.wave_temp ///
+											i.region#c.wave_temp [aweight = weight] if country == `c', fe vce(cluster hhid)
+				eststo					`ind'_`fs'_inter_`c' 
+				restore
+			}
+				coefplot				`ind'_mild_inter_`c' `ind'_mod_inter_`c' `ind'_sev_inter_`c' `ind'_std_inter_`c', ///
+											drop(stringency_index `ind'_lag stringency_index#c.`ind'_lag ///
+											c.*_fs_lag#c.`ind'_lag  *_fs_lag *.wave_temp _cons) /// 
+											xline(0, lcolor(maroon)) coeflabels(* = " ", notick) ///
+											xtitle(" ", size(small)) title("`country' `t'") ///
+											levels(95)  xlabel(-.2(.05).2, labs(small)) ///
+											legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
+											label(6 "Severe") label(8 "Index")) name(`ind'_fs_inter_`c', replace)	
+		}	
+	}
+	
+	* combine & export graphics 
+	grc1leg2  				std_pp_index_fs_inter_1 std_pp_index_fs_inter_2, ///
+								col(2) commonscheme
+	graph export			"$export/figures/reg_results/inter_fs_index1.png", as(png) replace
+*/
+		
+	
+/*
+* education (index 1 and 2)
 	foreach 				ind in std_pp_index pp_index {
 	if 						"`ind'" == "std_pp_index" {
 		local 				t = "Index 1"
@@ -358,10 +463,62 @@ eststo 					clear
 								"\multicolumn{5}{J{\linewidth}}{\small \noindent \textit{Note}: The table displays regression results from our dynamic panel empirical specification with stringency score interactions (see Equation \ref{eq:dynint}). For these regressions, we include region and round controls and standard errors are clustered at the household level. Columns represent our four countries of interest and we display results for Indices 1 and 2. Cells report coefficients and standard errors are reported in parentheses (*** p$<$0.001, ** p$<$0.01, * p$<$0.05).} \end{tabular}") 
 	
 	drop 					*_lag
+*/
 
+
+* education (index 1)
+	foreach 				ind in std_pp_index {
+	if 						"`ind'" == "std_pp_index" {
+		local 				t = "Fractional Index"
+	}
+
+	foreach 				c in 1 2 3 4 {
+		* balance panel with lagged variables 
+		preserve
+		keep 					if country == `c'
+		drop 					if edu_act == . // can never use obs without dependent var
+		egen 					temp = total(inrange(wave_orig, 0, 11)), by(hhid)
+		drop 					if temp < 7 & country == 1 // 5,561 of 11,854 dropped (47%)
+		drop 					if temp < 5 & country == 2 // 1,349 of 6,039 dropped (22%)
+		drop 					if temp < 9 & country == 3 // 3,772 of 12,997 dropped (29%)
+		drop 					if temp < 6 & country == 4 // 1,704 of 10,380 dropped (16%)
+		sort 					hhid wave_, stable 
+		bysort 					hhid (wave_): 	gen `ind'_lag = `ind'[_n-1]
+		bysort					hhid (wave_): 	gen edu_act_lag = edu_act[_n-1]
+		egen 					wave_temp =  group(country wave_orig)
+		* dynamic panel regression
+		xtset 					hhid wave_temp
+		xtreg 					edu_act c.stringency_index##i.edu_act_lag##c.`ind'_lag i.wave_temp i.region#c.wave_temp ///
+									[aweight = weight], fe vce(cluster hhid)	
+		eststo					`ind'_edu_inter_`c'
+		restore
+		}
+	}
+	
+	* generate variables for labels 
+	gen 					std_pp_index_lag = .
+	lab var 				std_pp_index_lag "Lagged Index 1"
+	gen 					edu_act_lag = .
+	lab var 				edu_act_lag "Lagged Education"
+	
+	* generate table
+	esttab 					std_pp_index_edu_inter_1 std_pp_index_edu_inter_2 std_pp_index_edu_inter_3 std_pp_index_edu_inter_4 ///
+								using "$export/tables/inter_edu.tex", b(3) se(3) replace ///
+								prehead("\begin{tabular}{l*{4}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] & " ///
+								"\multicolumn{4}{c}{\textbf{Index 1}} \\ " ///
+								"& \multicolumn{1}{c}{Ethiopia} & \multicolumn{1}{c}{Malawi} & \multicolumn{1}{c}{Nigeria} & " ///
+								"\multicolumn{1}{c}{Uganda} \\ ") drop(*wave* _cons) noobs ///
+								booktabs nonum nomtitle collabels(none) nobaselevels ////
+								stat(N, labels("Observations") fmt(%9.0fc)) nogaps ///
+								fragment label postfoot("\hline \hline \\[-1.8ex] " ///
+								"\multicolumn{5}{J{\linewidth}}{\small \noindent \textit{Note}: The table displays regression results from our dynamic panel empirical specification with stringency score interactions (see Equation \ref{eq:dynint}). For these regressions, we include region and round controls and standard errors are clustered at the household level. Columns represent our four countries of interest and we display results for our fractional index of interest. Cells report coefficients and standard errors are reported in parentheses (*** p$<$0.001, ** p$<$0.01, * p$<$0.05).} \end{tabular}") 
+	
+	drop 					*_lag
+	
+	
 
 * **********************************************************************
-**# ANOCOVA & DID (indices 3-6)
+**# ANOCOVA & DID (indices 3-6) - focus on 4 
 * **********************************************************************
 graph 					drop _all
 eststo 					clear
@@ -400,7 +557,7 @@ eststo 					clear
 				coefplot			mild_an_`ind'`c' mod_an_`ind'`c' sev_an_`ind'`c' std_an_`ind'`c', ///
 										drop(*.wave y0* _cons *post) xline(0, lcolor(maroon)) ///
 										xtitle("Effect on Food Insecurity", size(small)) title("`country'") ///
-										levels(95) coeflabels(`ind' = " ", notick) xlabel(-1(.2)1, labs(small)) ///
+										levels(95) coeflabels(`ind' = " ", notick) xlabel(-0.5(.1)0.5, labs(small)) ///
 										legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
 										label(6 "Severe") label(8 "Index")) name(anc_`ind'_`c', replace)
 				
@@ -422,7 +579,7 @@ eststo 					clear
 		graph export					"$export/figures/reg_results/`r'_index3.png", as(png) replace
 		
 		grc1leg2  						`r'_std_pre_index_hhi_1 `r'_std_pre_index_hhi_2 `r'_std_pre_index_hhi_3, ///
-											col(2) commonscheme title("Index 4") name(`r'_std_hhi)
+											col(2) commonscheme title("HHI") name(`r'_std_hhi)
 		graph export					"$export/figures/reg_results/`r'_index4.png", as(png) replace
 		
 		grc1leg2  						`r'_pre_index_frac_1 `r'_pre_index_frac_2 `r'_pre_index_frac_3, ///
@@ -434,7 +591,7 @@ eststo 					clear
 		graph export					"$export/figures/reg_results/`r'_index6.png", as(png) replace
 	}
 	
-	
+/*	
 * education
 	* DID & ANCOVA regressions	
 	foreach 				c in 1 2 3 4 {
@@ -475,7 +632,7 @@ eststo 					clear
 								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
 								xtitle("`xt'") title("`country'") ///
 								levels(95) coeflabels(1.post#c.std_pre_index_frac = "Index 3" ///
-								1.post#c.std_pre_index_hhi = "Index 4" 1.post#c.pre_index_frac = "Index 5" ///
+								1.post#c.std_pre_index_hhi = "HHI" 1.post#c.pre_index_frac = "Index 5" ///
 								1.post#c.pre_index_hhi = "Index 6", notick) xlabel(-1(.2)1, labs(small))  ///
 								legend(off) name(edu_did_`c', replace)
 		* ANCOVA
@@ -485,24 +642,91 @@ eststo 					clear
 								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
 								xtitle("`xt'") title("`country'") ///
 								levels(95) coeflabels(std_pre_index_frac = "Index 3" ///
-								std_pre_index_hhi = "Index 4" pre_index_frac = "Index 5" ///
+								std_pre_index_hhi = "HHI" pre_index_frac = "Index 5" ///
 								pre_index_hhi = "Index 6", notick) xlabel(-1(.2)1, labs(small))  ///
 								legend(off) name(edu_anc_`c', replace)
 	}
 	
-	* graph export 
+	
+	* graph export - all 
 	gr combine 				edu_did_1 edu_did_2 edu_did_3 edu_did_4, commonscheme
 	graph export			"$export/figures/reg_results/edu_did.png", as(png) replace
 	
 	gr combine 				edu_anc_1 edu_anc_2 edu_anc_3 edu_anc_4, commonscheme
 	graph export			"$export/figures/reg_results/edu_anc.png", as(png) replace
 
+	
 	restore 
 	
+*/
+
+* education - only HHI - index 4
+	* DID & ANCOVA regressions	
+	foreach 				c in 1 2 3 4 {
+		if 						`c' == 1 {
+			local 					country = "Ethiopia"
+			local 					xt = " "
+		}
+		else 					if 	`c' == 2 {
+			local 					country = "Malawi"
+			local 					xt = " "
+		}
+		else 					if `c' == 3 {
+			local 					country = "Nigeria"
+			local 					xt = "Effect on Educational Engagement"
+		}
+		else 					if `c' == 4 {
+			local 					country = "Uganda"
+			local 					xt = "Effect on Educational Engagement"
+		}
+		
+		* regressions 
+		foreach 				ind in std_pre_index_hhi {	
+			* ANCOVA	
+				reg 				edu_act `ind' y0_edu_act ib(1).wave c.wave#i.region ///
+										[aweight = weight] if wave != 0 & country == `c', vce(cluster hhid) 
+				eststo				edu_anc_`ind'`c'
+			* DID
+				reg 				edu_act c.`ind'##i.post ib(1).wave c.wave#i.region ///
+										[aweight = weight] if country == `c', vce(cluster hhid) 	
+				eststo				edu_did_`ind'`c'	
+		}
+	
+		* plot coefficients by index for each country
+		* DID
+		coefplot			edu_did_std_pre_index_hhi`c' ///
+								drop(*.wave _cons std_pre_index) ///
+								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
+								xtitle("`xt'") title("`country'") ///
+								levels(95) coeflabels( ///
+								1.post#c.std_pre_index_hhi = "HHI", notick) xlabel(-1(.2)1, labs(small))  ///
+								legend(off) name(edu_did_`c', replace)
+		* ANCOVA
+		coefplot			edu_anc_std_pre_index_hhi`c' ///
+								drop(*.wave y0* _cons) ///
+								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
+								xtitle("`xt'") title("`country'") ///
+								levels(95) coeflabels(std_pre_index_hhi = "HHI", notick) xlabel(-1(.2)1, labs(small))  ///
+								legend(off) name(edu_anc_`c', replace)
+	}
+	
+	
+	* graph export - all 
+	gr combine 				edu_did_1 edu_did_2 edu_did_3 edu_did_4, commonscheme
+	graph export			"$export/figures/reg_results/edu_did_only.png", as(png) replace
+	
+	gr combine 				edu_anc_1 edu_anc_2 edu_anc_3 edu_anc_4, commonscheme
+	graph export			"$export/figures/reg_results/edu_anc_only.png", as(png) replace
+		
+
+	restore 
+
+* invalid something: unmatched open parenthesis or bracket 
 	
 * **********************************************************************
-**# ANOCOVA & DID (indices 3-6) - heterogeneous effects 
+**# ANOCOVA & DID (indices 3-6) - heterogeneous effects (robust - app)
 * **********************************************************************
+
 graph 					drop _all
 eststo 					clear	
 * food security
