@@ -4,8 +4,8 @@
 * Created on: 30 March 2022
 * Created by: alj
 * Edited by: alj
-* Last edit: 5 April 2022
-* Stata v.16.1
+* Last edit: 15 September 2022
+* Stata v.17
 
 * does
 	* sample MDE code 
@@ -63,8 +63,8 @@ power twomeans .27, k1(56) k2(56) sd(.44) m1(1(1)15) mratio(1) power(0.7 0.8 0.9
 * obs range from 1485 to 1919 in educational attainment 
 
 * consider example for mild_fs
-power onemean 0.52 0.75, sd(0.5) n(2000(500)3500) graph
-power onemean 0.52 0.25, sd(0.5) n(2000(500)3500) graph
+power twomeans 0.52 0.75, sd(0.5) n(2000(500)3500) graph
+power twomeans 0.52 0.25, sd(0.5) n(2000(500)3500) graph
 *** no real difference if change alt from 0.75 to 0.25
 
 /* END */
