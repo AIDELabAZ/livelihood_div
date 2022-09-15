@@ -527,7 +527,7 @@ eststo 					clear
 	* regressions
 	preserve 
 	drop 						if wave == -1
-/*	foreach 					c in 1 2 3 {
+	foreach 					c in 1 2 3 {
 		if 						`c' == 1 {
 			local 					country = "Ethiopia"
 		}
@@ -594,7 +594,7 @@ eststo 					clear
 	
 	
 * education
-	* DID & ANCOVA regressions	
+/*	* DID & ANCOVA regressions - all indexes
 	foreach 				c in 1 2 3 4 {
 		if 						`c' == 1 {
 			local 					country = "Ethiopia"
@@ -717,12 +717,10 @@ eststo 					clear
 								xtitle("`xt'") title("HHI") ///
 								levels(95) coeflabels(std_pre_index_hhi = "HHI", notick) xlabel(-.2(.05).2, labs(small))  ///
 								legend(off) name(edu_anc_cty, replace)
-								*** this figure is not currently replicable as in the paper - still working on labels 
+*** this figure is not currently replicable as in the paper - still working on labels 
 	
 
 	restore 
-
-* invalid something: unmatched open parenthesis or bracket 
 	
 * **********************************************************************
 **# ANOCOVA & DID (indices 3-6) - heterogeneous effects (robust - app)
