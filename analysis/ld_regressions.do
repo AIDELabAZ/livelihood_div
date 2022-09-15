@@ -2,7 +2,7 @@
 * Created on: Jan 2022
 * Created by: amf
 * Edited by: jdm, amf, alj
-* Last edited: 14 September 2022
+* Last edited: 15 September 2022
 * Stata v.17.0
 
 * does
@@ -14,7 +14,8 @@
 	* coefplot
 
 * TO DO:
-	* update to include indices 1 and 4 - focus of publication 
+	* changes made through line 727 - no changes in section on heterogeneous effects
+	* should consider: relabeling graphs and figures (away from index 1, 2, etc.)
 
 * **********************************************************************
 **# setup
