@@ -1,8 +1,10 @@
+/* BEGIN */	
+
 * Project: diversification
 * Created on: Dec 2021
 * Created by: amf
 * Edited by: jdm, amf, alj
-* Last edited: September 1 2022
+* Last edited: September 16 2022
 * Stata v.17.0
 
 * does
