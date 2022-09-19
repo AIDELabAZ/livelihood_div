@@ -4,7 +4,7 @@
 * Created on: Jan 2022
 * Created by: amf
 * Edited by: jdm, amf, alj
-* Last edited: 16 September 2022
+* Last edited: 19 September 2022
 * Stata v.17.0
 
 * does
@@ -720,8 +720,8 @@ eststo 					clear
 								levels(95) coeflabels(std_pre_index_hhi = "HHI", notick) xlabel(-.2(.05).2, labs(small))  ///
 								legend(off) name(edu_anc_cty, replace)
 *** this figure is not currently replicable as in the paper - still working on labels 
+*** only figure labels are included afterwards - order = alphabetical: ethiopia, malawi, nigeria, uganda 
 	
-
 	restore 
 	
 * **********************************************************************
