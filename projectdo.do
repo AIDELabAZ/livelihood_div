@@ -36,7 +36,7 @@
 
 * Define root folder globals
     if `"`c(username)'"' == "jdmichler" {
-        global 		code  	"C:/Users/jdmichler/git/diversification"
+        global 		code  	"C:/Users/jdmichler/git/AIDELabAZ/livelihood_div"
 		global 		data	"G:/My Drive/wb_covid/data"
 		global 		output_f "G:/My Drive/wb_covid/output"
     }

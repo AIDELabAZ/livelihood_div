@@ -3,8 +3,8 @@
 * Project: diversification
 * Created on: Dec 2021
 * Created by: amf
-* Edited by: jdm, amf, alj
-* Last edited: September 16 2022
+* Edited by: jdm
+* Last edited: Jan 27 2023
 * Stata v.17.0
 
 * does
@@ -61,49 +61,51 @@ preserve
 	foreach 			c in `countries' {
 	if 					`c' == 1 {
 		local 				obs1 = "977"
-		local 				obs2 = "2270"
+		local 				obs2 = "2,270"
 		local 				end = " "
 	}
 	else 				if 	`c' == 2 {
 		local 				country = "B: Malawi"
-		local 				obs1 = "1092"
+		local 				obs1 = "1,092"
 		local 				obs2 = "634"
 		local 				end = " "
 	}
 	else 				if `c' == 3 {
 		local 				country = "C: Nigeria"
-		local 				obs1 = "1195"
+		local 				obs1 = "1,195"
 		local 				obs2 = "755"
 		local 				end = " "
 	}
 	else 				if `c' == 4 {
 		local 				country = "D: Uganda"
-		local 				obs1 = "1642"
+		local 				obs1 = "1,642"
 		local 				obs2 = "583"
-		local 				end = "   \end{longtable} "
+		local 				end = "\multicolumn{4}{p{360pt}}{\footnotesize \textit{Note}: The table displays the share of households engaged in each category of livelihood activity and the mean and standard deviation of income earned from that category. In the LSMS data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates found at \href{https://exchangerates.org}{https://exchangerates.org}.}  \\ \end{longtable} "
 		}
 		
-		*"\multicolumn{3}{r}{\small \textit{Note}: The table displays the percent of households engaged in and the mean income earned from each income category. In the LSMS data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates found at \href{https://exchangerates.org}{https://exchangerates.org}. We use LSMS data to generate the table, which covers the pre-COVID-19 period.} 
+		
 
 	
 	if 					`c' == 1 {
 		esttab 				using "$export/tables/inc_sum.tex", replace ///
-								prehead("\begin{longtable}{l l l} " ///
-								"\caption{2019 Engagement in and Earnings from Income Sources} \label{incsum} \\ [-1.8ex] \hline \hline & " ///
-								"\multicolumn{1}{c}{\textbf{Percent Engaged}} & \multicolumn{1}{c}{\textbf{Mean Income (USD)}} \\  " ///
+								prehead("\begin{longtable}{l ccc} " ///
+								"\caption{2019 Engagement in and Earnings from Income Sources} \label{incsum} \\ [-1.8ex] \hline \hline " ///
+								"& & \multicolumn{2}{c}{\textbf{Income (USD)}} \\  " ///
+								"& \multicolumn{1}{c}{\textbf{Share Engaged}} & \multicolumn{1}{c}{\textbf{Mean}} & \multicolumn{1}{c}{\textbf{Standard Deviation}} \\  " ///
 								"\endfirsthead " ///
-								"\hline & \multicolumn{1}{c}{\textbf{Percent Engaged}} & \multicolumn{1}{c}{\textbf{Mean Income (USD)}} \\  " ///
+								"\hline & & \multicolumn{2}{c}{\textbf{Income (USD)}} \\  " ///
+								"& \multicolumn{1}{c}{\textbf{Share Engaged}} & \multicolumn{1}{c}{\textbf{Mean}} & \multicolumn{1}{c}{\textbf{Standard Deviation}} \\ \midrule " ///
 								"\endhead " ///
-								"\midrule \multicolumn{3}{c}{{Continued on Next Page\ldots}} " ///
+								"\midrule \multicolumn{4}{c}{{Continued on Next Page\ldots}} " ///
 								"\endfoot " ///
 								"\endlastfoot " ///
-								"\midrule \multicolumn{3}{c}{\textit{Panel A: Ethiopia}} \\ ") ///
+								"\midrule \multicolumn{4}{c}{\textit{Panel A: Ethiopia}} \\ ") ///
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs 
 	} 
 	else 				{
 		esttab 				using "$export/tables/inc_sum.tex", append ///
-								prehead("\multicolumn{3}{c}{\textit{Panel `country' }} \\ ") ///
+								prehead("\multicolumn{4}{c}{\textit{Panel `country' }} \\ ") ///
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs 
 	}
@@ -116,12 +118,14 @@ preserve
 		local 						mean1 : display %4.3f `temp1'
 		quietly: sum 				`var'amnt_0 if country == `c' & wave == 0  [aweight = weight]
 		local 						temp1a = r(mean) 
-		local 						mean1a : display %4.0f `temp1a'
+		local 						mean1a : display %8.0fc `temp1a'
+		local 						temp1b = r(sd) 
+		local 						mean1b : display %8.0fc `temp1b'
 		quietly: sum 				`var'0 if country == `c' & wave == 0 [aweight = weight]
 		
 		local 				label : variable label `var'0
 		esttab 				using "$export/tables/inc_sum.tex", append ///
-								posthead("`label' & `mean1' & `mean1a' \\ ") ///
+								posthead("`label' & `mean1' & `mean1a' & `mean1b' \\ ") ///
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs 
 	}
@@ -129,7 +133,7 @@ preserve
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs  ///
 								postfoot("\multicolumn{1}{l}{Observations} & " ///
-								"\multicolumn{2}{l}{`obs1'} \\ \midrule `end' ")	
+								"\multicolumn{3}{c}{`obs1'} \\ \midrule `end' ")	
 
 	}
 	restore 					
@@ -426,19 +430,23 @@ preserve
 	drop 					if wave > 10
 	collapse 				(mean) farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
 								save_std_pp pen_std_pp [pweight = weight], by(country wave)
-	line 					farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp wave, sort(wave) ///
-								lcolor(cranberry*1 navy*1 emerald*1 erose*1 khaki*1 magenta*1.5 eltblue*1.2) ///
-								lp(solid dash solid dash solid dash solid) ///
-								lwidth(thick thick thick thick thick thick thick) title("Ethiopia", size(large)) ///
+	twoway 					(fpfitci farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%25) alw(none) ) ///
+								(fpfitci wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%25) alw(none) ) ///
+								(fpfitci nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%25) alw(none) ) ///
+								(fpfitci rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%25) alw(none) ) ///
+								(fpfitci asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%25) alw(none) ) ///
+								(fpfitci save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%25) alw(none) ) ///
+								(fpfitci pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%25) alw(none) ///
+								title("Ethiopia", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
 								ytitle("Percent Engaged", size(medlarge)) ///
 								xlabel(3 "2019" 4 "Apr20" 5 "May20" 6 "Jun20" 8 "Aug20" 9 "Sep20" 10 "Oct20", ///
-								nogrid angle(45) labs(medlarge)) xtitle(" ") legend(label (1 "Farm") ///
-								label (2 "Wages") label (3 "Non-Farm Enterprise") label (4 "Remittances") ///
-								label (5 "Assistance and Other") label (6 "Savings and Investments") ///
-								label (7 "Pension") pos(6) col(4) size(small) margin(-1.5 0 0 0)) ///
-								name(eth_emp_line, replace)
+								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (2 "Farm") ///
+								label (4 "Wages") label (6 "Non-Farm Enterprise") label (8 "Remittances") ///
+								label (10 "Assistance and Other") label (12 "Savings and Investments") ///
+								label (14 "Pension") pos(6) col(4) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
+								name(eth_emp_fit, replace)
+
 	restore 
 
 	* Malawi
@@ -448,15 +456,23 @@ preserve
 	drop 					if wave > 18
 	collapse 				(mean) farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
 								save_std_pp pen_std_pp [pweight = weight], by(country wave)
-	line 					farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp wave, sort(wave) ///
-								lcolor(cranberry*1 navy*1 emerald*1 erose*1 khaki*1 magenta*1.5 eltblue*1.2) ///
-								lp(solid dash solid dash solid dash solid) ///
-								lwidth(thick thick thick thick thick thick thick) title("Malawi", size(large)) ///
+	twoway 					(fpfitci farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%25) alw(none) ) ///
+								(fpfitci wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%25) alw(none) ) ///
+								(fpfitci nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%25) alw(none) ) ///
+								(fpfitci rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%25) alw(none) ) ///
+								(fpfitci asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%25) alw(none) ) ///
+								(fpfitci save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%25) alw(none) ) ///
+								(fpfitci pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%25) alw(none) ///
+								title("Malawi", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
+								ytitle("", size(medlarge)) ///
 								xlabel(5 "2019" 6 "Jun20" 7 "Jul20" 8 "Aug20" 9 "Sep20" 11 "Nov20" ///
-								13 "Jan21" 16 "Apr21" 18 "May21", nogrid angle(45) labs(medlarge)) xtitle(" ") ///
-								name(mwi_emp_line, replace)
+								13 "Jan21" 16 "Apr21" 18 "May21", ///
+								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (2 "Farm") ///
+								label (4 "Wages") label (6 "Non-Farm Enterprise") label (8 "Remittances") ///
+								label (10 "Assistance and Other") label (12 "Savings and Investments") ///
+								label (14 "Pension") pos(6) col(4) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
+								name(mwi_emp_fit, replace)
 	restore 
 	
 	* Nigeria
@@ -466,15 +482,22 @@ preserve
 	drop 					if wave > 13 | wave < 4
 	collapse 				(mean) farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
 								save_std_pp pen_std_pp [pweight = weight], by(country wave)
-	line 					farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp wave, sort(wave) ///
-								lcolor(cranberry*1 navy*1 emerald*1 erose*1 khaki*1 magenta*1.5 eltblue*1.2) ///
-								lp(solid dash solid dash solid dash solid) ///
-								lwidth(thick thick thick thick thick thick thick) title("Nigeria", size(large)) ///
+	twoway 					(fpfitci farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(fpfitci wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%25) alw(none) ) ///
+								(fpfitci nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%25) alw(none) ) ///
+								(fpfitci rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%25) alw(none) ) ///
+								(fpfitci asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%25) alw(none) ) ///
+								(fpfitci save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%25) alw(none) ) ///
+								(fpfitci pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%25) alw(none) ///
+								title("Nigeria", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
 								ytitle("Percent Engaged", size(medlarge)) ///
-								xlabel(4 "2019" 5 "May20" 8 "Aug20" 9 "Sep20" 13 "Jan21", nogrid angle(45) ///
-								labs(medlarge)) xtitle(" ") name(nga_emp_line, replace)
+								xlabel(4 "2019" 5 "May20" 8 "Aug20" 9 "Sep20" 13 "Jan21", ///
+								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (2 "Farm") ///
+								label (4 "Wages") label (6 "Non-Farm Enterprise") label (8 "Remittances") ///
+								label (10 "Assistance and Other") label (12 "Savings and Investments") ///
+								label (14 "Pension") pos(6) col(4) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
+								name(nga_emp_fit, replace)
 	restore 
 	
 	* Uganda 
@@ -484,18 +507,26 @@ preserve
 	drop 					if wave > 14 
 	collapse 				(mean) farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
 								save_std_pp pen_std_pp [pweight = weight], by(country wave)
-	line 					farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp wave, sort(wave) ///
-								lcolor(cranberry*1 navy*1 emerald*1 erose*1 khaki*1 magenta*1.5 eltblue*1.2) ///
-								lp(solid dash solid dash solid dash solid) ///
-								lwidth(thick thick thick thick thick thick thick) title("Uganda", size(large)) ///
+	twoway 					(fpfitci farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(fpfitci wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%25) alw(none) ) ///
+								(fpfitci nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%25) alw(none) ) ///
+								(fpfitci rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%25) alw(none) ) ///
+								(fpfitci asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%25) alw(none) ) ///
+								(fpfitci save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%25) alw(none) ) ///
+								(fpfitci pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%25) alw(none) ///
+								title("Uganda", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
-								xlabel(5 "2019" 6 "Jun20" 8 "Aug20" 9 "Sep20" 11 "Nov20" 14 "Feb21", nogrid angle(45) ///
-								labs(medlarge)) xtitle(" ") name(uga_emp_line, replace)
+								ytitle("", size(medlarge)) ///
+								xlabel(5 "2019" 6 "Jun20" 8 "Aug20" 9 "Sep20" 11 "Nov20" 14 "Feb21", ///
+								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (2 "Farm") ///
+								label (4 "Wages") label (6 "Non-Farm Enterprise") label (8 "Remittances") ///
+								label (10 "Assistance and Other") label (12 "Savings and Investments") ///
+								label (14 "Pension") pos(6) col(4) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
+								name(uga_emp_fit, replace)
 	restore 
 	
-	grc1leg2 				eth_emp_line mwi_emp_line nga_emp_line uga_emp_line, col(2) commonscheme iscale(.5)
-	graph export 			"$export/figures/ind1_sources_time.png", as(png) replace
+	grc1leg2 				eth_emp_fit mwi_emp_fit nga_emp_fit uga_emp_fit, col(2) commonscheme iscale(.5)
+	graph export 			"$export/figures/ind1_sources_time.pdf", as(pdf) replace
 	
 * Kernel density graphs for each index
 	foreach 			c in 1 2 3 4 {

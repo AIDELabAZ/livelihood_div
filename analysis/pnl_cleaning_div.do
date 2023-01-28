@@ -1,8 +1,8 @@
 * Project: DIVERSIFICATION
 * Created on: Sept 2021
 * Created by: amf
-* Edited by: amf
-* Last edit: 24 Sept 2021
+* Edited by: jdm
+* Last edit: 27 jan 2021
 * Stata v.17.0
 
 
@@ -816,21 +816,21 @@
 preserve 
 
 * import data from https://ourworldindata.org/covid-stringency-index
-	insheet 			using "$data\shocks\raw\covid_stringency_index.csv", clear
-	keep 				if entity == "Ethiopia" | entity == "Malawi" | ///
-							entity == "Nigeria" | entity == "Uganda"
-	gen 				country = 1 if entity == "Ethiopia"
-	replace 			country = 2 if entity == "Malawi"
-	replace 			country = 3 if entity == "Nigeria" 
-	replace 			country = 4 if entity == "Uganda" 
+	insheet 			using "$data/shocks/raw/covid_stringency_index.csv", clear
+	keep 				if location == "Ethiopia" | location == "Malawi" | ///
+							location == "Nigeria" | location == "Uganda"
+	gen 				country = 1 if location == "Ethiopia"
+	replace 			country = 2 if location == "Malawi"
+	replace 			country = 3 if location == "Nigeria" 
+	replace 			country = 4 if location == "Uganda" 
 							
 * generate day month year variables
-	split 				day, parse("/")
-	drop 				day
-	destring 			day*, replace
-	rename 				day1 month
-	rename 				day2 day
-	rename 				day3 year
+	split 				date, parse("-")
+	drop 				date
+	destring 			date*, replace
+	rename 				date1 year
+	rename 				date2 month
+	rename 				date3 day
 	
 * bin data to match waves (from end date of prior wave to end date of current wave)
 	* ethiopia 
