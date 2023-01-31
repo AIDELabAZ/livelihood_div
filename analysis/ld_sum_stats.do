@@ -46,7 +46,7 @@
 * **********************************************************************
 **# tables
 * **********************************************************************	
-* Aggregate 
+**## Aggregate 
 preserve
 	gen 				geo = ea if country != 2
 	replace 			geo = ta_code if country == 2
@@ -139,7 +139,7 @@ preserve
 	restore 					
 
 
-* Sector 	
+**## Sector 	
 preserve
 	gen 				geo = ea if country != 2
 	replace 			geo = ta_code if country == 2
@@ -263,7 +263,7 @@ preserve
 	}
 	restore 					
 
-* Gender HOH
+**## Gender HOH
 preserve
 	gen 				geo = ea if country != 2
 	replace 			geo = ta_code if country == 2
@@ -390,53 +390,40 @@ preserve
 **# figures
 * **********************************************************************	
 
-* stringency index
+**## stringency index	
 	preserve 
 	drop 				if wave_orig < 1
-	foreach 			c in 1 2 3 4 {
-		if 					`c' == 1 {
-			local 			t = "Ethiopia"
-			local 			s = "Stringency Score"
-		}
-		if 					`c' == 2 {
-			local 			t = "Malawi"
-			local 			s = " "
-		}
-		if 					`c' == 3 {
-			local 			t = "Nigeria"
-			local 			s = "Stringency Score"
-		}
-		if 					`c' == 4 {
-			local 			t = "Uganda"
-			local 			s = " "
-		}
-		graph bar 			(mean) stringency_index [pweight = weight] if country == `c', ///
-								over(wave, lab(labs(med) angle(45))) title("`t'", size(large)) ///
-								bar(1, color(teal*1.3)) ytitle("`s'", size(med)) ///
-								legend(label(1 "Male") label(2 "Female") col(2)) ///
-								ylabel(0 "0" 20 "20" 40 "40" 60 "60" 80 "80" 100 "100", labs(med))  ///
-								name(stringency_`c', replace)	
-	}
+		twoway 			(line stringency_index wave [pweight = weight] if country == 1, sort lcolor(teal*1.3) clp(solid)) ///
+							(line stringency_index wave [pweight = weight] if country == 2, sort lcolor(lavender*1.3) clp(dash)) ///
+							(line stringency_index wave [pweight = weight] if country == 3, sort lcolor(olive*1.3) clp(dash_dot)) ///
+							(line stringency_index wave [pweight = weight] if country == 4, sort lcolor(sienna*1.5) clp(dot) ///
+							ytitle("Stringency Score", size(med)) xlabel(4 "Apr20" 5 "May20" 6 "Jun20" ///
+							7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20" 11 "Nov20" 12 "Dec20" ///
+							13 "Jan21" 14 "Feb21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
+							nogrid angle(45) labs(med)) xtitle(" ") ///
+							ylabel(0 "0" 20 "20" 40 "40" 60 "60" 80 "80" 100 "100", labs(med)) ), ///
+							legend(label (1 "Ethiopia") label (2 "Malawi") label (3 "Nigeria") ///
+							label (4 "Uganda") pos(6) col(4) size(small) margin(-1.5 0 0 0)) ///
+							name(stringency, replace)
+							
 	
-	gr combine 			stringency_1 stringency_2 stringency_3 stringency_4, commonscheme col(2)
-	gr export 			"$export/figures/stringency.png", as(png) replace
-	restore 
+	gr export 			"$export/figures/stringency.pdf", as(pdf) replace
+	restore 	
 	
-* income sources over time 
+	
+**## income sources over time 
 	* Ethiopia
 	preserve
 	keep 					if country == 1
 	replace 				wave = 3 if wave == 0
 	drop 					if wave > 10
-	collapse 				(mean) farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp [pweight = weight], by(country wave)
-	twoway 					(fpfitci farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%25) alw(none) ) ///
-								(fpfitci wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%25) alw(none) ) ///
-								(fpfitci nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%25) alw(none) ) ///
-								(fpfitci rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%25) alw(none) ) ///
-								(fpfitci asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%25) alw(none) ) ///
-								(fpfitci save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%25) alw(none) ) ///
-								(fpfitci pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%25) alw(none) ///
+	twoway 					(fpfitci farm_std_pp wave [pweight = weight], lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(fpfitci wage_std_pp wave [pweight = weight], lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
+								(fpfitci nfe_std_pp wave [pweight = weight], lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
+								(fpfitci rem_std_pp wave [pweight = weight], lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
+								(fpfitci asst_std_pp wave [pweight = weight], lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
+								(fpfitci save_std_pp wave [pweight = weight], lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
+								(fpfitci pen_std_pp wave [pweight = weight], lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
 								title("Ethiopia", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
 								ytitle("Percent Engaged", size(medlarge)) ///
@@ -454,15 +441,13 @@ preserve
 	keep 					if country == 2
 	replace 				wave = 5 if wave == 0
 	drop 					if wave > 18
-	collapse 				(mean) farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp [pweight = weight], by(country wave)
-	twoway 					(fpfitci farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%25) alw(none) ) ///
-								(fpfitci wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%25) alw(none) ) ///
-								(fpfitci nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%25) alw(none) ) ///
-								(fpfitci rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%25) alw(none) ) ///
-								(fpfitci asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%25) alw(none) ) ///
-								(fpfitci save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%25) alw(none) ) ///
-								(fpfitci pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%25) alw(none) ///
+	twoway 					(fpfitci farm_std_pp wave [pweight = weight], lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(fpfitci wage_std_pp wave [pweight = weight], lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
+								(fpfitci nfe_std_pp wave [pweight = weight], lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
+								(fpfitci rem_std_pp wave [pweight = weight], lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
+								(fpfitci asst_std_pp wave [pweight = weight], lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
+								(fpfitci save_std_pp wave [pweight = weight], lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
+								(fpfitci pen_std_pp wave [pweight = weight], lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
 								title("Malawi", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
 								ytitle("", size(medlarge)) ///
@@ -480,15 +465,13 @@ preserve
 	keep 					if country == 3
 	replace 				wave = 4 if wave == 0
 	drop 					if wave > 13 | wave < 4
-	collapse 				(mean) farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp [pweight = weight], by(country wave)
-	twoway 					(fpfitci farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
-								(fpfitci wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%25) alw(none) ) ///
-								(fpfitci nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%25) alw(none) ) ///
-								(fpfitci rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%25) alw(none) ) ///
-								(fpfitci asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%25) alw(none) ) ///
-								(fpfitci save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%25) alw(none) ) ///
-								(fpfitci pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%25) alw(none) ///
+	twoway 					(fpfitci farm_std_pp wave [pweight = weight], lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(fpfitci wage_std_pp wave [pweight = weight], lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
+								(fpfitci nfe_std_pp wave [pweight = weight], lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
+								(fpfitci rem_std_pp wave [pweight = weight], lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
+								(fpfitci asst_std_pp wave [pweight = weight], lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
+								(fpfitci save_std_pp wave [pweight = weight], lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
+								(fpfitci pen_std_pp wave [pweight = weight], lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
 								title("Nigeria", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
 								ytitle("Percent Engaged", size(medlarge)) ///
@@ -505,15 +488,13 @@ preserve
 	keep 					if country == 4
 	replace 				wave = 5 if wave == 0
 	drop 					if wave > 14 
-	collapse 				(mean) farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp [pweight = weight], by(country wave)
-	twoway 					(fpfitci farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
-								(fpfitci wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%25) alw(none) ) ///
-								(fpfitci nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%25) alw(none) ) ///
-								(fpfitci rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%25) alw(none) ) ///
-								(fpfitci asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%25) alw(none) ) ///
-								(fpfitci save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%25) alw(none) ) ///
-								(fpfitci pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%25) alw(none) ///
+	twoway 					(fpfitci farm_std_pp wave [pweight = weight], lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(fpfitci wage_std_pp wave [pweight = weight], lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
+								(fpfitci nfe_std_pp wave [pweight = weight], lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
+								(fpfitci rem_std_pp wave [pweight = weight], lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
+								(fpfitci asst_std_pp wave [pweight = weight], lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
+								(fpfitci save_std_pp wave [pweight = weight], lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
+								(fpfitci pen_std_pp wave [pweight = weight], lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
 								title("Uganda", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
 								ytitle("", size(medlarge)) ///
@@ -528,7 +509,7 @@ preserve
 	grc1leg2 				eth_emp_fit mwi_emp_fit nga_emp_fit uga_emp_fit, col(2) commonscheme iscale(.5)
 	graph export 			"$export/figures/ind1_sources_time.pdf", as(pdf) replace
 	
-* Kernel density graphs for each index
+**## Kernel density graphs for each index
 	foreach 			c in 1 2 3 4 {
 		if `c' == 1 {
 			local 			x = "eth"
@@ -609,7 +590,7 @@ preserve
 	gr combine 			eth_hhi mwi_hhi nga_hhi uga_hhi, col(2) commonscheme		
 	graph export 		"$export/figures/ind6_density.png", as(png) replace
 	
-* Kernel density graphs of HHI by gender and sector
+**## Kernel density graphs of HHI by gender and sector
 	foreach 			c in 1 2 3 4 {
 		if `c' == 1 {
 			local 			x = "eth"
@@ -789,7 +770,7 @@ preserve
 		grc1leg2 				eth_hhi_sec mwi_hhi_sec nga_hhi_sec uga_hhi_sec, col(2) commonscheme 			
 		graph export 			"$export/figures/hhi_density_sec.png", as(png) replace
 
-* index 1 over time 	
+**## index 1 over time 	
 	foreach 			c in `countries'  {
 		if `c' == 1 {
 			local 			x = "eth"
@@ -845,7 +826,7 @@ preserve
 	gr export 				"$export/figures/std_pp_index_time.png", as(png) replace
 		
 		
-* index 1 over time by sector	
+**## index 1 over time by sector	
 	gen 				std_pp_index_sec1 = std_pp_index if sector == 1
 	gen 				std_pp_index_sec2 = std_pp_index if sector == 2
 	foreach 			c in `countries'  {
@@ -904,7 +885,7 @@ preserve
 								col(2) commonscheme 
 	gr export 				"$export/figures/std_pp_index_time_sector.png", as(png) replace
 
-* index 1 over time by sex	
+**## index 1 over time by sex	
 	gen 				std_pp_index_sex1 = std_pp_index if sexhh == 1
 	gen 				std_pp_index_sex2 = std_pp_index if sexhh == 2
 	foreach 			c in `countries'  {
@@ -949,73 +930,68 @@ preserve
 	gr export 				"$export/figures/std_pp_index_time_sex.png", as(png) replace	
 	
 	
-* FIES
+**# FIES
 	* Ethiopia
-	preserve 
+	preserve
 	keep 					if country == 1
-	foreach 				x in mild mod sev {
-		egen 					`x'_fs_mean = mean(`x'_fs), by(country wave)
-	}
 	replace 				wave = 4 if wave == 0
-	drop 					if wave > 10
-	line					 mild_fs_mean mod_fs_mean sev_fs_mean wave [pweight = weight], ///
-								sort(wave) lcolor(cranberry*.4 cranberry*.8 cranberry*1.6) ///
-								lwidth(vthick vthick vthick) title("Ethiopia", size(large)) ///
-								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
+	drop 					if wave > 10	
+	
+	twoway 					(fpfitci mild_fs wave [pweight = weight], lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
+								(fpfitci mod_fs wave [pweight = weight], lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
+								(fpfitci sev_fs wave [pweight = weight], lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
+								title("Ethiopia", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
 								ytitle("Percent Reporting Food Insecurity", size(small)) ///
 								xlabel(4 "2019" 5 "May20" 6 "Jun20" 7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20", ///
-								nogrid angle(45) labs(small)) xtitle(" ") legend(label (1 "Mild Food Insecurity") ///
-								label (2 "Moderate Food Insecurity") label (3 "Severe Food Insecurity") ///
-								pos(6) col(3) size(small) margin(-1.5 0 0 0)) name(eth_fies, replace)
-	restore 
-
+								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (2 "Mild Food Insecurity") ///
+								label (4 "Moderate Food Insecurity") label (6 "Severe Food Insecurity") ///
+								pos(6) col(3) size(small) margin(-1.5 0 0 0) order(2 4 6)) name(eth_fies, replace)
+							
+	restore 		
+	
 	* Malawi
-	preserve 
+	preserve
 	keep 					if country == 2
-	foreach 				x in mild mod sev {
-		egen 					`x'_fs_mean = mean(`x'_fs), by(country wave)
-	}
 	replace 				wave = 5 if wave == 0
 	replace 				wave = 17 if wave == 18
-
-	line					 mild_fs_mean mod_fs_mean sev_fs_mean wave [pweight = weight], ///
-								sort(wave) lcolor(cranberry*.4 cranberry*.8 cranberry*1.6) ///
-								lwidth(vthick vthick vthick) title("Malawi", size(large)) ///
-								yscale(range(0(.2) 1)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", ///
-								nogrid labs(small)) ///
+	
+	twoway 					(fpfitci mild_fs wave [pweight = weight], lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
+								(fpfitci mod_fs wave [pweight = weight], lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
+								(fpfitci sev_fs wave [pweight = weight], lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
+								title("Malawi", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
+								ytitle(" ", size(small)) ///
 								xlabel(5 "2019" 6 "Jun20" 7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20" 11 "Nov20" ///
 								12 "Dec20" 13 "Jan21" 14 "Feb21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
-								nogrid angle(45) labs(small)) xtitle(" ") legend(label (1 "Mild Food Insecurity") ///
-								label (2 "Moderate Food Insecurity") label (3 "Severe Food Insecurity") ///
-								pos(6) col(3) size(small) margin(-1.5 0 0 0)) name(mwi_fies, replace)
-	restore 
-
+								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (2 "Mild Food Insecurity") ///
+								label (4 "Moderate Food Insecurity") label (6 "Severe Food Insecurity") ///
+								pos(6) col(3) size(small) margin(-1.5 0 0 0) order(2 4 6)) name(mwi_fies, replace)
+							
+	restore
+	
 	* Nigeria
-	preserve 
+	preserve
 	keep 					if country == 3
 	drop 					if mild_fs >= .
-	foreach 				x in mild mod sev {
-		egen 					`x'_fs_mean = mean(`x'_fs), by(country wave)
-	}
 	replace 				wave = 4 if wave == -1
 	replace 				wave = 5 if wave == 0
-
-	line					 mild_fs_mean mod_fs_mean sev_fs_mean wave [pweight = weight], ///
-								sort(wave) lcolor(cranberry*.4 cranberry*.8 cranberry*1.6) ///
-								lwidth(vthick vthick vthick) title("Nigeria", size(large)) ///
-								yscale(range(0(.2) 1)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", ///
-								nogrid labs(small)) ///
-								xlabel(4 "2019pp" 5 "2019ph" 6 "Jun20" 7 "Jul20" 8 "Aug20" ///
-								9 "Sep20" 10 "Oct20" 11 "Nov20", nogrid angle(45) labs(small)) ///
-								xtitle(" ") legend(label (3 "Mild Food Insecurity") ///
-								label (2 "Moderate Food Insecurity") label (1 "Severe Food Insecurity") ///
-								pos(6) col(3) size(small) margin(-1.5 0 0 0)) name(nga_fies, replace)
-	restore 
-
-	grc1leg2 			eth_fies mwi_fies nga_fies, col(3) commonscheme name(fies_line, replace)			
-	graph export 		"$export/figures/fies_line.png", as(png) replace
 	
-* Education	
+	twoway 					(fpfitci mild_fs wave [pweight = weight], lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
+								(fpfitci mod_fs wave [pweight = weight], lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
+								(fpfitci sev_fs wave [pweight = weight], lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
+								title("Nigeria", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
+								ytitle(" ", size(small)) ///
+								xlabel(4 "2019pp" 5 "2019ph" 6 "Jun20" 7 "Jul20" 8 "Aug20" ///
+								9 "Sep20" 10 "Oct20" 11 "Nov20", ///
+								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (2 "Mild Food Insecurity") ///
+								label (4 "Moderate Food Insecurity") label (6 "Severe Food Insecurity") ///
+								pos(6) col(3) size(small) margin(-1.5 0 0 0) order(2 4 6)) name(nga_fies, replace)
+							
+	restore
+	
+	grc1leg2 			eth_fies mwi_fies nga_fies, col(3) commonscheme name(fies_line, replace)			
+	graph export 		"$export/figures/fies_line.pdf", as(pdf) replace
+	
+**## Education	
 	catplot 			edu_act wave country [aweight = weight_child] if country == 1, percent(wave) stack ///
 							bar(1, color(maroon*1.5)) bar(2, color(stone*1.5)) ytitle(" ") ///
 							var1opts(label(labsize(large))) var3opts(label(angle(90) labsize(large))) ///
