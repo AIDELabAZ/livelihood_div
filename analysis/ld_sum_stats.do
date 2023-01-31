@@ -400,8 +400,8 @@ preserve
 							ytitle("Stringency Score", size(med)) xlabel(4 "Apr20" 5 "May20" 6 "Jun20" ///
 							7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20" 11 "Nov20" 12 "Dec20" ///
 							13 "Jan21" 14 "Feb21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
-							nogrid angle(45) labs(med)) xtitle(" ") ///
-							ylabel(0 "0" 20 "20" 40 "40" 60 "60" 80 "80" 100 "100", labs(med)) ), ///
+							nogrid angle(45) labs(medium)) xtitle(" ") ///
+							ylabel(0 "0" 20 "20" 40 "40" 60 "60" 80 "80" 100 "100", labs(medium)) ), ///
 							legend(label (1 "Ethiopia") label (2 "Malawi") label (3 "Nigeria") ///
 							label (4 "Uganda") pos(6) col(4) size(small) margin(-1.5 0 0 0)) ///
 							name(stringency, replace)
@@ -410,7 +410,27 @@ preserve
 	gr export 			"$export/figures/stringency.pdf", as(pdf) replace
 	restore 	
 	
+**## index 1 over time 	
+	preserve 
+	drop 				if wave_orig < 0
+	replace 			wave = 3 if wave == 0
+		twoway 			(fpfitci std_pp_index wave [pweight = weight] if country == 1, sort lcolor(teal*1) clp(solid) fc(teal%75) alw(none) ) ///
+							(fpfitci std_pp_index wave [pweight = weight] if country == 2, sort lcolor(lavender*1) clp(dash) fc(lavender%75) alw(none) ) ///
+							(fpfitci std_pp_index wave [pweight = weight] if country == 3, sort lcolor(olive*1) clp(dash_dot) fc(olive%75) alw(none) ) ///
+							(fpfitci std_pp_index wave [pweight = weight] if country == 4, sort lcolor(senna*1) clp(dot) fc(sieanna%75) alw(none) ///
+							ytitle("Specialization Index", size(med)) xlabel(3 "2019" 4 "Apr20" 5 "May20" 6 "Jun20" ///
+							7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20" 11 "Nov20" 12 "Dec20" ///
+							13 "Jan21" 14 "Feb21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
+							nogrid angle(45) labs(medium)) xtitle(" ") ///
+							ylabel(0 "0" .20 "20" .40 "40" .60 "60" .80 "80" 1 "100", labs(medium)) ), ///
+							legend(label (2 "Ethiopia") label (4 "Malawi") label (6 "Nigeria") ///
+							label (8 "Uganda") pos(6) col(4) order(2 4 6 8) size(small) margin(-1.5 0 0 0)) ///
+							name(index1_time, replace)
+							
 	
+	gr export 			"$export/figures/index1_time.pdf", as(pdf) replace
+	restore 	
+						
 **## income sources over time 
 	* Ethiopia
 	preserve
@@ -537,58 +557,58 @@ preserve
 		}
 		* index 1
 		kdensity 			 std_pp_index if country == `c' & wave == 0 [aweight = weight], ///
-								color(navy%30) recast(area) ///
+								color(navy%30) recast(area) note("") bwidth(.04) ///
 								xtitle("`s'", size(medsmall)) ytitle("`a'") title("`t'", size(medlarge)) ///
 								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) ///
-								xlabel(, nogrid labsize(small)) bwidth(.04) name(`x'_std_pp, replace)
+								xlabel(, nogrid labsize(small)) name(`x'_std_pp, replace)
 		* index 2						
 		kdensity 			 `x'_pp_index if country == `c' & wave == 0 [aweight = weight], ///
-								color(navy%30) recast(area) ///
+								color(navy%30) recast(area) note("") ///
 								xtitle("`s'", size(medsmall)) ytitle("`a'") title("`t'", size(medlarge)) ///
 								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) bwidth(.04) ///
 								xlabel(, nogrid labsize(small)) name(`x'_pp, replace)
 		* index 3
 		kdensity 			 std_pre_index_frac if country == `c' & wave == 0 [aweight = weight], ///
-								color(navy%30) recast(area) ///
+								color(navy%30) recast(area) note("") bwidth(.04) ///
 								xtitle("`s'", size(medsmall)) ytitle("`a'") title("`t'", size(medlarge)) ///
 								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) ///
-								xlabel(, nogrid labsize(small)) bwidth(.04) name(`x'_std_frac, replace)
+								xlabel(, nogrid labsize(small)) name(`x'_std_frac, replace)
 		* index 4						
 		kdensity 			 std_pre_index_hhi if country == `c' & wave == 0 [aweight = weight], ///
-								color(navy%30) recast(area) ///
+								color(navy%30) recast(area) note("") ///
 								xtitle("`s'", size(medsmall)) ytitle("`a'") title("`t'", size(medlarge)) ///
 								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) ///
 								xlabel(, nogrid labsize(small)) name(`x'_std_hhi, replace)
 		* index 5
 		kdensity 			`x'_pre_index_geo if wave == 0 [aweight = weight], color(navy%30) recast(area) ///
 								xtitle("`s'", size(medsmall)) ytitle("`a'") title("`t'", size(medlarge)) ///
-								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) ///
+								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) note("") ///
 								xlabel(, nogrid labsize(small)) name(`x'_geo, replace)
 		* index 6
 		kdensity 			`x'_pre_index_hhi if wave == 0 [aweight = weight], color(navy%30) recast(area) ///
 								xtitle("`s'", size(medsmall)) ytitle("`a'") title("`t'", size(medlarge)) ///
-								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) ///
+								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) note("") ///
 								xlabel(, nogrid labsize(small)) name(`x'_hhi, replace)
 	}	
 	
 	* export graphics by index type
 	gr combine 			eth_std_pp mwi_std_pp nga_std_pp  uga_std_pp, col(2) commonscheme		
-	graph export 		"$export/figures/ind1_density.png", as(png) replace
+	graph export 		"$export/figures/ind1_density.pdf", as(pdf) replace
 	
 	gr combine 			eth_pp mwi_pp nga_pp uga_pp, col(2) commonscheme		
-	graph export 		"$export/figures/ind2_density.png", as(png) replace	
+	graph export 		"$export/figures/ind2_density.pdf", as(pdf) replace	
 	
 	gr combine 			eth_std_frac mwi_std_frac nga_std_frac uga_std_frac, col(2) commonscheme		
-	graph export 		"$export/figures/ind3_density.png", as(png) replace	
+	graph export 		"$export/figures/ind3_density.pdf", as(pdf) replace	
 	
 	gr combine 			eth_std_hhi mwi_std_hhi nga_std_hhi uga_std_hhi, col(2) commonscheme		
-	graph export 		"$export/figures/ind4_density.png", as(png) replace
+	graph export 		"$export/figures/ind4_density.pdf", as(pdf) replace
 	
 	gr combine 			eth_geo mwi_geo nga_geo uga_geo, col(2) commonscheme		
-	graph export 		"$export/figures/ind5_density.png", as(png) replace	
+	graph export 		"$export/figures/ind5_density.pdf", as(pdf) replace	
 	
 	gr combine 			eth_hhi mwi_hhi nga_hhi uga_hhi, col(2) commonscheme		
-	graph export 		"$export/figures/ind6_density.png", as(png) replace
+	graph export 		"$export/figures/ind6_density.pdf", as(pdf) replace
 	
 **## Kernel density graphs of HHI by gender and sector
 	foreach 			c in 1 2 3 4 {
@@ -770,7 +790,8 @@ preserve
 		grc1leg2 				eth_hhi_sec mwi_hhi_sec nga_hhi_sec uga_hhi_sec, col(2) commonscheme 			
 		graph export 			"$export/figures/hhi_density_sec.png", as(png) replace
 
-**## index 1 over time 	
+
+**## index 1 over time 		
 	foreach 			c in `countries'  {
 		if `c' == 1 {
 			local 			x = "eth"
@@ -799,7 +820,7 @@ preserve
 								over(wave, lab(labs(med) angle(45))) title("`t'", size(large)) ///
 								bar(2, color(maroon*1.5)) bar(1, color(gray*1.3)) ///
 								ytitle("", margin( 0 -1 -1 10) size(small)) ///
-								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(med))  ///
+								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(medium))  ///
 								legend(label(1 "Mean of Specialization Index")) ///
 								name(std_pp_index_time_`c', replace)	
 		restore 
@@ -858,7 +879,7 @@ preserve
 								bar(2, color(maroon*1.5)) bar(1, color(gray*1.3)) ///
 								ytitle("`s'", margin( 0 -1 -1 10) size(small)) ///
 								legend(label(1 "Rural") label(2 "Urban") col(2)) ///
-								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(med))  ///
+								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(medium))  ///
 								name(std_pp_index_time_sec_`c', replace)	
 		restore 
 	}
@@ -917,7 +938,7 @@ preserve
 								bar(2, color(eltblue*1.5)) bar(1, color(gray*1.3)) ///
 								ytitle("`s'", margin( 0 -1 -1 10) size(small)) ///
 								legend(label(1 "Male") label(2 "Female") col(2)) ///
-								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(med))  ///
+								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(medium))  ///
 								name(std_pp_index_time_sex_`c', replace)	
 		restore 
 	}
@@ -949,6 +970,7 @@ preserve
 							
 	restore 		
 	
+
 	* Malawi
 	preserve
 	keep 					if country == 2
@@ -991,30 +1013,63 @@ preserve
 	grc1leg2 			eth_fies mwi_fies nga_fies, col(3) commonscheme name(fies_line, replace)			
 	graph export 		"$export/figures/fies_line.pdf", as(pdf) replace
 	
-**## Education	
-	catplot 			edu_act wave country [aweight = weight_child] if country == 1, percent(wave) stack ///
-							bar(1, color(maroon*1.5)) bar(2, color(stone*1.5)) ytitle(" ") ///
-							var1opts(label(labsize(large))) var3opts(label(angle(90) labsize(large))) ///
-							legend(col(2) margin(-1.5 0 0 0)) name(eth_edu, replace)
+		twoway 			(line stringency_index wave [pweight = weight] if country == 1, sort lcolor(teal*1.3) clp(solid)) ///
+							(line stringency_index wave [pweight = weight] if country == 2, sort lcolor(lavender*1.3) clp(dash)) ///
+							(line stringency_index wave [pweight = weight] if country == 3, sort lcolor(olive*1.3) clp(dash_dot)) ///
+							(line stringency_index wave [pweight = weight] if country == 4, sort lcolor(sienna*1.5) clp(dot) ///
 							
-	catplot 			edu_act wave country [aweight = weight_child] if country == 2, percent(wave) stack ///
-							bar(1, color(maroon*1.5)) bar(2, color(stone*1.5)) ytitle(" ") ///
-							var1opts(label(labsize(large))) var3opts(label(angle(90) labsize(large))) ///
-							legend(col(2) margin(-1.5 0 0 0)) name(mwi_edu, replace)
+**# Education
+	levelsof		country, local(levels)
+	foreach			i of local levels {
+		reg 			edu_act i.wave [pweight = weight] if country == `i' & wave != -1, ///
+							vce(cluster hhid)
+		eststo 			wave_edu`i'
+	}
+	
+	* Ethiopia
+	coefplot			wave_edu1, msymbol(S) vertical base drop(_cons) ///
+							mcolor(black) mfcolor(blackl) lcolor(black) ciopts(color(black) ///
+							lp(shortdash) lwidth(*1) lcolor(black) ) yline(0, lcolor(maroon)) ///
+							levels(95) xtitle(" ") recast(line) ///
+							ytitle("Estimated Percent of Child Educational Engagement")  ///
+							title("Ethiopia") yscale(r(-.86 .14)) ylab(-.86(0.2).14) ///
+							ylab(.14 "100" -.06 "80" -.26 "60" -.46 "40" -.66 "20" -.86 "0") ///
+							xlabel(, angle(45)) legend(off) name(eth_edu, replace)	
 							
-	catplot 			edu_act wave country [aweight = weight_child] if country == 3, percent(wave) stack ///
-							bar(1, color(maroon*1.5)) bar(2, color(stone*1.5)) ytitle(" ") ///
-							var1opts(label(labsize(large))) var3opts(label(angle(90) labsize(large))) ///
-							name(nga_edu, replace)	
-	
-	catplot 			edu_act wave country [aweight = weight_child] if country == 4, percent(wave) stack ///
-							bar(1, color(maroon*1.5)) bar(2, color(stone*1.5)) ytitle("Percent", size(small)) ///
-							var1opts(label(labsize(large))) var3opts(label(angle(90) labsize(large))) ///
-							name(uga_edu, replace) 
-	
-	grc1leg2 			eth_edu mwi_edu nga_edu uga_edu, col(1) iscale(.5) commonscheme imargin(0 0 0 0)				
-	graph export 		"$export/figures/edu_bar.png", as(png) replace 
+	* Malawi
+	coefplot			wave_edu2, msymbol(S) vertical base drop(_cons) ///
+							mcolor(black) mfcolor(blackl) lcolor(black) ciopts(color(black) ///
+							lp(shortdash) lwidth(*1) lcolor(black) ) yline(0, lcolor(maroon)) ///
+							levels(95) xtitle(" ") recast(line) ///
+							ytitle(" ")  ///
+							title("Malawi") yscale(r(-.97 .03)) ylab(-.97(0.2).03) ///
+							ylab(.03 "100" -.17 "80" -.37 "60" -.57 "40" -.77 "20" -.97 "0") ///
+							xlabel(, angle(45)) legend(off) name(mwi_edu, replace)	
+							
+	* Nigeria
+	coefplot			wave_edu3, msymbol(S) vertical base drop(_cons) ///
+							mcolor(black) mfcolor(blackl) lcolor(black) ciopts(color(black) ///
+							lp(shortdash) lwidth(*1) lcolor(black) ) yline(0, lcolor(maroon)) ///
+							levels(95) xtitle(" ") recast(line) ///
+							ytitle("Estimated Percent of Child Educational Engagement")  ///
+							title("Nigeria") yscale(r(-.89 .11)) ylab(-.89(0.2)0.11) ///
+							ylab(.11 "100" -.09 "80" -.29 "60" -.49 "40" -.69 "20" -.89 "0") ///
+							xlabel(, angle(45)) legend(off) name(nga_edu, replace)	
+							
+	* Uganda
+	coefplot			wave_edu4, msymbol(S) vertical base drop(_cons) ///
+							mcolor(black) mfcolor(blackl) lcolor(black) ciopts(color(black) ///
+							lp(shortdash) lwidth(*1) lcolor(black) ) yline(0, lcolor(maroon)) ///
+							levels(95) xtitle(" ") recast(line) ///
+							ytitle(" ")  ///
+							title("Uganda") yscale(r(-.89 .11)) ylab(-.89(0.2)0.11) ///
+							ylab(.11 "100" -.09 "80" -.29 "60" -.49 "40" -.69 "20" -.89 "0") ///
+							xlabel(, angle(45)) legend(off) name(uga_edu, replace)	
 
+
+	graph combine 			eth_edu mwi_edu nga_edu uga_edu, col(2) iscale(.5) commonscheme imargin(0 0 0 0)				
+	graph export 		"$export/figures/edu_engage.pdf", as(pdf) replace 
+	
 	
 ************************************************************************
 **# sectors summary wages & NFE
