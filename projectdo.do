@@ -113,7 +113,7 @@ if $pack == 0 {
 	
 	
 * run panel cleaning 
-	run 				"$code/analysis/pnl_cleaning_div"
+	//run 				"$code/analysis/pnl_cleaning_div"
 	
 	
 * **********************************************************************

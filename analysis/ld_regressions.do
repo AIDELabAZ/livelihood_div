@@ -3,8 +3,8 @@
 * Project: diversification
 * Created on: Jan 2022
 * Created by: amf
-* Edited by: jdm, amf, alj
-* Last edited: 19 September 2022
+* Edited by: jdm
+* Last edited: 6 February 2023
 * Stata v.17.0
 
 * does
@@ -178,7 +178,7 @@
 
 	grc1leg2  				std_pp_index_fs_dyn_eth std_pp_index_fs_dyn_mwi, ///
 								col(2) commonscheme
-	graph export			"$export/figures/reg_results/dyn_fs_index1.png", as(png) replace
+	graph export			"$export/figures/dyn_fs_index1.pdf", as(pdf) replace
 	
 
 * education - index 1 and 2
@@ -714,15 +714,19 @@ eststo 					clear
 	}
 
 		coefplot			edu_anc_std_pre_index_hhi1 edu_anc_std_pre_index_hhi2 edu_anc_std_pre_index_hhi3 edu_anc_std_pre_index_hhi4, ///
-								drop(*.wave y0_edu_act _cons) ///
-								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
-								xtitle("`xt'") title("HHI") ///
-								levels(95) coeflabels(std_pre_index_hhi = "HHI", notick) xlabel(-.2(.05).2, labs(small))  ///
+								drop(*.wave y0_edu_act _cons) xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(medium)) ///
+								xtitle("Effect on Educational Engagement") title("HHI") swapnames ///
+								coeflabel(edu_anc_std_pre_index_hhi1 = "Ethiopia" edu_anc_std_pre_index_hhi2 = "Malawi") ///
+								levels(95) xlabel(-.2(.05).2, labs(small))  ///
 								legend(off) name(edu_anc_cty, replace)
 *** this figure is not currently replicable as in the paper - still working on labels 
 *** only figure labels are included afterwards - order = alphabetical: ethiopia, malawi, nigeria, uganda 
 	
-	restore 
+	restore coeflabels(1.post#2.`het'#c.std_pre_frac = "Index 3" ///
+								1.post#2.`het'#c.std_pre_hhi = "Index 4" ///
+								1.post#2.`het'#c.pre_frac = "Index 5" ///
+								1.post#2.`het'#c.pre_hhi = "Index 6", notick) ///
+								xlabel(-1(.2)1, labs(small))  ///
 	
 * **********************************************************************
 **# ANOCOVA & DID (indices 3-6) - heterogeneous effects (robust - app)
