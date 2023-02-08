@@ -2,7 +2,7 @@
 * Created on: Jan 2022
 * Created by: amf
 * Edited by: jdm
-* Last edited: 7 February 2023
+* Last edited: 8 February 2023
 * Stata v.17.0
 
 * does
@@ -251,8 +251,7 @@
 	* generate table
 	esttab 					std_pp_index_edu_dyn_1 std_pp_index_edu_dyn_2 std_pp_index_edu_dyn_3 std_pp_index_edu_dyn_4 ///
 								using "$export/tables/dyn_edu.tex", b(3) se(3) replace ///
-								prehead("\begin{tabular}{l*{4}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] & " ///
-								"\multicolumn{4}{c}{\textbf{Index 1}} \\ " ///
+								prehead("\begin{tabular}{l*{4}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] " ///
 								"& \multicolumn{1}{c}{Ethiopia} & \multicolumn{1}{c}{Malawi} & \multicolumn{1}{c}{Nigeria} & " ///
 								"\multicolumn{1}{c}{Uganda} \\ ") drop(*wave* _cons) noobs ///
 								booktabs nonum nomtitle collabels(none) nobaselevels nogaps ///
@@ -475,8 +474,7 @@ eststo 					clear
 	* generate table
 	esttab 					std_pp_index_edu_inter_1 std_pp_index_edu_inter_2 std_pp_index_edu_inter_3 std_pp_index_edu_inter_4 ///
 								using "$export/tables/inter_edu.tex", b(3) se(3) replace ///
-								prehead("\begin{tabular}{l*{4}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] & " ///
-								"\multicolumn{4}{c}{\textbf{Index 1}} \\ " ///
+								prehead("\begin{tabular}{l*{4}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] " ///
 								"& \multicolumn{1}{c}{Ethiopia} & \multicolumn{1}{c}{Malawi} & \multicolumn{1}{c}{Nigeria} & " ///
 								"\multicolumn{1}{c}{Uganda} \\ ") drop(*wave* _cons) noobs ///
 								booktabs nonum nomtitle collabels(none) nobaselevels ////
@@ -741,60 +739,76 @@ eststo 					clear
 */
 
 * **********************************************************************
-**# ANOCOVA & DID (indices 3-6) - focus on 4 
+**# ANOCOVA & DID (index 4) 
 * **********************************************************************
+
 graph 					drop _all
 eststo 					clear
-* food security
-	* regressions
+
+
+* **********************************************************************
+**## food security index 4
+* **********************************************************************	
+
+* DID & ANCOVA regressions	
 	preserve 
 	drop 						if wave == -1
 	foreach 					c in 1 2 3 {
 		if 						`c' == 1 {
 			local 					country = "Ethiopia"
+			gen						std_pre_index_hhi_`c' = std_pre_index_hhi
 		}
 		else 					if 	`c' == 2 {
 			local 					country = "Malawi"
+			gen						std_pre_index_hhi_`c' = std_pre_index_hhi
 		}
 		else 					if `c' == 3 {
 			local 					country = "Nigeria"
+			gen						std_pre_index_hhi_`c' = std_pre_index_hhi
 		}
-		foreach 					ind in std_pre_index_frac std_pre_index_hhi pre_index_frac pre_index_hhi {	
 			* ANCOVA	
 			foreach 					f in mild mod sev std {
-				reg 						`f'_fs `ind' y0_`f' ib(1).wave c.wave#i.region ///
+				reg 						`f'_fs std_pre_index_hhi_`c' y0_`f' ib(1).wave c.wave#i.region ///
 												[aweight = weight] if wave != 0 & country == `c', vce(cluster hhid) 
-				eststo						`f'_an_`ind'`c'
+				eststo						`f'_an_std_pre_index_hhi_`c'
 			}
-			* DID
+	/*		* DID
 			foreach 				f in mild mod sev std {
-				reg 					`f'_fs c.`ind'##i.post ib(1).wave c.wave#i.region ///
+				reg 					`f'_fs c.std_pre_index_hhi_`c'##i.post ib(1).wave c.wave#i.region ///
 											[aweight = weight] if country == `c', vce(cluster hhid) 	
-				eststo					`f'_dd_`ind'`c'
-			}	
-		}
-		
-		* graphics generation
-		foreach 					ind in std_pre_index_frac pre_index_frac std_pre_index_hhi pre_index_hhi {
+				eststo					`f'_dd_`ind'`c' 
+		} 
+		*/
+
+		} 
+	restore
+	
+		* generate graphics 
+	coefplot				mild_an_std_pre_index_hhi_1 mod_an_std_pre_index_hhi_1 sev_an_std_pre_index_hhi_1 std_an_std_pre_index_hhi_1, ///
+								drop(*.wave_temp *.country std_pp_index_lag mild_fs_lag mod_fs_lag ///
+								sev_fs_lag std_fs_lag _cons) xline(0, lcolor(maroon)) ///
+								xtitle("Effect on Food Insecurity", size(small)) title("Ethiopia") ///
+								levels(95) coeflabels(c.* = " ", notick) xlabel(-1(.2)1, labs(small)) ///
+								legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
+								label(6 "Severe") label(8 "Index")) name(std_pre_index_hhi_fs_dyn_eth, replace)
+	
+	* graphics generation
 			* coefplot
-				coefplot			mild_an_`ind'`c' mod_an_`ind'`c' sev_an_`ind'`c' std_an_`ind'`c', ///
+				coefplot			mild_an_std_pre_index_hhi_`c' mod_an_std_pre_index_hhi_`c' sev_an_std_pre_index_hhi_`c' std_an_std_pre_index_hhi_`c', ///
 										drop(*.wave y0* _cons *post) xline(0, lcolor(maroon)) ///
 										xtitle("Effect on Food Insecurity", size(small)) title("`country'") ///
-										levels(95) coeflabels(`ind' = " ", notick) xlabel(-0.5(.1)0.5, labs(small)) ///
+										levels(95) coeflabels(std_pre_index_hhi_`c' = " ", notick) xlabel(-0.5(.1)0.5, labs(small)) ///
 										legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
-										label(6 "Severe") label(8 "Index")) name(anc_`ind'_`c', replace)
+										label(6 "Severe") label(8 "Index")) name(anc_std_pre_index_hhi_`c', replace)
 				
-				coefplot			mild_dd_`ind'`c' mod_dd_`ind'`c' sev_dd_`ind'`c' std_dd_`ind'`c', ///
+			/*	coefplot			mild_dd_`ind'`c' mod_dd_`ind'`c' sev_dd_`ind'`c' std_dd_`ind'`c', ///
 										drop(*.wave y0* _cons *post `ind') ///
 										xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(small))  ///
 										xtitle("Effect on Food Insecurity") title("`country'") ///
 										levels(95) coeflabels(1.post#c.`ind' = " ", notick) ///
 										legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
-										label(6 "Severe") label(8 "Index")) name(did_`ind'_`c', replace)		
-		} 
-		
-	}
-	
+										label(6 "Severe") label(8 "Index")) name(did_`ind'_`c', replace)	*/	
+										
 	* combined graphics 
 	foreach 						r in anc did {
 		grc1leg2  						`r'_std_pre_index_frac_1 `r'_std_pre_index_frac_2 `r'_std_pre_index_frac_3, ///
@@ -813,78 +827,13 @@ eststo 					clear
 											col(2) commonscheme title("Index 6") name(`r'_pre_hhi)
 		graph export					"$export/figures/reg_results/`r'_index6.png", as(png) replace
 	}
+	restore
 	
-	
-* education
-/*	* DID & ANCOVA regressions - all indexes
-	foreach 				c in 1 2 3 4 {
-		if 						`c' == 1 {
-			local 					country = "Ethiopia"
-			local 					xt = " "
-		}
-		else 					if 	`c' == 2 {
-			local 					country = "Malawi"
-			local 					xt = " "
-		}
-		else 					if `c' == 3 {
-			local 					country = "Nigeria"
-			local 					xt = "Effect on Educational Engagement"
-		}
-		else 					if `c' == 4 {
-			local 					country = "Uganda"
-			local 					xt = "Effect on Educational Engagement"
-		}
-		
-		* regressions 
-		foreach 				ind in std_pre_index_frac std_pre_index_hhi pre_index_frac pre_index_hhi {	
-			* ANCOVA	
-				reg 				edu_act `ind' y0_edu_act ib(1).wave c.wave#i.region ///
-										[aweight = weight] if wave != 0 & country == `c', vce(cluster hhid) 
-				eststo				edu_anc_`ind'`c'
-			* DID
-				reg 				edu_act c.`ind'##i.post ib(1).wave c.wave#i.region ///
-										[aweight = weight] if country == `c', vce(cluster hhid) 	
-				eststo				edu_did_`ind'`c'	
-		}
-	
-		* plot coefficients by index for each country
-		* DID
-		coefplot			edu_did_std_pre_index_frac`c' edu_did_std_pre_index_hhi`c' ///
-								edu_did_pre_index_frac`c' edu_did_pre_index_hhi`c', ///
-								drop(*.wave _cons *post std_pre_index* pre_index*) ///
-								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
-								xtitle("`xt'") title("`country'") ///
-								levels(95) coeflabels(1.post#c.std_pre_index_frac = "Index 3" ///
-								1.post#c.std_pre_index_hhi = "HHI" 1.post#c.pre_index_frac = "Index 5" ///
-								1.post#c.pre_index_hhi = "Index 6", notick) xlabel(-1(.2)1, labs(small))  ///
-								legend(off) name(edu_did_`c', replace)
-		* ANCOVA
-		coefplot			edu_anc_std_pre_index_frac`c' edu_anc_std_pre_index_hhi`c' ///
-								edu_anc_pre_index_frac`c' edu_anc_pre_index_hhi`c', ///
-								drop(*.wave y0* _cons) ///
-								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
-								xtitle("`xt'") title("`country'") ///
-								levels(95) coeflabels(std_pre_index_frac = "Index 3" ///
-								std_pre_index_hhi = "HHI" pre_index_frac = "Index 5" ///
-								pre_index_hhi = "Index 6", notick) xlabel(-1(.2)1, labs(small))  ///
-								legend(off) name(edu_anc_`c', replace)
-	}
-	
-	
-	* graph export - all 
-	gr combine 				edu_did_1 edu_did_2 edu_did_3 edu_did_4, commonscheme
-	graph export			"$export/figures/reg_results/edu_did.png", as(png) replace
-	
-	gr combine 				edu_anc_1 edu_anc_2 edu_anc_3 edu_anc_4, commonscheme
-	graph export			"$export/figures/reg_results/edu_anc.png", as(png) replace
+* **********************************************************************
+**## education index 4
+* **********************************************************************	
 
-	
-	restore 
-	
-*/
-
-* education - only HHI - index 4
-	* DID & ANCOVA regressions	
+* DID & ANCOVA regressions	
 	foreach 				c in 1 2 3 4 {
 		if 						`c' == 1 {
 			local 					country = "Ethiopia"
@@ -946,6 +895,155 @@ eststo 					clear
 
 		graph export			"$export/figures/edu_anc.pdf", as(pdf) replace
 	
+
+* **********************************************************************
+**# appendix: ANOCOVA & DID (indices 3, 5, 6)
+* **********************************************************************
+
+
+* **********************************************************************
+**## food security index 3, 5, 6
+* **********************************************************************	
+
+	* regressions
+	preserve 
+	drop 						if wave == -1
+	foreach 					c in 1 2 3 {
+		if 						`c' == 1 {
+			local 					country = "Ethiopia"
+		}
+		else 					if 	`c' == 2 {
+			local 					country = "Malawi"
+		}
+		else 					if `c' == 3 {
+			local 					country = "Nigeria"
+		}
+		foreach 					ind in std_pre_index_frac pre_index_frac pre_index_hhi {	
+			* ANCOVA	
+			foreach 					f in mild mod sev std {
+				reg 						`f'_fs `ind' y0_`f' ib(1).wave c.wave#i.region ///
+												[aweight = weight] if wave != 0 & country == `c', vce(cluster hhid) 
+				eststo						`f'_an_`ind'`c'
+			}
+			* DID
+			foreach 				f in mild mod sev std {
+				reg 					`f'_fs c.`ind'##i.post ib(1).wave c.wave#i.region ///
+											[aweight = weight] if country == `c', vce(cluster hhid) 	
+				eststo					`f'_dd_`ind'`c'
+			}	
+		}
+		
+		* graphics generation
+		foreach 					ind in std_pre_index_frac pre_index_frac pre_index_hhi {
+			* coefplot
+				coefplot			mild_an_`ind'`c' mod_an_`ind'`c' sev_an_`ind'`c' std_an_`ind'`c', ///
+										drop(*.wave y0* _cons *post) xline(0, lcolor(maroon)) ///
+										xtitle("Effect on Food Insecurity", size(small)) title("`country'") ///
+										levels(95) coeflabels(`ind' = " ", notick) xlabel(-0.5(.1)0.5, labs(small)) ///
+										legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
+										label(6 "Severe") label(8 "Index")) name(anc_`ind'_`c', replace)
+				
+				coefplot			mild_dd_`ind'`c' mod_dd_`ind'`c' sev_dd_`ind'`c' std_dd_`ind'`c', ///
+										drop(*.wave y0* _cons *post `ind') ///
+										xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(small))  ///
+										xtitle("Effect on Food Insecurity") title("`country'") ///
+										levels(95) coeflabels(1.post#c.`ind' = " ", notick) ///
+										legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
+										label(6 "Severe") label(8 "Index")) name(did_`ind'_`c', replace)		
+		} 
+		
+	}
+	
+	* combined graphics 
+	foreach 						r in anc did {
+		grc1leg2  						`r'_std_pre_index_frac_1 `r'_std_pre_index_frac_2 `r'_std_pre_index_frac_3, ///
+											col(2) commonscheme title("Index 3") name(`r'_std_frac)
+		graph export					"$export/figures/reg_results/`r'_index3.png", as(png) replace
+		
+		grc1leg2  						`r'_std_pre_index_hhi_1 `r'_std_pre_index_hhi_2 `r'_std_pre_index_hhi_3, ///
+											col(2) commonscheme title("HHI") name(`r'_std_hhi)
+		graph export					"$export/figures/reg_results/`r'_index4.png", as(png) replace
+		
+		grc1leg2  						`r'_pre_index_frac_1 `r'_pre_index_frac_2 `r'_pre_index_frac_3, ///
+											col(2) commonscheme title("Index 5") name(`r'_pre_frac)
+		graph export					"$export/figures/reg_results/`r'_index5.png", as(png) replace
+
+		grc1leg2  						`r'_pre_index_hhi_1 `r'_pre_index_hhi_2 `r'_pre_index_hhi_3, ///
+											col(2) commonscheme title("Index 6") name(`r'_pre_hhi)
+		graph export					"$export/figures/reg_results/`r'_index6.png", as(png) replace
+	}
+
+
+* **********************************************************************
+**## education index 3, 5, 6
+* **********************************************************************	
+	
+* DID & ANCOVA regressions - all indexes
+	foreach 				c in 1 2 3 4 {
+		if 						`c' == 1 {
+			local 					country = "Ethiopia"
+			local 					xt = " "
+		}
+		else 					if 	`c' == 2 {
+			local 					country = "Malawi"
+			local 					xt = " "
+		}
+		else 					if `c' == 3 {
+			local 					country = "Nigeria"
+			local 					xt = "Effect on Educational Engagement"
+		}
+		else 					if `c' == 4 {
+			local 					country = "Uganda"
+			local 					xt = "Effect on Educational Engagement"
+		}
+		
+		* regressions 
+		foreach 				ind in std_pre_index_frac pre_index_frac pre_index_hhi {	
+			* ANCOVA	
+				reg 				edu_act `ind' y0_edu_act ib(1).wave c.wave#i.region ///
+										[aweight = weight] if wave != 0 & country == `c', vce(cluster hhid) 
+				eststo				edu_anc_`ind'`c'
+			* DID
+				reg 				edu_act c.`ind'##i.post ib(1).wave c.wave#i.region ///
+										[aweight = weight] if country == `c', vce(cluster hhid) 	
+				eststo				edu_did_`ind'`c'	
+		}
+	
+		* plot coefficients by index for each country
+		* DID
+		coefplot			edu_did_std_pre_index_frac`c' edu_did_std_pre_index_hhi`c' ///
+								edu_did_pre_index_frac`c' edu_did_pre_index_hhi`c', ///
+								drop(*.wave _cons *post std_pre_index* pre_index*) ///
+								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
+								xtitle("`xt'") title("`country'") ///
+								levels(95) coeflabels(1.post#c.std_pre_index_frac = "Index 3" ///
+								1.post#c.std_pre_index_hhi = "HHI" 1.post#c.pre_index_frac = "Index 5" ///
+								1.post#c.pre_index_hhi = "Index 6", notick) xlabel(-1(.2)1, labs(small))  ///
+								legend(off) name(edu_did_`c', replace)
+		* ANCOVA
+		coefplot			edu_anc_std_pre_index_frac`c' edu_anc_std_pre_index_hhi`c' ///
+								edu_anc_pre_index_frac`c' edu_anc_pre_index_hhi`c', ///
+								drop(*.wave y0* _cons) ///
+								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
+								xtitle("`xt'") title("`country'") ///
+								levels(95) coeflabels(std_pre_index_frac = "Index 3" ///
+								std_pre_index_hhi = "HHI" pre_index_frac = "Index 5" ///
+								pre_index_hhi = "Index 6", notick) xlabel(-1(.2)1, labs(small))  ///
+								legend(off) name(edu_anc_`c', replace)
+	}
+	
+	
+	* graph export - all 
+	gr combine 				edu_did_1 edu_did_2 edu_did_3 edu_did_4, commonscheme
+	graph export			"$export/figures/reg_results/edu_did.png", as(png) replace
+	
+	gr combine 				edu_anc_1 edu_anc_2 edu_anc_3 edu_anc_4, commonscheme
+	graph export			"$export/figures/reg_results/edu_anc.png", as(png) replace
+
+	
+	restore 
+	
+
 * **********************************************************************
 **# ANOCOVA & DID (indices 3-6) - heterogeneous effects (robust - app)
 * **********************************************************************
