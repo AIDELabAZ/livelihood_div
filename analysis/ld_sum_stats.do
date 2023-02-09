@@ -46,6 +46,7 @@
 * **********************************************************************
 **# tables
 * **********************************************************************	
+
 **## Aggregate 
 preserve
 	gen 				geo = ea if country != 2
@@ -137,253 +138,6 @@ preserve
 
 	}
 	restore 					
-
-
-**## Sector 	
-preserve
-	gen 				geo = ea if country != 2
-	replace 			geo = ta_code if country == 2
-	
-	local 				list1 = "crop_inc_ live_inc_ live_prod_ wage_emp_ casual_emp_ temp_emp_ nfe_inc_ kind_trans_ cash_trans_ food_trans_ asst_kind_ asst_cash_ asst_food_ pen_inc_ rent_inc_ asset_ save_inc_ oth_inc_"
-	local 				list2  "crop_inc_ tree_inc_ live_inc_ live_prod_ wage_emp_ casual_emp_ nfe_inc_	cash_trans_ food_trans_ kind_trans_ cash_child_	kind_child_ asst_food_ asst_cash_ for_wrk_ masaf_ pen_inc_ rent_inc_ asset_	save_inc_ oth_inc_"
-	local 				list3 = "crop_inc_ tree_inc_ live_inc_ live_prod_ wage_emp_ nfe_inc_ cash_dom_ cash_for_ kind_inc_ asst_inc_ pen_inc_ rent_nonag_ ag_rent_ save_inc_ oth_inc_"
-	local 				list4 = "crop_inc_ live_inc_ live_prod_ wage_emp_ nfe_inc_ cash_dom_ kind_dom_ cash_for_ kind_for_ sage_ pen_inc_ rent_inc_ interest_ oth_inc_"
-	
-
-	estpost 			sum wave //need random stored variable for esttabs below to work, even though this is not referenced
-	foreach 			c in `countries' {
-	if 					`c' == 1 {
-		local 				obs1 = "977"
-		local 				obs2 = "2270"
-		local 				end = " "
-	}
-	else 				if 	`c' == 2 {
-		local 				country = "B: Malawi"
-		local 				obs1 = "1092"
-		local 				obs2 = "634"
-		local 				end = " "
-	}
-	else 				if `c' == 3 {
-		local 				country = "C: Nigeria"
-		local 				obs1 = "1195"
-		local 				obs2 = "755"
-		local 				end = " "
-	}
-	else 				if `c' == 4 {
-		local 				country = "D: Uganda"
-		local 				obs1 = "1642"
-		local 				obs2 = "583"
-		local 				end = "\multicolumn{7}{C{15cm}}{\small \textit{Note}: The table displays the percent of households engaged in (columns 1-3) and the mean income earned from (columns 4-6) each income category used to generate Indices 5 and 6. We present average values by sector. In the LSMS data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates found at \href{https://exchangerates.org}{https://exchangerates.org}. We use LSMS data to generate the table, which covers the pre-COVID-19 period. We calculate statistical significance of urban/rural differences using simple regressions clustered at the region level. Standard errors are reported in parentheses (*** p$<$0.001, ** p$<$0.01, * p$<$0.05). Urban households in Ethiopia were not asked about agricultural engagement in the 2019 LSMS survey.} \end{longtable}"
-	}
-	if 					`c' == 1 {
-		esttab 				using "$export/tables/inc_sec_sum.tex", replace ///
-								prehead("\begin{longtable}{l P{1cm} P{1cm} P{1.5cm} P{1cm} P{1cm} P{1.5cm}} " ///
-								"\caption{2019 Engagement in and Earnings from Income Sources by Sector} \label{incsecsum} \\ [-1.8ex] \hline \hline & " ///
-								"\multicolumn{3}{c}{\textbf{Percent Engaged}} & \multicolumn{3}{c}{\textbf{Mean Income (USD)}} \\ & " ///
-								"\multicolumn{1}{c}{Rural} & \multicolumn{1}{c}{Urban} & \multicolumn{1}{c}{Difference} & " ///
-								"\multicolumn{1}{c}{Rural} & \multicolumn{1}{c}{Urban} & \multicolumn{1}{c}{Difference} \\ " ///
-								"\endfirsthead " ///
-								"\hline & \multicolumn{3}{c}{\textbf{Percent Engaged}} & \multicolumn{3}{c}{\textbf{Mean Income (USD)}} \\ & " ///
-								"\multicolumn{1}{c}{Rural} & \multicolumn{1}{c}{Urban} & \multicolumn{1}{c}{Difference} & " ///
-								"\multicolumn{1}{c}{Rural} & \multicolumn{1}{c}{Urban} & \multicolumn{1}{c}{Difference} \\ \hline " ///
-								"\endhead " ///
-								"\multicolumn{7}{c}{{Continued on Next Page\ldots}} " ///
-								"\endfoot " ///
-								"\endlastfoot " ///
-								"\midrule \multicolumn{4}{r}{\textit{Panel A: Ethiopia}} \\ ") ///
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs 
-	} 
-	else 				{
-		esttab 				using "$export/tables/inc_sec_sum.tex", append ///
-								prehead("\multicolumn{4}{r}{\textit{Panel `country' }} \\ ") ///
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sector _cons)
-	}
-	
-	foreach 					var in `list`c'' {
-		replace 					`var'amnt_0 = . if `var'amnt_0 == 0
-		
-		quietly: sum 				`var'0 if country == `c' & wave == 0 & sector == 1 [aweight = weight]
-		local 						temp1 = r(mean) 
-		local 						mean1 : display %4.3f `temp1'
-		quietly: sum 				`var'amnt_0 if country == `c' & wave == 0 & sector == 1 [aweight = weight]
-		local 						temp1a = r(mean) 
-		local 						mean1a : display %4.0f `temp1a'
-		quietly: sum 				`var'0 if country == `c' & wave == 0 & sector == 2 [aweight = weight]
-		local 						temp2 = r(mean)
-		local 						mean2 : display %4.3f `temp2'
-		quietly: sum 				`var'amnt_0 if country == `c' & wave == 0 & sector == 2 [aweight = weight]
-		local 						temp2a = r(mean) 
-		local 						mean2a : display %4.0f `temp2a'
-		local 						temp3 = `temp1' - `temp2'
-		local 						dif : display %4.3f `temp3'
-		reg 						`var'0 sector if country == `c' & wave == 0 [aweight = weight], cluster(geo)
-		local 						pval = r(table)[4, 1]
-		if 							`pval' <= .1 {
-			local 						star = "*"
-		} 
-		if 							`pval' <= .05 {
-			local 						star = "**" 
-		}
-		if 							`pval' <= .01 {
-			local 						star = "***"
-		}
-		else if 					`pval' > .1 {
-			local 						star = " "
-		}
-		local 						temp4 = `temp1a' - `temp2a'
-		local 						difa : display %4.0f `temp4'
-		reg 						`var'amnt_0 sector if country == `c' & wave == 0 [aweight = weight], cluster(geo)
-		local 						pvala = r(table)[4, 1]
-		if 							`pvala' <= .1 {
-			local 						stara = "*"
-		} 
-		if 							`pvala' <= .05 {
-			local 						stara = "**" 
-		}
-		if 							`pvala' <= .01 {
-			local 						stara = "***"
-		}
-		else if 					`pvala' > .1 {
-			local 						stara = " "
-		}
-		local 				label : variable label `var'0
-		esttab 				using "$export/tables/inc_sec_sum.tex", append ///
-								posthead("`label' & `mean1' & `mean2' & `dif'\sym{`star'} & `mean1a' & `mean2a' & `difa'\sym{`stara'} \\ ") ///
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sector _cons)
-	}
-	esttab 					using "$export/tables/inc_sec_sum.tex", append ///		
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sector _cons) ///
-								postfoot("\multicolumn{1}{l}{Observations} & " ///
-								"`obs1' & `obs2' & & `obs1' & `obs2' & \\ \midrule `end' ")	
-
-	}
-	restore 					
-
-**## Gender HOH
-preserve
-	gen 				geo = ea if country != 2
-	replace 			geo = ta_code if country == 2
-	
-	local 				list1 = "crop_inc_ live_inc_ live_prod_ wage_emp_ casual_emp_ temp_emp_ nfe_inc_ kind_trans_ cash_trans_ food_trans_ asst_kind_ asst_cash_ asst_food_ pen_inc_ rent_inc_ asset_ save_inc_ oth_inc_"
-	local 				list2  "crop_inc_ tree_inc_ live_inc_ live_prod_ wage_emp_ casual_emp_ nfe_inc_	cash_trans_ food_trans_ kind_trans_ cash_child_	kind_child_ asst_food_ asst_cash_ for_wrk_ masaf_ pen_inc_ rent_inc_ asset_	save_inc_ oth_inc_"
-	local 				list3 = "crop_inc_ tree_inc_ live_inc_ live_prod_ wage_emp_ nfe_inc_ cash_dom_ cash_for_ kind_inc_ asst_inc_ pen_inc_ rent_nonag_ ag_rent_ save_inc_ oth_inc_"
-	local 				list4 = "crop_inc_ live_inc_ live_prod_ wage_emp_ nfe_inc_ cash_dom_ kind_dom_ cash_for_ kind_for_ sage_ pen_inc_ rent_inc_ interest_ oth_inc_"
-	
-	foreach 			c in `countries' {
-	if 					`c' == 1 {
-		local 				obs1 = "2251 "
-		local 				obs2 = "996"
-		local 				end = " "
-	}
-	else 				if 	`c' == 2 {
-		local 				country = "B: Malawi"
-		local 				obs1 = "1343"
-		local 				obs2 = "383"
-		local 				end = " "
-	}
-	else 				if `c' == 3 {
-		local 				country = "C: Nigeria"
-		local 				obs1 = "1578 "
-		local 				obs2 = "372"
-		local 				end = " "
-	}
-	else 				if `c' == 4 {
-		local 				country = "D: Uganda"
-		local 				obs1 = "1494 "
-		local 				obs2 = "731"
-		local 				end = " \midrule \multicolumn{7}{C{15cm}}{\small \textit{Note}: The table displays the percent of households engaged in (columns 1-3) and the mean income earned from (columns 4-6) each income category used to generate Indices 5 and 6. We present average values by head-of-household-gender. In the LSMS data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates found at \href{https://exchangerates.org}{https://exchangerates.org}. We use LSMS data to generate the table, which covers the pre-COVID-19 period. We calculate statistical significance of male- versus female-headed household differences using simple regressions clustered at the region level. Standard errors are reported in parentheses (*** p$<$0.001, ** p$<$0.01, * p$<$0.05).} \end{longtable}"
-	}
-	if 					`c' == 1 {
-		esttab 				using "$export/tables/inc_sex_sum.tex", replace ///
-								prehead("\begin{longtable}{l P{1cm} P{1cm} P{1.5cm} P{1cm} P{1cm} P{1.5cm}} " ///
-								"\caption{2019 Engagement in and Earnings from Income Sources by Head of Household Gender} \label{incsexsum} \\ [-1.8ex] \hline \hline & " ///
-								"\multicolumn{3}{c}{\textbf{Percent Engaged}} & \multicolumn{3}{c}{\textbf{Mean Income (USD)}} \\ & " ///
-								"\multicolumn{1}{c}{Male} & \multicolumn{1}{c}{Female} & \multicolumn{1}{c}{Difference} & " ///
-								"\multicolumn{1}{c}{Male} & \multicolumn{1}{c}{Female} & \multicolumn{1}{c}{Difference} \\ " ///
-								"\endfirsthead " ///
-								"\hline & \multicolumn{3}{c}{\textbf{Percent Engaged}} & \multicolumn{3}{c}{\textbf{Mean Income (USD)}} \\ & " ///
-								"\multicolumn{1}{c}{Male} & \multicolumn{1}{c}{Female} & \multicolumn{1}{c}{Difference} & " ///
-								"\multicolumn{1}{c}{Male} & \multicolumn{1}{c}{Female} & \multicolumn{1}{c}{Difference} \\ \hline " ///
-								"\endhead " ///
-								"\multicolumn{7}{c}{{Continued on Next Page\ldots}} " ///
-								"\endfoot " ///
-								"\endlastfoot " ///
-								"\midrule \multicolumn{4}{r}{\textit{Panel A: Ethiopia}} \\ ") ///
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sector _cons)
-	} 
-	else 				{
-		esttab 				using "$export/tables/inc_sex_sum.tex", append ///
-								prehead("\multicolumn{4}{r}{\textit{Panel `country' }} \\ ") ///
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sexhh _cons)
-	}
-	
-	foreach 					var in `list`c'' {
-		replace 					`var'amnt_0 = . if `var'amnt_0 == 0
-		
-		quietly: sum 				`var'0 if country == `c' & wave == 0 & sexhh== 1 [aweight = weight]
-		local 						temp1 = r(mean) 
-		local 						mean1 : display %4.3f `temp1'
-		quietly: sum 				`var'amnt_0 if country == `c' & wave == 0 & sexhh == 1 [aweight = weight]
-		local 						temp1a = r(mean) 
-		local 						mean1a : display %4.0f `temp1a'
-		quietly: sum 				`var'0 if country == `c' & wave == 0 & sexhh == 2 [aweight = weight]
-		local 						temp2 = r(mean)
-		local 						mean2 : display %4.3f `temp2'
-		quietly: sum 				`var'amnt_0 if country == `c' & wave == 0 & sexhh == 2 [aweight = weight]
-		local 						temp2a = r(mean) 
-		local 						mean2a : display %4.0f `temp2a'
-		local 						temp3 = `temp1' - `temp2'
-		local 						dif : display %4.3f `temp3'
-		reg 						`var'0 sexhh if country == `c' & wave == 0 [aweight = weight], cluster(geo)
-		local 						pval = r(table)[4, 1]
-		if 							`pval' <= .1 {
-			local 						star = "*"
-		} 
-		if 							`pval' <= .05 {
-			local 						star = "**" 
-		}
-		if 							`pval' <= .01 {
-			local 						star = "***"
-		}
-		else if 					`pval' > .1 {
-			local 						star = " "
-		}
-		local 						temp4 = `temp1a' - `temp2a'
-		local 						difa : display %4.0f `temp4'
-		reg 						`var'amnt_0 sexhh if country == `c' & wave == 0 [aweight = weight], cluster(geo)
-		local 						pvala = r(table)[4, 1]
-		if 							`pvala' <= .1 {
-			local 						stara = "*"
-		} 
-		if 							`pvala' <= .05 {
-			local 						stara = "**" 
-		}
-		if 							`pvala' <= .01 {
-			local 						stara = "***"
-		}
-		else if 					`pvala' > .1 {
-			local 						stara = " "
-		}
-		local 				label : variable label `var'0
-		esttab 				using "$export/tables/inc_sex_sum.tex", append ///
-								posthead("`label' & `mean1' & `mean2' & `dif'\sym{`star'} & `mean1a' & `mean2a' & `difa'\sym{`stara'} \\ ") ///
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sexhh _cons)
-	}
-	esttab 					using "$export/tables/inc_sex_sum.tex", append ///		
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sexhh _cons) ///
-								postfoot("\multicolumn{1}{l}{Observations} & " ///
-								"`obs1' & `obs2' & & `obs1' & `obs2' & \\ \midrule `end' ")	
-
-	}
-	restore 		
 
 	
 * **********************************************************************
@@ -750,45 +504,45 @@ preserve
 	* export graphics for sec/sex by index type
 		* index 1
 		grc1leg2 				eth_std_pp_sex mwi_std_pp_sex nga_std_pp_sex uga_std_pp_sex, col(2) commonscheme			
-		graph export 			"$export/figures/std_pp_density_sex.png", as(png) replace
+		graph export 			"$export/figures/std_pp_density_sex.pdf", as(pdf) replace
 	
 		grc1leg2 				eth_std_pp_sec mwi_std_pp_sec nga_std_pp_sec uga_std_pp_sec, col(2) commonscheme		
-		graph export 			"$export/figures/std_pp_density_sec.png", as(png) replace
+		graph export 			"$export/figures/std_pp_density_sec.pdf", as(pdf) replace
 		
 		* index 2
 		grc1leg2 				eth_pp_sex mwi_pp_sex nga_pp_sex uga_pp_sex, col(2) commonscheme			
-		graph export 			"$export/figures/pp_density_sex.png", as(png) replace
+		graph export 			"$export/figures/pp_density_sex.pdf", as(pdf) replace
 	
 		grc1leg2 				eth_pp_sec mwi_pp_sec nga_pp_sec uga_pp_sec, col(2) commonscheme		
-		graph export 			"$export/figures/pp_density_sec.png", as(png) replace
+		graph export 			"$export/figures/pp_density_sec.pdf", as(pdf) replace
 			
 		* index 3
 		grc1leg2 				eth_std_frac_sex mwi_std_frac_sex nga_std_frac_sex uga_std_frac_sex, col(2) commonscheme			
-		graph export 			"$export/figures/std_frac_density_sex.png", as(png) replace
+		graph export 			"$export/figures/std_frac_density_sex.pdf", as(pdf) replace
 	
 		grc1leg2 				eth_std_frac_sec mwi_std_frac_sec nga_std_frac_sec uga_std_frac_sec, col(2) commonscheme		
-		graph export 			"$export/figures/std_frac_density_sec.png", as(png) replace
+		graph export 			"$export/figures/std_frac_density_sec.pdf", as(pdf) replace
 		
 		* index 4
 		grc1leg2 				eth_std_hhi_sex mwi_std_hhi_sex nga_std_hhi_sex uga_std_hhi_sex, col(2) commonscheme			
-		graph export 			"$export/figures/std_hhi_density_sex.png", as(png) replace
+		graph export 			"$export/figures/std_hhi_density_sex.pdf", as(pdf) replace
 	
 		grc1leg2 				eth_std_hhi_sec mwi_std_hhi_sec nga_std_hhi_sec uga_std_hhi_sec, col(2) commonscheme		
-		graph export 			"$export/figures/std_hhi_density_sec.png", as(png) replace
+		graph export 			"$export/figures/std_hhi_density_sec.pdf", as(pdf) replace
 
 		* index 5
 		grc1leg2 				eth_geo_sex mwi_geo_sex nga_geo_sex uga_geo_sex, col(2) commonscheme			
-		graph export 			"$export/figures/geo_density_sex.png", as(png) replace
+		graph export 			"$export/figures/geo_density_sex.pdf", as(pdf) replace
 	
 		grc1leg2 				eth_geo_sec mwi_geo_sec nga_geo_sec uga_geo_sec, col(2) commonscheme		
-		graph export 			"$export/figures/geo_density_sec.png", as(png) replace
+		graph export 			"$export/figures/geo_density_sec.pdf", as(pdf) replace
 		
 		* index 6
 		grc1leg2 				eth_hhi_sex mwi_hhi_sex nga_hhi_sex uga_hhi_sex, col(2) commonscheme 		
-		graph export 			"$export/figures/hhi_density_sex.png", as(png) replace
+		graph export 			"$export/figures/hhi_density_sex.pdf", as(pdf) replace
 	
 		grc1leg2 				eth_hhi_sec mwi_hhi_sec nga_hhi_sec uga_hhi_sec, col(2) commonscheme 			
-		graph export 			"$export/figures/hhi_density_sec.png", as(png) replace
+		graph export 			"$export/figures/hhi_density_sec.pdf", as(pdf) replace
 
 
 **## index 1 over time 		
