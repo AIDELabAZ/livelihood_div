@@ -1138,7 +1138,11 @@ restore
 
 graph 					drop _all
 eststo 					clear	
-* food security
+
+* **********************************************************************
+**## food security index 3, 4, 5, 6
+* **********************************************************************	
+
 	* regressions
 	preserve 
 	rename 						std_pre_index_frac std_pre_frac // names were too long for stored results
@@ -1218,148 +1222,210 @@ eststo 					clear
 	* sexhh
 		foreach 						r in anc did {
 			grc1leg2  						`r'_std_pre_frac_sexhh_1 `r'_std_pre_frac_sexhh_2 `r'_std_pre_frac_sexhh_3, ///
-												col(2) commonscheme title("Index 3") name(`r'_std_frac_sex)
-			graph export					"$export/figures/reg_results/`r'_sexhh_index3.png", as(png) replace
+												col(2) commonscheme title("Fractional Index 3")
+			graph export					"$export/figures/fs_`r'_sexhh_fi3.pdf", as(pdf) replace
 			
 			grc1leg2  						`r'_std_pre_hhi_sexhh_1 `r'_std_pre_hhi_sexhh_2 `r'_std_pre_hhi_sexhh_3, ///
-												col(2) commonscheme title("Index 4") name(`r'_std_hhi_sex)
-			graph export					"$export/figures/reg_results/`r'_sexhh_index4.png", as(png) replace
+												col(2) commonscheme title("HHI 1")
+			graph export					"$export/figures/fs_`r'_sexhh_hhi1.pdf", as(pdf) replace
 			
 			grc1leg2  						`r'_pre_frac_sexhh_1 `r'_pre_frac_sexhh_2 `r'_pre_frac_sexhh_3, ///
-												col(2) commonscheme title("Index 5") name(`r'_pre_frac_sex)
-			graph export					"$export/figures/reg_results/`r'_sexhh_index5.png", as(png) replace
+												col(2) commonscheme title("Fractional Index 4")
+			graph export					"$export/figures/fs_`r'_sexhh_fi4.pdf", as(pdf) replace
 
 			grc1leg2  						`r'_pre_hhi_sexhh_1 `r'_pre_hhi_sexhh_2 `r'_pre_hhi_sexhh_3, ///
-												col(2) commonscheme title("Index 6") name(`r'_pre_hhi_sex)
-			graph export					"$export/figures/reg_results/`r'_sexhh_index6.png", as(png) replace
+												col(2) commonscheme title("HHI 2")
+			graph export					"$export/figures/fs_`r'_sexhh_hhi2.pdf", as(pdf) replace
 		}
 
 	* sector 
 		foreach 						r in anc did {
 			grc1leg2  						`r'_std_pre_frac_sector_1 `r'_std_pre_frac_sector_2 `r'_std_pre_frac_sector_3, ///
-												col(2) commonscheme title("Index 3") name(`r'_std_frac_sec)
-			graph export					"$export/figures/reg_results/`r'_sector_index3.png", as(png) replace
+												col(2) commonscheme title("Fractional Index 3")
+			graph export					"$export/figures/fs_`r'_sector_fi3.pdf", as(pdf) replace
 			
 			grc1leg2  						`r'_std_pre_hhi_sector_1 `r'_std_pre_hhi_sector_2 `r'_std_pre_hhi_sector_3, ///
-												col(2) commonscheme title("Index 4") name(`r'_std_hhi_sec)
-			graph export					"$export/figures/reg_results/`r'_sector_index4.png", as(png) replace
+												col(2) commonscheme title("HHI 1")
+			graph export					"$export/figures/fs_`r'_sector_hhi1.pdf", as(pdf) replace
 			
 			grc1leg2  						`r'_pre_frac_sector_1 `r'_pre_frac_sector_2 `r'_pre_frac_sector_3, ///
-												col(2) commonscheme title("Index 5") name(`r'_pre_frac_sec)
-			graph export					"$export/figures/reg_results/`r'_sector_index5.png", as(png) replace
+												col(2) commonscheme title("Fractional Index 4")
+			graph export					"$export/figures/fs_`r'_sector_fi4.pdf", as(pdf) replace
 
 			grc1leg2  						`r'_pre_hhi_sector_1 `r'_pre_hhi_sector_2 `r'_pre_hhi_sector_3, ///
-												col(2) commonscheme title("Index 6") name(`r'_pre_hhi_sec)
-			graph export					"$export/figures/reg_results/`r'_sector_index6.png", as(png) replace
+												col(2) commonscheme title("HHI 2")
+			graph export					"$export/figures/fs_`r'_sector_hhi2.pdf", as(pdf) replace
 		}
+	restore
 	
-* education
-	* DID & ANCOVA regressions	
+* **********************************************************************
+**## education index 3, 4, 5, 6
+* **********************************************************************	
+
+	preserve 
+	rename 						std_pre_index_frac std_pre_frac // names were too long for stored results
+	rename 						std_pre_index_hhi std_pre_hhi
+	rename 						pre_index_frac pre_frac
+	rename 						pre_index_hhi pre_hhi
+	drop 						if wave == -1
+	* DID & ANCOVA regressions
+	foreach 				ind in std_pre_frac std_pre_hhi pre_frac pre_hhi {	
 	foreach 				c in 1 2 3 4 {
 		if 						`c' == 1 {
 			local 					country = "Ethiopia"
 			local 					xt = " "
+			gen						`ind'`c' = `ind'
 		}
 		else 					if 	`c' == 2 {
 			local 					country = "Malawi"
 			local 					xt = " "
+			gen						`ind'`c' = `ind'
 		}
 		else 					if `c' == 3 {
 			local 					country = "Nigeria"
 			local 					xt = "Effect on Educational Engagement"
+			gen						`ind'`c' = `ind'
 		}
 		else 					if `c' == 4 {
 			local 					country = "Uganda"
 			local 					xt = "Effect on Educational Engagement"
-		}
+			gen						`ind'`c' = `ind'
+		}		
 		
 		* regressions 
-		foreach 				ind in std_pre_frac std_pre_hhi pre_frac pre_hhi {	
 			foreach 					het in sexhh sector {
 				* ANCOVA	
-					reg 				edu_act c.`ind'##i.`het' y0_edu_act ib(1).wave c.wave#i.region ///
+					reg 				edu_act c.`ind'`c'##i.`het' y0_edu_act ib(1).wave c.wave#i.region ///
 											[aweight = weight] if wave != 0 & country == `c', vce(cluster hhid) 
 					eststo				edu_a_`ind'_`het'`c'
 				* DID
-					reg 				edu_act c.`ind'##i.post##i.`het' ib(1).wave c.wave#i.region ///
+					reg 				edu_act c.`ind'`c'##i.post##i.`het' ib(1).wave c.wave#i.region ///
 											[aweight = weight] if country == `c', vce(cluster hhid) 	
-					eststo				edu_d_`ind'_`het'`c'	
+					eststo				edu_d_`ind'_`het'`c'
 			}
-		}
+		}	
+	}
+restore
 	
 		* plot coefficients for each country
-		foreach 			het in sexhh sector { 			
+		foreach 			het in sexhh sector {
+			
 		* DID
-		coefplot			edu_d_std_pre_frac_`het'`c' edu_d_std_pre_hhi_`het'`c' ///
-								edu_d_pre_frac_`het'`c' edu_d_pre_hhi_`het'`c', ///
+		coefplot			edu_d_std_pre_frac_`het'1 edu_d_std_pre_frac_`het'2 ///
+								edu_d_std_pre_frac_`het'3 edu_d_std_pre_frac_`het'4, ///
 								drop(*.wave _cons *post std_pre* pre_* 2.`het'* 1.post#2.`het' 1.post#c.* ) ///
 								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
-								xtitle("`xt'") title("`country'") ///
-								levels(95) coeflabels(1.post#2.`het'#c.std_pre_frac = "Index 3" ///
-								1.post#2.`het'#c.std_pre_hhi = "Index 4" ///
-								1.post#2.`het'#c.pre_frac = "Index 5" ///
-								1.post#2.`het'#c.pre_hhi = "Index 6", notick) ///
+								xtitle("Effect on Educational Engagemen") title("Fractional Index 3") ///
+								levels(95) coeflabels(1.post#2.`het'#c.std_pre_frac1 = "Ethiopia" ///
+								1.post#2.`het'#c.std_pre_frac2 = "Malawi" ///
+								1.post#2.`het'#c.std_pre_frac3 = "Nigeria" ///
+								1.post#2.`het'#c.std_pre_frac4 = "Uganada", notick) ///
 								xlabel(-1(.2)1, labs(small))  ///
-								legend(off) name(edu_d_`het'_`c', replace)
-		* ANCOVA
-		coefplot			edu_a_std_pre_frac_`het'`c' edu_a_std_pre_hhi_`het'`c' ///
-								edu_a_pre_frac_`het'`c' edu_a_pre_hhi_`het'`c', ///
-								drop(*.wave y0* 2.`het' std_pre_frac std_pre_hhi pre_frac pre_hhi _cons) ///
+								legend(off) name(edu_d_`het'_fi3, replace)
+
+		graph export			"$export/figures/edu_did_`het'_fi3.pdf", as(pdf) replace
+		
+		coefplot			edu_d_pre_frac_`het'1 edu_d_pre_frac_`het'2 ///
+								edu_d_pre_frac_`het'3 edu_d_pre_frac_`het'4, ///
+								drop(*.wave _cons *post std_pre* pre_* 2.`het'* 1.post#2.`het' 1.post#c.* ) ///
 								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
-								xtitle("`xt'") title("`country'") ///
-								levels(95) coeflabels(2.`het'#c.std_pre_frac = "Index 3" ///
-								2.`het'#c.std_pre_hhi = "Index 4" 2.`het'#c.pre_frac = "Index 5" ///
-								2.`het'#c.pre_hhi = "Index 6", notick) xlabel(-1(.2)1, labs(small))  ///
-								legend(off) name(edu_a_`het'_`c', replace)
+								xtitle("Effect on Educational Engagemen") title("Fractional Index 4") ///
+								levels(95) coeflabels(1.post#2.`het'#c.pre_frac1 = "Ethiopia" ///
+								1.post#2.`het'#c.pre_frac2 = "Malawi" ///
+								1.post#2.`het'#c.pre_frac3 = "Nigeria" ///
+								1.post#2.`het'#c.pre_frac4 = "Uganada", notick) ///
+								xlabel(-1(.2)1, labs(small))  ///
+								legend(off) name(edu_d_`het'_fi4, replace)
+
+		graph export			"$export/figures/edu_did_`het'_fi4.pdf", as(pdf) replace
+		
+		coefplot			edu_d_std_pre_hhi_`het'1 edu_d_std_pre_hhi_`het'2 ///
+								edu_d_std_pre_hhi_`het'3 edu_d_std_pre_hhi_`het'4, ///
+								drop(*.wave _cons *post std_pre* pre_* 2.`het'* 1.post#2.`het' 1.post#c.* ) ///
+								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
+								xtitle("Effect on Educational Engagemen") title("HHI 1") ///
+								levels(95) coeflabels(1.post#2.`het'#c.std_pre_hhi1 = "Ethiopia" ///
+								1.post#2.`het'#c.std_pre_hhi2 = "Malawi" ///
+								1.post#2.`het'#c.std_pre_hhi3 = "Nigeria" ///
+								1.post#2.`het'#c.std_pre_hhi4 = "Uganada", notick) ///
+								xlabel(-1(.2)1, labs(small))  ///
+								legend(off) name(edu_d_`het'_hhi1, replace)
+
+		graph export			"$export/figures/edu_did_`het'_hhi1.pdf", as(pdf) replace
+		
+		coefplot			edu_d_pre_hhi_`het'1 edu_d_pre_hhi_`het'2 ///
+								edu_d_pre_hhi_`het'3 edu_d_pre_hhi_`het'4, ///
+								drop(*.wave _cons *post std_pre* pre_* 2.`het'* 1.post#2.`het' 1.post#c.* ) ///
+								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
+								xtitle("Effect on Educational Engagemen") title("HHI 2") ///
+								levels(95) coeflabels(1.post#2.`het'#c.pre_hhi1 = "Ethiopia" ///
+								1.post#2.`het'#c.pre_hhi2 = "Malawi" ///
+								1.post#2.`het'#c.pre_hhi3 = "Nigeria" ///
+								1.post#2.`het'#c.pre_hhi4 = "Uganada", notick) ///
+								xlabel(-1(.2)1, labs(small))  ///
+								legend(off) name(edu_d_`het'_hhi2, replace)
+
+		graph export			"$export/figures/edu_did_`het'_hhi2.pdf", as(pdf) replace
+
+		* ANCOVA
+		coefplot			edu_a_std_pre_frac_`het'1 edu_a_std_pre_frac_`het'2 ///
+								edu_a_std_pre_frac_`het'3 edu_a_std_pre_frac_`het'4, ///
+								keep(2.`het'#c.std_pre_frac*) ///
+								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
+								xtitle("Effect on Educational Engagemen") title("Fractional Index 3") ///
+								levels(95) coeflabels(2.`het'#c.std_pre_frac1 = "Ethiopia" ///
+								2.`het'#c.std_pre_frac2 = "Malawi" ///
+								2.`het'#c.std_pre_frac3 = "Nigeria" ///
+								2.`het'#c.std_pre_frac4 = "Uganada", notick) ///
+								xlabel(-1(.2)1, labs(small))  ///
+								legend(off) name(edu_a_`het'_fi3, replace)
+
+		graph export			"$export/figures/edu_anc_`het'_fi3.pdf", as(pdf) replace
+		
+		coefplot			edu_a_pre_frac_`het'1 edu_a_pre_frac_`het'2 ///
+								edu_a_pre_frac_`het'3 edu_a_pre_frac_`het'4, ///
+								keep(2.`het'#c.pre_frac*) ///
+								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
+								xtitle("Effect on Educational Engagemen") title("Fractional Index 4") ///
+								levels(95) coeflabels(2.`het'#c.pre_frac1 = "Ethiopia" ///
+								2.`het'#c.pre_frac2 = "Malawi" ///
+								2.`het'#c.pre_frac3 = "Nigeria" ///
+								2.`het'#c.pre_frac4 = "Uganada", notick) ///
+								xlabel(-1(.2)1, labs(small))  ///
+								legend(off) name(edu_a_`het'_fi4, replace)
+
+		graph export			"$export/figures/edu_anc_`het'_fi4.pdf", as(pdf) replace
+		
+		coefplot			edu_a_std_pre_hhi_`het'1 edu_a_std_pre_hhi_`het'2 ///
+								edu_a_std_pre_hhi_`het'3 edu_a_std_pre_hhi_`het'4, ///
+								keep(2.`het'#c.std_pre_hhi*) ///
+								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
+								xtitle("Effect on Educational Engagemen") title("HHI 1") ///
+								levels(95) coeflabels(2.`het'#c.std_pre_hhi1 = "Ethiopia" ///
+								2.`het'#c.std_pre_hhi2 = "Malawi" ///
+								2.`het'#c.std_pre_hhi3 = "Nigeria" ///
+								2.`het'#c.std_pre_hhi4 = "Uganada", notick) ///
+								xlabel(-1(.2)1, labs(small))  ///
+								legend(off) name(edu_a_`het'_hhi1, replace)
+
+		graph export			"$export/figures/edu_anc_`het'_hhi1.pdf", as(pdf) replace
+		
+		coefplot			edu_a_pre_hhi_`het'1 edu_a_pre_hhi_`het'2 ///
+								edu_a_pre_hhi_`het'3 edu_a_pre_hhi_`het'4, ///
+								keep(2.`het'#c.pre_hhi*) ///
+								xline(0, lcolor(maroon)) xlabel(-1(.2)1, labs(med)) ///
+								xtitle("Effect on Educational Engagemen") title("HHI 2") ///
+								levels(95) coeflabels(2.`het'#c.pre_hhi1 = "Ethiopia" ///
+								2.`het'#c.pre_hhi2 = "Malawi" ///
+								2.`het'#c.pre_hhi3 = "Nigeria" ///
+								2.`het'#c.pre_hhi4 = "Uganada", notick) ///
+								xlabel(-1(.2)1, labs(small))  ///
+								legend(off) name(edu_a_`het'_hhi2, replace)
+
+		graph export			"$export/figures/edu_anc_`het'_hhi2.pdf", as(pdf) replace
 		}
-	}
-	
-		* graph export 
-		gr combine 				edu_d_sexhh_1 edu_d_sexhh_2 edu_d_sexhh_3 edu_d_sexhh_4, commonscheme
-		graph export			"$export/figures/reg_results/edu_did_sexhh.png", as(png) replace
-		
-		gr combine 				edu_a_sexhh_1 edu_a_sexhh_2 edu_a_sexhh_3 edu_a_sexhh_4, commonscheme
-		graph export			"$export/figures/reg_results/edu_anc_sexhh.png", as(png) replace
-		
-		gr combine 				edu_d_sector_1 edu_d_sector_2 edu_d_sector_3 edu_d_sector_4, commonscheme
-		graph export			"$export/figures/reg_results/edu_did_sector.png", as(png) replace
-		
-		gr combine 				edu_a_sector_1 edu_a_sector_2 edu_a_sector_3 edu_a_sector_4, commonscheme
-		graph export			"$export/figures/reg_results/edu_anc_sector.png", as(png) replace
 	
 	
-	restore 
-	
-	
-/*
-* **********************************************************************
-**# exploratory analysis
-* **********************************************************************								
-	* baseline income DID
-		preserve
-		drop 						if wave_ <0
-		xfill 						tot_inc_usd, i(hhid)
-		
-		pause on
-		foreach 					c in 1 2 3 {
-			foreach 					f in mild mod sev std {
-				reg 						`f'_fs c.tot_inc_usd##i.post ib(1).wave_ c.wave_#i.region ///
-													[aweight = weight] if country == `c', vce(cluster hhid) 	
-				eststo							`f'_did_inc`c'
-			}	
-		
-	
-		coefplot					mild_did_inc`c' mod_did_inc`c' sev_did_inc`c' std_did_inc`c', ///
-										drop(*.wave_orig y0* _cons *post `ind') ///
-										xline(0, lcolor(maroon))  ///
-										xtitle("Effect on Food Insecurity") title("`country'") ///
-										levels(95) coeflabels(1.post#c.`ind' = " ", notick) ///
-										legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
-										label(6 "Severe") label(8 "Index")) name(did_inc_`c', replace)		
-		pause
-		}	
-		restore 
-*/		
 		
 ************************************************************************
 **# end matters
