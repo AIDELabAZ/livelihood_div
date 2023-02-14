@@ -81,7 +81,7 @@ preserve
 		local 				country = "D: Uganda"
 		local 				obs1 = "1,642"
 		local 				obs2 = "583"
-		local 				end = "\multicolumn{4}{p{360pt}}{\footnotesize \textit{Note}: The table displays the share of households engaged in each category of livelihood activity and the mean and standard deviation of income earned from that category. In the LSMS data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates found at \href{https://exchangerates.org}{https://exchangerates.org}.}  \\ \end{longtable} "
+		local 				end = "\multicolumn{4}{p{360pt}}{\footnotesize \textit{Note}: The table displays the share of households engaged in each category of livelihood activity and the mean and standard deviation of income earned from that category. In the LSMS-ISA data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates.}  \\ \end{longtable} "
 		}
 		
 		
