@@ -1,7 +1,7 @@
 # Livelihood Diversification project(s)
 This README describes the directory structure & should enable users to replicate all tables and figures for work related to the World Bank LSMS and World Bank COVID phone surveys, related to diversification and various projects by the contributors listed below. For more information and to access these phone surveys, visit the World Bank Microdata Library. The relevant surveys are available under under the High-Frequency Phone Survey collection: http://bit.ly/microdata-hfps.  
 
-THIS IS AN ATTEMPTED COPY OF AIDELabAZ/diversification in attempts to repair that repo.
+This repo repairs AIDELabAZ/diversification.
 
 Last update: August 2022. 
 
