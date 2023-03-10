@@ -4,11 +4,12 @@
 * Created on: 30 March 2022
 * Created by: alj
 * Edited by: alj
-* Last edit: 20 September 2022
+* Last edit: 10 March 2023
 * Stata v.17
 
 * does
 	* sample MDE code 
+	* possible power calculation 
 
 * assumes
 	* ssc power 
@@ -51,7 +52,6 @@ power twomeans .27, k1(56) k2(56) sd(.44) m1(1(1)15) mratio(1) power(0.7 0.8 0.9
 
 ************************************************************************
 
-* from AF
 *** SAMPLE INFORMATION FROM ETHIOPIA 
 * sample means 
 *** mild_fs = 0.52, mod_fs = 0.25, sev_fs = 0.03, stf_fs = -0.43
