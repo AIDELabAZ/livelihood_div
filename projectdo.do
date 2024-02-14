@@ -22,7 +22,7 @@
 * **********************************************************************
 
 * set $pack to 0 to skip package installation
-	global 			pack 	1
+	global 			pack 	0
 		
 * Specify Stata version in use
     global stataVersion 17.0    // set Stata version
@@ -41,10 +41,10 @@
 		global 		output_f "G:/My Drive/wb_covid/output"
     }
 
-    if `"`c(username)'"' == "aljosephson" {
-        global 		code  	"C:/Users/aljosephson/git/AIDELabAZ/livelihood_div"
-		global 		data	"G:/.shortcut-targets-by-id/1wmQb8xn5Qop-2J14D7Z2rdKxJhcwfP_q/wb_covid/data"
-		global 		output_f "G:/.shortcut-targets-by-id/1wmQb8xn5Qop-2J14D7Z2rdKxJhcwfP_q/wb_covid/output"
+    if `"`c(username)'"' == "annal" {
+        global 		code  	"C:/Users/aljosephson/git/livelihood_div"
+		global 		data	"C:/Users/aljosephson/OneDrive - University of Arizona/wb_covid/data"
+		global 		output_f "C:/Users/aljosephson/OneDrive - University of Arizona/wb_covid/output"
     }
 
 	if `"`c(username)'"' == "annfu" {
@@ -99,7 +99,7 @@ if $pack == 0 {
 		set more off
 }
 
-
+/*
 * **********************************************************************
 * 1 - run household data cleaning .do file
 * **********************************************************************
