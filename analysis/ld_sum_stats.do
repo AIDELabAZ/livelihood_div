@@ -4,8 +4,8 @@
 * Created on: Dec 2021
 * Created by: amf
 * Edited by: jdm
-* Last edited: Jan 27 2023
-* Stata v.17.0
+* Last edited: Feb 6 2024
+* Stata v.18.0
 
 * does
 	* generates summary statistics tables
@@ -16,7 +16,7 @@
 	* coefplot
 
 * TO DO:
-	* inc_sum table: issues with multicolumn footer - eliminated for now 
+	* done
 
 
 * **********************************************************************
@@ -58,28 +58,28 @@ preserve
 	local 				list4 = "crop_inc_ live_inc_ live_prod_ wage_emp_ nfe_inc_ cash_dom_ kind_dom_ cash_for_ kind_for_ sage_ pen_inc_ rent_inc_ interest_ oth_inc_"
 	
 
-	estpost 			sum wave //need random stored variable for esttabs below to work, even though this is not referenced
+	estpost 			sum wave // need random stored variable for esttabs below to work, even though this is not referenced
 	foreach 			c in `countries' {
 	if 					`c' == 1 {
-		local 				obs1 = "977"
+		local 				obs1 = "3,247"
 		local 				obs2 = "2,270"
 		local 				end = " "
 	}
 	else 				if 	`c' == 2 {
 		local 				country = "B: Malawi"
-		local 				obs1 = "1,092"
+		local 				obs1 = "1,726"
 		local 				obs2 = "634"
 		local 				end = " "
 	}
 	else 				if `c' == 3 {
 		local 				country = "C: Nigeria"
-		local 				obs1 = "1,195"
+		local 				obs1 = "1,950"
 		local 				obs2 = "755"
 		local 				end = " "
 	}
 	else 				if `c' == 4 {
 		local 				country = "D: Uganda"
-		local 				obs1 = "1,642"
+		local 				obs1 = "2,225"
 		local 				obs2 = "583"
 		local 				end = "\multicolumn{4}{p{360pt}}{\footnotesize \textit{Note}: The table displays the share of households engaged in each category of livelihood activity and the mean and standard deviation of income earned from that category. In the LSMS-ISA data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates.}  \\ \end{longtable} "
 		}
@@ -114,15 +114,15 @@ preserve
 	foreach 					var in `list`c'' {
 		replace 					`var'amnt_0 = . if `var'amnt_0 == 0
 		
-		quietly: sum 				`var'0 if country == `c' & wave == 0 [aweight = weight]
+		qui: sum 				`var'0 if country == `c' & wave == 0 [aweight = weight]
 		local 						temp1 = r(mean) 
 		local 						mean1 : display %4.3f `temp1'
-		quietly: sum 				`var'amnt_0 if country == `c' & wave == 0  [aweight = weight]
+		qui: sum 				`var'amnt_0 if country == `c' & wave == 0  [aweight = weight]
 		local 						temp1a = r(mean) 
 		local 						mean1a : display %8.0fc `temp1a'
 		local 						temp1b = r(sd) 
 		local 						mean1b : display %8.0fc `temp1b'
-		quietly: sum 				`var'0 if country == `c' & wave == 0 [aweight = weight]
+		qui: sum 				`var'0 if country == `c' & wave == 0 [aweight = weight]
 		
 		local 				label : variable label `var'0
 		esttab 				using "$export/tables/inc_sum.tex", append ///
