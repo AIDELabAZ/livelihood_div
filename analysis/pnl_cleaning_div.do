@@ -2,8 +2,8 @@
 * Created on: Sept 2021
 * Created by: amf
 * Edited by: jdm
-* Last edit: 27 jan 2021
-* Stata v.17.0
+* Last edit: 11 Apr 2024
+* Stata v.18.0
 
 
 * does
@@ -210,6 +210,13 @@
 			egen 			`l'_obs = total(one), by(`l')
 		}
 		
+		* fill in missing regions
+		replace			region = 4016 if country == 4 & ea > 893
+		replace			region = 4015 if country == 4 & ea > 542 & ea < 894 
+		replace			region = 4013 if country == 4 & ea > 339 & ea < 543
+		replace			region = 4012 if country == 4 & ea > 68 & ea < 340
+		replace			region = 4014 if country == 4 & ea < 69
+		
 		* generate combined variable that uses the smallest geographic area with at least 10 observations
 		gen 			geo_count1 = region_count if region_obs >= 10 & country == 1 
 		replace 		geo_count = zone_count if zone_obs >= 10 & country == 1 
@@ -231,16 +238,21 @@
 		replace 		geo_count = ward_count if ward_obs >= 10 & country == 4
 		replace 		geo_count = ea_count if ea_obs >= 10 & country == 4
 		
+		gen				geo_count2 = region_count
 
 		* generate index
 		egen 				hh_count_pp = rowtotal(*_std_pp)
 		gen 				std_pp_index = 1 - (hh_count_pp / geo_count1)
+		gen 				std_pp_indexa = 1 - (hh_count_pp / geo_count2)
 		lab var 			std_pp_index "Index 1"
+		lab var 			std_pp_indexa "Index 1a"
 		ds					*_std_pp 
 		foreach 			var in `r(varlist)' {
 			replace 			std_pp_index = . if `var' == .
+			replace 			std_pp_indexa = . if `var' == .
 		}
-		drop 				*_count* *_obs 
+		rename				geo_count1 geo_control
+		drop 				*_obs *_count*
 		
 		* only keep waves with sufficient data
 		ds 					*std_pp 

@@ -2,8 +2,8 @@
 * Created on: Jan 2022
 * Created by: amf
 * Edited by: jdm
-* Last edited: 8 February 2023
-* Stata v.17.0
+* Last edited: 11 Apr 2024
+* Stata v.18.0
 
 * does
 	* runs livelihood diversification regression
@@ -69,9 +69,6 @@
 		}		
 	
 
-* replace total loss with reduced
-	replace					tot_inc_chg = 3 if tot_inc_chg == 4
-	
 		
 * **********************************************************************
 **# dynamic panel model (index 1)
