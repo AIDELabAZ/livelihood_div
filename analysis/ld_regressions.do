@@ -139,26 +139,26 @@
 	graph export			"$export/figures/dyn_fs_index1.pdf", as(pdf) replace
 
 	* generate table
-	esttab 					std_pp_index_mild_dyn_1 std_pp_index_mod_dyn_1 std_pp_index_sev_dyn_1 std_pp_index_std_dyn_1 ///
-								std_pp_index_mild_dyn_2 std_pp_index_mod_dyn_2 std_pp_index_sev_dyn_2 std_pp_index_std_dyn_2 ///
-								std_pp_index_mild_dyn_3 std_pp_index_mod_dyn_3 std_pp_index_sev_dyn_3 std_pp_index_std_dyn_3 ///
+	esttab 					std_pp_index_std_dyn_1 std_pp_index_mild_dyn_1 std_pp_index_mod_dyn_1 std_pp_index_sev_dyn_1  ///
+								std_pp_index_std_dyn_2 std_pp_index_mild_dyn_2 std_pp_index_mod_dyn_2 std_pp_index_sev_dyn_2  ///
+								std_pp_index_std_dyn_3 std_pp_index_mild_dyn_3 std_pp_index_mod_dyn_3 std_pp_index_sev_dyn_3 ///
 								using "$export/tables/dyn_fs.tex", b(3) se(3) replace drop(*wave* _cons) noobs ///
 								booktabs nonum nomtitle collabels(none) nobaselevels nogaps ///
 								stat(N, labels("Observations") fmt(%9.0fc)) ///
 								fragment label prehead("\begin{tabular}{l*{12}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] " ///
 								"& \multicolumn{4}{c}{Ethiopia} & \multicolumn{4}{c}{Malawi} & " ///
-								"\multicolumn{4}{c}{Nigeria} \\ & \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} & " ///
-								"\multicolumn{1}{c}{Severe} & \multicolumn{1}{c}{FS Index} & \multicolumn{1}{c}{Mild} " ///
-								"& \multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} & \multicolumn{1}{c}{FS Index} " ///
+								"\multicolumn{4}{c}{Nigeria} \\ & \multicolumn{1}{c}{FS Index} & \multicolumn{1}{c}{Mild} & " ///
+								"\multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} & \multicolumn{1}{c}{FS Index} " ///
 								"& \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} " ///
-								"& \multicolumn{1}{c}{FS Index} \\ \midrule ") coeflabels(std_pp_index_lag "Lagged FI" ///
+								"& \multicolumn{1}{c}{FS Index} & \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} " ///
+								"& \multicolumn{1}{c}{Mild} \\ \midrule ") coeflabels(std_pp_index_lag "Lagged FI" ///
 								mild_fs_lag "Lagged Mild" c.mild_fs_lag#c.std_pp_index_lag "Lagged Mild $\times$ Lagged FI" ///
 								mod_fs_lag "Lagged Moderate" c.mod_fs_lag#c.std_pp_index_lag "Lagged Moderate $\times$ Lagged FI" ///
 								sev_fs_lag "Lagged Severe" c.sev_fs_lag#c.std_pp_index_lag "Lagged Severe $\times$ Lagged FI" ///
 								std_fs_lag "Lagged FS Index" c.std_fs_lag#c.std_pp_index_lag "Lagged FS Index $\times$ Lagged FI") ///	
-								order(std_pp_index_lag mild_fs_lag c.mild_fs_lag#c.std_pp_index_lag mod_fs_lag ///
-								c.mod_fs_lag#c.std_pp_index_lag sev_fs_lag c.sev_fs_lag#c.std_pp_index_lag ///
-								std_fs_lag c.std_fs_lag#c.std_pp_index_lag) ///
+								order(std_pp_index_lag std_fs_lag c.std_fs_lag#c.std_pp_index_lag mild_fs_lag  ///
+								c.mild_fs_lag#c.std_pp_index_lag mod_fs_lag c.mod_fs_lag#c.std_pp_index_lag  ///
+								sev_fs_lag c.sev_fs_lag#c.std_pp_index_lag) ///
 								postfoot("\hline \hline \\[-1.8ex] " ///
 								"\multicolumn{13}{p{760pt}}{\small \noindent \textit{Note}: The table displays regression results " ///
 								"from our dynamic panel specification with household fixed effects, round dummies, and region-time trends " ///
