@@ -377,7 +377,7 @@
 			sort 					hhid wave_, stable 
 			bysort 					hhid (wave_orig): gen `ind'_lag = `ind'[_n-1]
 			bysort 					hhid (wave_orig): gen `fs'_fs_lag = `fs'_fs[_n-1]
-			gen						fs_fi = `ind'_lag*`fs'_fs_lag
+			gen						fs_fi = `ind'*`fs'_fs
 			egen 					wave_temp =  group(country wave_orig)
 			egen 					max = max(wave_temp), by(hhid)
 			drop 					if max == 4 & country == 1 // drops 8
@@ -387,8 +387,8 @@
 			
 			* dynamic panel regression
 			xtset 					hhid wave_temp 
-			xtabond 				`fs'_fs fs_fi `ind'_lag wt_* _IregX* ///
-										, vce(robust)
+			xtabond2 				`fs'_fs L.`fs'_fs L. `ind' L.fs_fi wt_* _IregX* ///
+										[aweight = weight], gmm(L.`fs'_fs) gmm(L.fs_fi) cluster(hhid)
 			eststo					`ind'_`fs'_bond_`c'
 			matrix                                  list e(b)
 			restore
@@ -408,12 +408,12 @@
 								" & \multicolumn{1}{c}{FS Index} & \multicolumn{1}{c}{Mild} & " ///
 								"\multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} & \multicolumn{1}{c}{FS Index} " ///
 								"& \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} " ///
-								"\\ \midrule ")  coeflabels(std_pp_index_lag "Lagged FI" ///
-								L.mild_fs "Lagged Mild" fs_fi "Lagged FS $\times$ Lagged FI" ///
+								"\\ \midrule ")  coeflabels(L.std_pp_index "Lagged FI" ///
+								L.mild_fs "Lagged Mild" L.fs_fi "Lagged FS $\times$ Lagged FI" ///
 								L.mod_fs "Lagged Moderate"  ///
 								L.sev_fs "Lagged Severe"  ///
 								L.std_fs "Lagged FS Index" ) ///	
-								order(std_pp_index_lag fs_fi L.std_fs L.mild_fs  ///
+								order(L.std_pp_index L.fs_fi L.std_fs L.mild_fs  ///
 								 L.mod_fs  ///
 								L.sev_fs ) ///
 								postfoot("\hline \hline \\[-1.8ex] " ///

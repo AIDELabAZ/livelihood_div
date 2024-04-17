@@ -68,7 +68,6 @@
 			}
 		}		
 	
-
 		
 * **********************************************************************
 **# dynamic panel model (index 1)
@@ -78,6 +77,9 @@
 * **********************************************************************
 **## food security index 1
 * **********************************************************************			
+
+
+
 
 	foreach 				ind in std_pp_index {
 	if 						"`ind'" == "std_pp_index" {
@@ -103,11 +105,12 @@
 			* dynamic panel regression
 			xtset 					hhid wave_temp 
 			xtreg 					`fs'_fs c.`fs'_fs_lag##c.`ind'_lag i.wave_temp i.region#c.wave_temp ///
-										[aweight = weight], fe vce(cluster hhid)
+										[aweight = weight], fe vce(cluster hhid)					
 			eststo					`ind'_`fs'_dyn_`c'
 			restore
 		}
 	}
+	
 	* generate graphics 
 	coefplot				`ind'_mild_dyn_1 `ind'_mod_dyn_1 `ind'_sev_dyn_1 `ind'_std_dyn_1, ///
 								drop(*.wave_temp *.country std_pp_index_lag mild_fs_lag mod_fs_lag ///
