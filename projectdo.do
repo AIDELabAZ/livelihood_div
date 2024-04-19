@@ -52,21 +52,13 @@
 		global 		data	"G:/My Drive/wb_covid/data"
 		global 		output_f "G:/My Drive/wb_covid/output"
 	}
-	
-		if `"`c(username)'"' == "lirro" {
-		global 		code  	"C:/Users/lirro/Documents/GitHub/diversification"
-		global 		data	"G:/My Drive/wb_covid/data"
-		global 		output "G:/My Drive/wb_covid/output"
-	}
-	
-	
-	
+
 * **********************************************************************
 * 0 (b) - Check if any required packages are installed:
 * **********************************************************************
 
 * install packages if global is set to 1
-if $pack == 0 {
+if $pack == 1 {
 	
 	* for packages/commands, make a local containing any required packages
 		loc userpack "blindschemes mdesc estout distinct winsor2 palettes catplot grc1leg2 colrspace" 
@@ -88,9 +80,9 @@ if $pack == 0 {
 			}
 		}
 
-	* install -xfill- package
-		net install xfill, replace from(https://www.sealedenvelope.com/)
-
+	* install -xfill and nwcommands packages
+		net install xfill, 	replace from(https://www.sealedenvelope.com/)
+	
 	* update all ado files
 		ado update, update
 

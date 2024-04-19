@@ -37,6 +37,37 @@
 	graph 					drop _all
 	eststo 					clear
 
+* load data
+	use 					"$data/analysis/diversification/ld_pnl", replace
+				
+* prep panel 
+	sort 					hhid wave_orig
+	xtset 					hhid wave_orig
+	
+	* gen y0 fs and education and xfill by hhid
+		foreach 			f in mild mod sev std {
+			gen 				y0_`f' = `f'_fs if wave == 0
+			xfill 				y0_`f', i(hhid)
+		}
+		gen 				y0_edu_act = edu_act if wave == 0
+		xfill 				y0_edu_act, i(hhid)
+		
+	* xfill diversification by hhid
+		* pre-covid indices
+		ds 					*pre_index*
+		foreach 			ind in `r(varlist)' {
+			xfill 				`ind', i(hhid)
+		}
+		
+	* generate and xfill outcome vars for each wave 
+		forval 					x = 0/11 {
+			foreach 				fs in mild mod sev {
+				gen 					y`x'_fs_`fs' = `fs'_fs if wave_orig == `x'
+				xfill 					y`x'_fs_`fs', i(hhid)
+			}
+		}		
+	
+	
 ***********************************************************************
 **# 1. include income change
 ***********************************************************************	
@@ -359,70 +390,6 @@
 **# 6. Arellano-Bover/Blundell-Bond model
 ***********************************************************************	
 
-	foreach 				ind in std_pp_index {
-	if 						"`ind'" == "std_pp_index" {
-		local 				t = "Fractional Index"
-	}
-
-	foreach 				c in 1 2 {
-		foreach 				fs in mild mod sev std  {
-			* balance panel with lagged variables
-			preserve
-			keep 					if country == `c'
-			drop 					if `fs'_fs == . // can never use obs without dependent var
-			egen 					temp = total(inrange(wave_orig, 0, 11)), by(hhid)
-			drop 					if temp < 6 & country == 1 // 3,317 of 17,759 dropped (19%)
-			drop 					if temp < 10 & country == 2 // 2,812 of 16,102 dropped (17%)
-			drop 					if temp < 4 & country == 3 // 1,050 of 7,606 dropped (14%)
-			sort 					hhid wave_, stable 
-			bysort 					hhid (wave_orig): gen `ind'_lag = `ind'[_n-1]
-			bysort 					hhid (wave_orig): gen `fs'_fs_lag = `fs'_fs[_n-1]
-			gen						fs_fi = `ind'*`fs'_fs
-			egen 					wave_temp =  group(country wave_orig)
-			egen 					max = max(wave_temp), by(hhid)
-			drop 					if max == 4 & country == 1 // drops 8
-			
-			qui tabulate 			wave_temp, generate(wt_)
-			xi 						I.region|wave_temp, prefix(_I)
-			
-			* dynamic panel regression
-			xtset 					hhid wave_temp 
-			xtabond2 				`fs'_fs L.`fs'_fs L. `ind' L.fs_fi wt_* _IregX* ///
-										[aweight = weight], gmm(L.`fs'_fs) gmm(L.fs_fi) cluster(hhid)
-			eststo					`ind'_`fs'_bond_`c'
-			matrix                                  list e(b)
-			restore
-		}
-	}
-}
-
-
-* generate table
-	esttab 					std_pp_index_std_bond_1 std_pp_index_mild_bond_1 std_pp_index_mod_bond_1 std_pp_index_sev_bond_1  ///
-								std_pp_index_std_bond_2 std_pp_index_mild_bond_2 std_pp_index_mod_bond_2 std_pp_index_sev_bond_2  ///
-								using "$export/tables/inc_bond_fs.tex", b(3) se(3) replace drop(_cons wt_* _IregX*) noobs ///
-								booktabs nonum nomtitle collabels(none) nobaselevels nogaps ///
-								stat(N, labels("Observations") fmt(%9.0fc)) ///
-								fragment label prehead("\begin{tabular}{l*{8}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] " ///
-								"& \multicolumn{4}{c}{Ethiopia} & \multicolumn{4}{c}{Malawi} \\ " ///
-								" & \multicolumn{1}{c}{FS Index} & \multicolumn{1}{c}{Mild} & " ///
-								"\multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} & \multicolumn{1}{c}{FS Index} " ///
-								"& \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} " ///
-								"\\ \midrule ")  coeflabels(L.std_pp_index "Lagged FI" ///
-								L.mild_fs "Lagged Mild" L.fs_fi "Lagged FS $\times$ Lagged FI" ///
-								L.mod_fs "Lagged Moderate"  ///
-								L.sev_fs "Lagged Severe"  ///
-								L.std_fs "Lagged FS Index" ) ///	
-								order(L.std_pp_index L.fs_fi L.std_fs L.mild_fs  ///
-								 L.mod_fs  ///
-								L.sev_fs ) ///
-								postfoot("\hline \hline \\[-1.8ex] " ///
-								"\multicolumn{9}{p{560pt}}{\small \noindent \textit{Note}: The table displays regression results " ///
-								"from our dynamic panel specification with household fixed effects, round dummies, and region-time trends. " ///
-								"FI stands for Fractional Index while Increased (Decreased) indicates how the household's income changed " ///
-								"in the past 30 days. Standard errors, clustered at the household, are reported in parentheses " ///
-								"(*** p$<$0.001, ** p$<$0.01, * p$<$0.05).}  \end{tabular}")
-
 * endogenous interaction
 	foreach 				ind in std_pp_index {
 	if 						"`ind'" == "std_pp_index" {
@@ -442,7 +409,8 @@
 			sort 					hhid wave_, stable 
 			bysort 					hhid (wave_orig): gen `ind'_lag = `ind'[_n-1]
 			bysort 					hhid (wave_orig): gen `fs'_fs_lag = `fs'_fs[_n-1]
-			gen						fs_fi = `ind'_lag*`fs'_fs_lag
+			gen						fs_fi = `ind'*`fs'_fs
+			gen						fs = `fs'_fs
 			egen 					wave_temp =  group(country wave_orig)
 			egen 					max = max(wave_temp), by(hhid)
 			drop 					if max == 4 & country == 1 // drops 8
@@ -452,14 +420,14 @@
 			
 			* dynamic panel regression
 			xtset 					hhid wave_temp 
-			xtabond 				`fs'_fs fs_fi `ind'_lag wt_* _IregX* ///
-										, vce(robust) end(fs_fi)
+			xtabond2 				fs L.`ind' L.fs_fi L.fs wt_* _IregX* ///
+										, gmm(L.fs_fi L.`fs'_fs) iv(L.`ind'_lag wt_* _IregX*) ///
+										cluster(hhid) twostep orthog nodiffsargan
 			eststo					`ind'_`fs'_bond_`c'
 			restore
 		}
 	}
 }
-
 
 * generate table
 	esttab 					std_pp_index_std_bond_1 std_pp_index_mild_bond_1 std_pp_index_mod_bond_1 std_pp_index_sev_bond_1  ///
@@ -472,14 +440,9 @@
 								" & \multicolumn{1}{c}{FS Index} & \multicolumn{1}{c}{Mild} & " ///
 								"\multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} & \multicolumn{1}{c}{FS Index} " ///
 								"& \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} " ///
-								"\\ \midrule ")  coeflabels(std_pp_index_lag "Lagged FI" ///
-								L.mild_fs "Lagged Mild" fs_fi "Lagged FS $\times$ Lagged FI" ///
-								L.mod_fs "Lagged Moderate"  ///
-								L.sev_fs "Lagged Severe"  ///
-								L.std_fs "Lagged FS Index" ) ///	
-								order(std_pp_index_lag fs_fi L.std_fs L.mild_fs  ///
-								 L.mod_fs  ///
-								L.sev_fs ) ///
+								"\\ \midrule ")  coeflabels(L.std_pp_index "Lagged Fractional Index (FI)" ///
+								L.fs "Lagged Food Security (FS)" L.fs_fi "Lagged FS $\times$ Lagged FI" ) ///	
+								order(L.std_pp_index L.fs_fi L.fs ) ///
 								postfoot("\hline \hline \\[-1.8ex] " ///
 								"\multicolumn{9}{p{560pt}}{\small \noindent \textit{Note}: The table displays regression results " ///
 								"from our dynamic panel specification with household fixed effects, round dummies, and region-time trends. " ///

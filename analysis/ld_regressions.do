@@ -79,8 +79,6 @@
 * **********************************************************************			
 
 
-
-
 	foreach 				ind in std_pp_index {
 	if 						"`ind'" == "std_pp_index" {
 		local 				t = "Fractional Index"
@@ -98,13 +96,14 @@
 			drop 					if temp < 4 & country == 3 // 1,050 of 7,606 dropped (14%)
 			sort 					hhid wave_, stable 
 			bysort 					hhid (wave_orig): gen `ind'_lag = `ind'[_n-1]
-			bysort 					hhid (wave_orig): gen `fs'_fs_lag = `fs'_fs[_n-1]
+			bysort 					hhid (wave_orig): gen fs_lag = `fs'_fs[_n-1]
+			gen						fs =  `fs'_fs
 			egen 					wave_temp =  group(country wave_orig)
 			egen 					max = max(wave_temp), by(hhid)
 			drop 					if max == 4 & country == 1 // drops 8
 			* dynamic panel regression
 			xtset 					hhid wave_temp 
-			xtreg 					`fs'_fs c.`fs'_fs_lag##c.`ind'_lag i.wave_temp i.region#c.wave_temp ///
+			xtreg 					fs c.fs_lag##c.`ind'_lag i.wave_temp i.region#c.wave_temp ///
 										[aweight = weight], fe vce(cluster hhid)					
 			eststo					`ind'_`fs'_dyn_`c'
 			restore
@@ -113,24 +112,21 @@
 	
 	* generate graphics 
 	coefplot				`ind'_mild_dyn_1 `ind'_mod_dyn_1 `ind'_sev_dyn_1 `ind'_std_dyn_1, ///
-								drop(*.wave_temp *.country std_pp_index_lag mild_fs_lag mod_fs_lag ///
-								sev_fs_lag std_fs_lag _cons) xline(0, lcolor(maroon)) ///
+								drop(*.wave_temp *.country std_pp_index_lag fs_lag _cons) xline(0, lcolor(maroon)) ///
 								xtitle("Effect on Food Insecurity", size(small)) title("Ethiopia") ///
 								levels(95) coeflabels(c.* = " ", notick) xlabel(-1(.2)1, labs(small)) ///
 								legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
 								label(6 "Severe") label(8 "Index")) name(`ind'_fs_dyn_eth, replace)
 								
 	coefplot				`ind'_mild_dyn_2 `ind'_mod_dyn_2 `ind'_sev_dyn_2 `ind'_std_dyn_2, ///
-								drop(*.wave_temp *.country std_pp_index_lag mild_fs_lag mod_fs_lag ///
-								sev_fs_lag std_fs_lag _cons) xline(0, lcolor(maroon)) ///
+								drop(*.wave_temp *.country std_pp_index_lag fs_lag _cons) xline(0, lcolor(maroon)) ///
 								xtitle("Effect on Food Insecurity", size(small)) title("Malawi") ///
 								levels(95) coeflabels(c.* = " ", notick) xlabel(-1(.2)1, labs(small)) ///
 								legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
 								label(6 "Severe") label(8 "Index")) name(`ind'_fs_dyn_mwi, replace)
 								
 	coefplot				`ind'_mild_dyn_3 `ind'_mod_dyn_3 `ind'_sev_dyn_3 `ind'_std_dyn_3, ///
-								drop(*.wave_temp *.country std_pp_index_lag mild_fs_lag mod_fs_lag ///
-								sev_fs_lag std_fs_lag _cons) xline(0, lcolor(maroon)) ///
+								drop(*.wave_temp *.country std_pp_index_lag fs_lag _cons) xline(0, lcolor(maroon)) ///
 								xtitle("Effect on Food Insecurity", size(small)) title("Nigeria") ///
 								levels(95) coeflabels(c.* = " ", notick) xlabel(-1(.2)1, labs(small)) ///
 								legend(col(4) pos(3) label(2 "Mild") label(4 "Moderate") ///
@@ -154,14 +150,10 @@
 								"\multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} & \multicolumn{1}{c}{FS Index} " ///
 								"& \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} " ///
 								"& \multicolumn{1}{c}{FS Index} & \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} " ///
-								"& \multicolumn{1}{c}{Mild} \\ \midrule ") coeflabels(std_pp_index_lag "Lagged FI" ///
-								mild_fs_lag "Lagged Mild" c.mild_fs_lag#c.std_pp_index_lag "Lagged Mild $\times$ Lagged FI" ///
-								mod_fs_lag "Lagged Moderate" c.mod_fs_lag#c.std_pp_index_lag "Lagged Moderate $\times$ Lagged FI" ///
-								sev_fs_lag "Lagged Severe" c.sev_fs_lag#c.std_pp_index_lag "Lagged Severe $\times$ Lagged FI" ///
-								std_fs_lag "Lagged FS Index" c.std_fs_lag#c.std_pp_index_lag "Lagged FS Index $\times$ Lagged FI") ///	
-								order(std_pp_index_lag std_fs_lag c.std_fs_lag#c.std_pp_index_lag mild_fs_lag  ///
-								c.mild_fs_lag#c.std_pp_index_lag mod_fs_lag c.mod_fs_lag#c.std_pp_index_lag  ///
-								sev_fs_lag c.sev_fs_lag#c.std_pp_index_lag) ///
+								"& \multicolumn{1}{c}{Mild} \\ \midrule ") ///
+								coeflabels(std_pp_index_lag "Lagged Fractional Index (FI)" ///
+								fs_lag "Lagged Food Security (FS)" c.fs_lag#c.std_pp_index_lag "Lagged FS $\times$ Lagged FI" ) ///	
+								order(std_pp_index_lag c.fs_lag#c.std_pp_index_lag) ///
 								postfoot("\hline \hline \\[-1.8ex] " ///
 								"\multicolumn{13}{p{760pt}}{\small \noindent \textit{Note}: The table displays regression results " ///
 								"from our dynamic panel specification with household fixed effects, round dummies, and region-time trends " ///
