@@ -159,7 +159,7 @@
 								"from our dynamic panel specification with household fixed effects, round dummies, and region-time trends " ///
 								"(see Equation \ref{eq:dyn}). FI stands for Fractional Index while FS stands for our standardized index of " ///
 								"food insecurity. Standard errors, clustered at the household, are reported in parentheses " ///
-								"(*** p$<$0.001, ** p$<$0.01, * p$<$0.05). Results correspond with coefficients presented in Figure~\ref{fig:dyn-fs}.}  \end{tabular}")
+								"(*** p$<$0.001, ** p$<$0.01, * p$<$0.05).}  \end{tabular}")
 	
 
 * **********************************************************************
