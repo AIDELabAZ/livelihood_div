@@ -290,13 +290,13 @@ eststo 					clear
 			drop 					if temp < 4 & country == 3 // 1,050 of 7,606 dropped (14%)
 			sort 					hhid wave_, stable 
 			bysort 					hhid (wave_orig): gen `ind'_lag = `ind'[_n-1]
-			bysort 					hhid (wave_orig): gen `fs'_fs_lag = `fs'_fs[_n-1]
+			bysort 					hhid (wave_orig): gen fs_lag = `fs'_fs[_n-1]
 			egen 					wave_temp =  group(country wave_orig)
 			egen 					max = max(wave_temp), by(hhid)
 			drop 					if max == 4 & country == 1 // drops 8
 			* dynamic panel regression with interactions
 			xtset 					hhid wave_temp
-			xtreg 					`fs'_fs c.stringency_index##c.`fs'_fs_lag##c.`ind'_lag i.wave_temp ///
+			xtreg 					`fs'_fs c.stringency_index##c.fs_lag##c.`ind'_lag i.wave_temp ///
 											i.region#c.wave_temp [aweight = weight] if country == `c', fe vce(cluster hhid)
 			eststo					`ind'_`fs'_inter_`c' 
 			restore
@@ -339,49 +339,33 @@ eststo 					clear
 	graph export			"$export/figures/inter_fs_index1.pdf", as(pdf) replace
 
 	* generate table
-	esttab 					std_pp_index_mild_inter_1 std_pp_index_mod_inter_1 std_pp_index_sev_inter_1 std_pp_index_std_inter_1 ///
-								std_pp_index_mild_inter_2 std_pp_index_mod_inter_2 std_pp_index_sev_inter_2 std_pp_index_std_inter_2 ///
-								std_pp_index_mild_inter_3 std_pp_index_mod_inter_3 std_pp_index_sev_inter_3 std_pp_index_std_inter_3 ///
+	esttab 					std_pp_index_std_inter_1 std_pp_index_mild_inter_1 std_pp_index_mod_inter_1 std_pp_index_sev_inter_1 ///
+								std_pp_index_std_inter_2 std_pp_index_mild_inter_2 std_pp_index_mod_inter_2 std_pp_index_sev_inter_2 ///
+								std_pp_index_std_inter_3 std_pp_index_mild_inter_3 std_pp_index_mod_inter_3 std_pp_index_sev_inter_3 ///
 								using "$export/tables/inter_fs.tex", b(3) se(3) replace drop(*wave* _cons) noobs ///
 								booktabs nonum nomtitle collabels(none) nobaselevels nogaps ///
 								stat(N, labels("Observations") fmt(%9.0fc)) ///
 								fragment label prehead("\begin{tabular}{l*{12}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] " ///
 								"& \multicolumn{4}{c}{Ethiopia} & \multicolumn{4}{c}{Malawi} & " ///
-								"\multicolumn{4}{c}{Nigeria} \\ & \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} & " ///
-								"\multicolumn{1}{c}{Severe} & \multicolumn{1}{c}{FS Index} & \multicolumn{1}{c}{Mild} " ///
-								"& \multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} & \multicolumn{1}{c}{FS Index} " ///
+								"\multicolumn{4}{c}{Nigeria} \\ & \multicolumn{1}{c}{FS Index} & \multicolumn{1}{c}{Mild} & " ///
+								"\multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} & \multicolumn{1}{c}{FS Index} " ///
 								"& \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} " ///
-								"& \multicolumn{1}{c}{FS Index} \\ \midrule ") coeflabels(stringency_index "COVID-19 Stringency" ///
-								std_pp_index_lag "Lagged FI" c.stringency_index#c.std_pp_index_lag "COVID-19 Stringency $\times$ Lagged FI" ///
-								mild_fs_lag "Lagged Mild" c.stringency_index#c.mild_fs_lag "Lagged Mild $\times$ COVID-19 Stringency" ///
-								c.mild_fs_lag#c.std_pp_index_lag "Lagged Mild $\times$ Lagged FI" ///
-								c.stringency_index#c.mild_fs_lag#c.std_pp_index_lag "Lagged Mild $\times$ COVID-19 Stringency $\times$ Lagged FI" ///
-								mod_fs_lag "Lagged Moderate" c.stringency_index#c.mod_fs_lag "Lagged Moderate $\times$ COVID-19 Stringency" ///
-								c.mod_fs_lag#c.std_pp_index_lag "Lagged Moderate $\times$ Lagged FI" ///
-								c.stringency_index#c.mod_fs_lag#c.std_pp_index_lag "Lagged Moderate $\times$ COVID-19 Stringency $\times$ Lagged FI" ///
-								sev_fs_lag "Lagged Severe" c.stringency_index#c.sev_fs_lag "Lagged Severe $\times$ COVID-19 Stringency" ///
-								c.sev_fs_lag#c.std_pp_index_lag "Lagged Severe $\times$ Lagged FI" ///
-								c.stringency_index#c.sev_fs_lag#c.std_pp_index_lag "Lagged Severe $\times$ COVID-19 Stringency $\times$ Lagged FI" ///
-								std_fs_lag "Lagged FS Index" c.stringency_index#c.std_fs_lag "Lagged FS Index $\times$ COVID-19 Stringency" ///
-								c.std_fs_lag#c.std_pp_index_lag "Lagged FS Index $\times$ Lagged FI" ///
-								c.stringency_index#c.std_fs_lag#c.std_pp_index_lag "Lagged FS Index $\times$ COVID-19 Stringency $\times$ Lagged FI" ) ///
-								order(stringency_index std_pp_index_lag c.stringency_index#c.std_pp_index_lag ///
-								mild_fs_lag c.stringency_index#c.mild_fs_lag c.mild_fs_lag#c.std_pp_index_lag ///
-								c.stringency_index#c.mild_fs_lag#c.std_pp_index_lag ///
-								mod_fs_lag  c.stringency_index#c.mod_fs_lag  c.mod_fs_lag#c.std_pp_index_lag  ///
-								c.stringency_index#c.mod_fs_lag#c.std_pp_index_lag  ///
-								sev_fs_lag  c.stringency_index#c.sev_fs_lag  c.sev_fs_lag#c.std_pp_index_lag  ///
-								c.stringency_index#c.sev_fs_lag#c.std_pp_index_lag  ///
-								std_fs_lag  c.stringency_index#c.std_fs_lag c.std_fs_lag#c.std_pp_index_lag  ///
-								c.stringency_index#c.std_fs_lag#c.std_pp_index_lag) ///
+								"& \multicolumn{1}{c}{FS Index} & \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} " ///
+								"& \multicolumn{1}{c}{Severe} \\ \midrule ") coeflabels(stringency_index "COVID-19 Stringency" ///
+								std_pp_index_lag "Lagged Fractional Index (FI)" fs_lag "Lagged Food Security (FS)" ///
+								c.fs_lag#c.std_pp_index_lag "Lagged FS $\times$ Lagged FI" c.stringency_index#c.std_pp_index_lag ///
+								"Lagged FI $\times$ COVID-19 Stringency" c.stringency_index#c.fs_lag "Lagged FS $\times$ COVID-19 Stringency" ///
+								c.stringency_index#c.fs_lag#c.std_pp_index_lag "Lagged FS $\times$ COVID-19 Stringency $\times$ Lagged FI") ///
+								order(std_pp_index_lag c.fs_lag#c.std_pp_index_lag fs_lag stringency_index ) ///
 								postfoot("\hline \hline \\[-1.8ex] " ///
-								"\multicolumn{13}{p{900pt}}{\small \noindent \textit{Note}: The table displays regression results " ///
+								"\multicolumn{13}{p{850pt}}{\small \noindent \textit{Note}: The table displays regression results " ///
 								"from our dynamic panel specification with household fixed effects, round dummies, and region-time trends " ///
 								"(see Equation \ref{eq:dynint}). FI stands for Fractional Index while FS stands for our standardized index of " ///
 								"food insecurity. Standard errors, clustered at the household, are reported in parentheses " ///
-								"(*** p$<$0.001, ** p$<$0.01, * p$<$0.05). Results correspond with coefficients presented in Figure~\ref{fig:inter-fs}.}  \end{tabular}")
+								"(*** p$<$0.001, ** p$<$0.01, * p$<$0.05).}  \end{tabular}")
 	
-	
+
+		
 * **********************************************************************
 **## education index 1 
 * **********************************************************************		
@@ -505,8 +489,10 @@ eststo 					clear
 			preserve
 			keep						if country == `c'
 			drop 						if wave == -1
+			bysort 						hhid (wave_orig): gen fs_y0 = y0_`f'
+			
 			* ANCOVA
-			reg 						`f'_fs std_pre_index_hhi y0_`f' ib(1).wave c.wave#i.region ///
+			reg 						`f'_fs c.std_pre_index_hhi##c.fs_y0 ib(1).wave c.wave#i.region ///
 												[aweight = weight] if wave != 0, vce(cluster hhid) 
 			eststo						`f'_an_std_pre_index_hhi_`c'
 			* DID
@@ -546,6 +532,29 @@ eststo 					clear
 								 anc_std_pre_index_hhi_fs_nga, col(3) commonscheme title("HHI") 
 	graph export			"$export/figures/fs_anc.pdf", as(pdf) replace
 
+	* generate table
+	esttab 					std_an_std_pre_index_hhi_1 mild_an_std_pre_index_hhi_1 mod_an_std_pre_index_hhi_1 ///
+								sev_an_std_pre_index_hhi_1 std_an_std_pre_index_hhi_2 mild_an_std_pre_index_hhi_2 ///
+								mod_an_std_pre_index_hhi_2 std_an_std_pre_index_hhi_3 ///
+								mild_an_std_pre_index_hhi_3 mod_an_std_pre_index_hhi_3 sev_an_std_pre_index_hhi_3 ///
+								using "$export/tables/anc_fs.tex", b(3) se(3) replace drop(*wave* _cons) noobs ///
+								booktabs nonum nomtitle collabels(none) nobaselevels nogaps ///
+								stat(N, labels("Observations") fmt(%9.0fc)) ///
+								fragment label prehead("\begin{tabular}{l*{11}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] " ///
+								"& \multicolumn{4}{c}{Ethiopia} & \multicolumn{3}{c}{Malawi} & " ///
+								"\multicolumn{4}{c}{Nigeria} \\ & \multicolumn{1}{c}{FS Index} & \multicolumn{1}{c}{Mild} & " ///
+								"\multicolumn{1}{c}{Moderate} & \multicolumn{1}{c}{Severe} & \multicolumn{1}{c}{FS Index} " ///
+								"& \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} " ///
+								"& \multicolumn{1}{c}{FS Index} & \multicolumn{1}{c}{Mild} & \multicolumn{1}{c}{Moderate} " ///
+								"& \multicolumn{1}{c}{Mild} \\ \midrule ") coeflabels(std_pre_index_hhi "Baseline HHI" ///
+								fs_y0 "Baseline Food Security (FS)" c.std_pre_index_hhi#c.fs_y0 "Baseline FS $\times$ Baseline HHI" ) ///	
+								order(std_pre_index_hhi c.std_pre_index_hhi#c.fs_y0 fs_y0) postfoot("\hline \hline \\[-1.8ex] " ///
+								"\multicolumn{12}{p{700pt}}{\small \noindent \textit{Note}: The table displays regression results " ///
+								"from our ANCOVA specification with round and region controls " ///
+								"(see Equation \ref{eq:anc}). HHI stands for Herfindahl-Hirschman Index  while FS stands for our standardized index of " ///
+								"food insecurity. Standard errors, clustered at the household, are reported in parentheses " ///
+								"(*** p$<$0.001, ** p$<$0.01, * p$<$0.05).}  \end{tabular}")
+	
 	* generate table
 	esttab 					mild_an_std_pre_index_hhi_1 mod_an_std_pre_index_hhi_1 sev_an_std_pre_index_hhi_1 ///
 								std_an_std_pre_index_hhi_1 mild_an_std_pre_index_hhi_2 mod_an_std_pre_index_hhi_2 ///
