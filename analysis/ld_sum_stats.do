@@ -149,15 +149,14 @@ preserve
 	drop 				if wave_orig < 1
 		twoway 			(line stringency_index wave [pweight = weight] if country == 1, sort lcolor(teal*1.3) clp(solid)) ///
 							(line stringency_index wave [pweight = weight] if country == 2, sort lcolor(lavender*1.3) clp(dash)) ///
-							(line stringency_index wave [pweight = weight] if country == 3, sort lcolor(olive*1.3) clp(dash_dot)) ///
-							(line stringency_index wave [pweight = weight] if country == 4, sort lcolor(sienna*1.5) clp(dot) ///
+							(line stringency_index wave [pweight = weight] if country == 3, sort lcolor(olive*1.3) clp(dash_dot) ///
 							ytitle("Stringency Score", size(med)) xlabel(4 "Apr20" 5 "May20" 6 "Jun20" ///
 							7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20" 11 "Nov20" 12 "Dec20" ///
 							13 "Jan21" 14 "Feb21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
 							nogrid angle(45) labs(medium)) xtitle(" ") ///
 							ylabel(0 "0" 20 "20" 40 "40" 60 "60" 80 "80" 100 "100", labs(medium)) ), ///
 							legend(label (1 "Ethiopia") label (2 "Malawi") label (3 "Nigeria") ///
-							label (4 "Uganda") pos(6) col(4) size(small) margin(-1.5 0 0 0)) ///
+							pos(6) col(3) size(small) margin(-1.5 0 0 0)) ///
 							name(stringency, replace)
 							
 	
@@ -170,15 +169,14 @@ preserve
 	replace 			wave = 3 if wave == 0
 		twoway 			(fpfitci std_pp_index wave [pweight = weight] if country == 1, sort lcolor(teal*1) clp(solid) fc(teal%75) alw(none) ) ///
 							(fpfitci std_pp_index wave [pweight = weight] if country == 2, sort lcolor(lavender*1) clp(dash) fc(lavender%75) alw(none) ) ///
-							(fpfitci std_pp_index wave [pweight = weight] if country == 3, sort lcolor(olive*1) clp(dash_dot) fc(olive%75) alw(none) ) ///
-							(fpfitci std_pp_index wave [pweight = weight] if country == 4, sort lcolor(senna*1) clp(dot) fc(sieanna%75) alw(none) ///
+							(fpfitci std_pp_index wave [pweight = weight] if country == 3, sort lcolor(olive*1) clp(dash_dot) fc(olive%75) alw(none)  ///
 							ytitle("Specialization Index", size(med)) xlabel(3 "2019" 4 "Apr20" 5 "May20" 6 "Jun20" ///
 							7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20" 11 "Nov20" 12 "Dec20" ///
 							13 "Jan21" 14 "Feb21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
 							nogrid angle(45) labs(medium)) xtitle(" ") ///
 							ylabel(0 "0" .20 "20" .40 "40" .60 "60" .80 "80" 1 "100", labs(medium)) ), ///
 							legend(label (2 "Ethiopia") label (4 "Malawi") label (6 "Nigeria") ///
-							label (8 "Uganda") pos(6) col(4) order(2 4 6 8) size(small) margin(-1.5 0 0 0)) ///
+							pos(6) col(3) order(2 4 6 8) size(small) margin(-1.5 0 0 0)) ///
 							name(index1_time, replace)
 							
 	
@@ -205,7 +203,7 @@ preserve
 								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (2 "Farm") ///
 								label (4 "Wages") label (6 "Non-Farm Enterprise") label (8 "Remittances") ///
 								label (10 "Assistance and Other") label (12 "Savings and Investments") ///
-								label (14 "Pension") pos(6) col(4) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
+								label (14 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
 								name(eth_emp_fit, replace)
 
 	restore 
@@ -230,7 +228,7 @@ preserve
 								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (2 "Farm") ///
 								label (4 "Wages") label (6 "Non-Farm Enterprise") label (8 "Remittances") ///
 								label (10 "Assistance and Other") label (12 "Savings and Investments") ///
-								label (14 "Pension") pos(6) col(4) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
+								label (14 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
 								name(mwi_emp_fit, replace)
 	restore 
 	
@@ -253,7 +251,7 @@ preserve
 								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (2 "Farm") ///
 								label (4 "Wages") label (6 "Non-Farm Enterprise") label (8 "Remittances") ///
 								label (10 "Assistance and Other") label (12 "Savings and Investments") ///
-								label (14 "Pension") pos(6) col(4) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
+								label (14 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
 								name(nga_emp_fit, replace)
 	restore 
 	
@@ -276,11 +274,12 @@ preserve
 								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (2 "Farm") ///
 								label (4 "Wages") label (6 "Non-Farm Enterprise") label (8 "Remittances") ///
 								label (10 "Assistance and Other") label (12 "Savings and Investments") ///
-								label (14 "Pension") pos(6) col(4) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
+								label (14 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
 								name(uga_emp_fit, replace)
 	restore 
 	
-	grc1leg2 				eth_emp_fit mwi_emp_fit nga_emp_fit uga_emp_fit, col(2) commonscheme iscale(.5)
+	grc1leg2 				eth_emp_fit mwi_emp_fit nga_emp_fit, col(2) iscale(.5) ///
+								ring(0) pos(4) holes(4) commonscheme
 	graph export 			"$export/figures/ind1_sources_time.pdf", as(pdf) replace
 	
 **## Kernel density graphs for each index
@@ -295,7 +294,7 @@ preserve
 			local 			x = "mwi"
 			local 			t = "Malawi"
 			local 			a = " "
-			local 			s = " "
+			local 			s = "Specialization Index"
 		}
 		if `c' == 3 {
 			local 			x = "nga"
@@ -346,7 +345,7 @@ preserve
 	}	
 	
 	* export graphics by index type
-	gr combine 			eth_std_pp mwi_std_pp nga_std_pp  uga_std_pp, col(2) commonscheme		
+	gr combine 			eth_std_pp mwi_std_pp nga_std_pp , col(2) commonscheme		
 	graph export 		"$export/figures/ind1_density.pdf", as(pdf) replace
 	
 	gr combine 			eth_pp mwi_pp nga_pp uga_pp, col(2) commonscheme		
@@ -355,7 +354,7 @@ preserve
 	gr combine 			eth_std_frac mwi_std_frac nga_std_frac uga_std_frac, col(2) commonscheme		
 	graph export 		"$export/figures/ind3_density.pdf", as(pdf) replace	
 	
-	gr combine 			eth_std_hhi mwi_std_hhi nga_std_hhi uga_std_hhi, col(2) commonscheme		
+	gr combine 			eth_std_hhi mwi_std_hhi nga_std_hhi, col(2) commonscheme		
 	graph export 		"$export/figures/ind4_density.pdf", as(pdf) replace
 	
 	gr combine 			eth_geo mwi_geo nga_geo uga_geo, col(2) commonscheme		
