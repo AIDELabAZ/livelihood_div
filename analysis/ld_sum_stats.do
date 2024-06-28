@@ -167,16 +167,19 @@ preserve
 	preserve 
 	drop 				if wave_orig < 0
 	replace 			wave = 3 if wave == 0
-		twoway 			(fpfitci std_pp_index wave [pweight = weight] if country == 1, sort lcolor(teal*1) clp(solid) fc(teal%75) alw(none) ) ///
-							(fpfitci std_pp_index wave [pweight = weight] if country == 2, sort lcolor(lavender*1) clp(dash) fc(lavender%75) alw(none) ) ///
-							(fpfitci std_pp_index wave [pweight = weight] if country == 3, sort lcolor(olive*1) clp(dash_dot) fc(olive%75) alw(none)  ///
+	
+	collapse (mean) 		std_pp_index, by(country wave)
+	
+		twoway 			(line std_pp_index wave if country == 1, sort lcolor(teal*1) clp(solid) fc(teal%75) alw(none) ) ///
+							(line std_pp_index wave if country == 2, sort lcolor(lavender*1) clp(dash) fc(lavender%75) alw(none) ) ///
+							(line std_pp_index wave if country == 3, sort lcolor(olive*1) clp(dash_dot) fc(olive%75) alw(none)  ///
 							ytitle("Specialization Index", size(med)) xlabel(3 "2019" 4 "Apr20" 5 "May20" 6 "Jun20" ///
 							7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20" 11 "Nov20" 12 "Dec20" ///
 							13 "Jan21" 14 "Feb21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
 							nogrid angle(45) labs(medium)) xtitle(" ") ///
 							ylabel(0 "0" .20 "20" .40 "40" .60 "60" .80 "80" 1 "100", labs(medium)) ), ///
-							legend(label (2 "Ethiopia") label (4 "Malawi") label (6 "Nigeria") ///
-							pos(6) col(3) order(2 4 6 8) size(small) margin(-1.5 0 0 0)) ///
+							legend(label (1 "Ethiopia") label (2 "Malawi") label (3 "Nigeria") ///
+							pos(6) col(3) size(small) margin(-1.5 0 0 0)) ///
 							name(index1_time, replace)
 							
 	
@@ -189,22 +192,25 @@ preserve
 	keep 					if country == 1
 	replace 				wave = 3 if wave == 0
 	drop 					if wave > 10
-	twoway 					(fpfitci farm_std_pp wave [pweight = weight], lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
-								(fpfitci wage_std_pp wave [pweight = weight], lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
-								(fpfitci nfe_std_pp wave [pweight = weight], lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
-								(fpfitci rem_std_pp wave [pweight = weight], lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
-								(fpfitci asst_std_pp wave [pweight = weight], lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
-								(fpfitci save_std_pp wave [pweight = weight], lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
-								(fpfitci pen_std_pp wave [pweight = weight], lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
+	
+	collapse (mean) 		farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp save_std_pp pen_std_pp, by(country wave)
+	
+	twoway 					(line farm_std_pp wave , lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(line wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
+								(line nfe_std_pp wave , lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
+								(line rem_std_pp wave , lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
+								(line asst_std_pp wave , lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
+								(line save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
+								(line pen_std_pp wave , lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
 								title("Ethiopia", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
 								ytitle("Percent Engaged", size(medlarge)) ///
 								xlabel(3 "2019" 4 "Apr20" 5 "May20" 6 "Jun20" 8 "Aug20" 9 "Sep20" 10 "Oct20", ///
-								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (2 "Farm") ///
-								label (4 "Wages") label (6 "Non-Farm Enterprise") label (8 "Remittances") ///
-								label (10 "Assistance and Other") label (12 "Savings and Investments") ///
-								label (14 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
-								name(eth_emp_fit, replace)
+								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (1 "Farm") ///
+								label (2 "Wages") label (3 "Non-Farm Enterprise") label (4 "Remittances") ///
+								label (5 "Assistance and Other") label (6 "Savings and Investments") ///
+								label (7 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0)) ///
+								name(eth_emp_line, replace)
 
 	restore 
 
@@ -213,23 +219,26 @@ preserve
 	keep 					if country == 2
 	replace 				wave = 5 if wave == 0
 	drop 					if wave > 18
-	twoway 					(fpfitci farm_std_pp wave [pweight = weight], lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
-								(fpfitci wage_std_pp wave [pweight = weight], lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
-								(fpfitci nfe_std_pp wave [pweight = weight], lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
-								(fpfitci rem_std_pp wave [pweight = weight], lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
-								(fpfitci asst_std_pp wave [pweight = weight], lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
-								(fpfitci save_std_pp wave [pweight = weight], lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
-								(fpfitci pen_std_pp wave [pweight = weight], lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
+	
+	collapse (mean) 		farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp save_std_pp pen_std_pp, by(country wave)
+	
+	twoway 					(line farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(line wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
+								(line nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
+								(line rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
+								(line asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
+								(line save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
+								(line pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
 								title("Malawi", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
 								ytitle("", size(medlarge)) ///
 								xlabel(5 "2019" 6 "Jun20" 7 "Jul20" 8 "Aug20" 9 "Sep20" 11 "Nov20" ///
 								13 "Jan21" 16 "Apr21" 18 "May21", ///
-								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (2 "Farm") ///
-								label (4 "Wages") label (6 "Non-Farm Enterprise") label (8 "Remittances") ///
-								label (10 "Assistance and Other") label (12 "Savings and Investments") ///
-								label (14 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
-								name(mwi_emp_fit, replace)
+								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (1 "Farm") ///
+								label (2 "Wages") label (3 "Non-Farm Enterprise") label (4 "Remittances") ///
+								label (5 "Assistance and Other") label (6 "Savings and Investments") ///
+								label (7 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0)) ///
+								name(mwi_emp_line, replace)
 	restore 
 	
 	* Nigeria
@@ -237,22 +246,25 @@ preserve
 	keep 					if country == 3
 	replace 				wave = 4 if wave == 0
 	drop 					if wave > 13 | wave < 4
-	twoway 					(fpfitci farm_std_pp wave [pweight = weight], lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
-								(fpfitci wage_std_pp wave [pweight = weight], lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
-								(fpfitci nfe_std_pp wave [pweight = weight], lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
-								(fpfitci rem_std_pp wave [pweight = weight], lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
-								(fpfitci asst_std_pp wave [pweight = weight], lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
-								(fpfitci save_std_pp wave [pweight = weight], lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
-								(fpfitci pen_std_pp wave [pweight = weight], lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
+	
+	collapse (mean) 		farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp save_std_pp pen_std_pp, by(country wave)
+	
+	twoway 					(line farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(line wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
+								(line nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
+								(line rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
+								(line asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
+								(line save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
+								(line pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
 								title("Nigeria", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
 								ytitle("Percent Engaged", size(medlarge)) ///
 								xlabel(4 "2019" 5 "May20" 8 "Aug20" 9 "Sep20" 13 "Jan21", ///
-								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (2 "Farm") ///
-								label (4 "Wages") label (6 "Non-Farm Enterprise") label (8 "Remittances") ///
-								label (10 "Assistance and Other") label (12 "Savings and Investments") ///
-								label (14 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
-								name(nga_emp_fit, replace)
+								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (1 "Farm") ///
+								label (2 "Wages") label (3 "Non-Farm Enterprise") label (4 "Remittances") ///
+								label (5 "Assistance and Other") label (6 "Savings and Investments") ///
+								label (7 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0)) ///
+								name(nga_emp_line, replace)
 	restore 
 	
 	* Uganda 
@@ -260,25 +272,28 @@ preserve
 	keep 					if country == 4
 	replace 				wave = 5 if wave == 0
 	drop 					if wave > 14 
-	twoway 					(fpfitci farm_std_pp wave [pweight = weight], lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
-								(fpfitci wage_std_pp wave [pweight = weight], lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
-								(fpfitci nfe_std_pp wave [pweight = weight], lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
-								(fpfitci rem_std_pp wave [pweight = weight], lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
-								(fpfitci asst_std_pp wave [pweight = weight], lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
-								(fpfitci save_std_pp wave [pweight = weight], lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
-								(fpfitci pen_std_pp wave [pweight = weight], lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
+	
+	collapse (mean) 		farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp save_std_pp pen_std_pp, by(country wave)
+	
+	twoway 					(line farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(line wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
+								(line nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
+								(line rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
+								(line asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
+								(line save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
+								(line pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
 								title("Uganda", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
 								ytitle("", size(medlarge)) ///
 								xlabel(5 "2019" 6 "Jun20" 8 "Aug20" 9 "Sep20" 11 "Nov20" 14 "Feb21", ///
-								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (2 "Farm") ///
-								label (4 "Wages") label (6 "Non-Farm Enterprise") label (8 "Remittances") ///
-								label (10 "Assistance and Other") label (12 "Savings and Investments") ///
-								label (14 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0) order(2 4 6 8 10 12 14)) ///
-								name(uga_emp_fit, replace)
+								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (1 "Farm") ///
+								label (2 "Wages") label (3 "Non-Farm Enterprise") label (4 "Remittances") ///
+								label (5 "Assistance and Other") label (6 "Savings and Investments") ///
+								label (7 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0)) ///
+								name(uga_emp_line, replace)
 	restore 
 	
-	grc1leg2 				eth_emp_fit mwi_emp_fit nga_emp_fit, col(2) iscale(.5) ///
+	grc1leg2 				eth_emp_line mwi_emp_line nga_emp_line, col(2) iscale(.5) ///
 								ring(0) pos(4) holes(4) commonscheme
 	graph export 			"$export/figures/ind1_sources_time.pdf", as(pdf) replace
 	
@@ -711,15 +726,17 @@ preserve
 	replace 				wave = 4 if wave == 0
 	drop 					if wave > 10	
 	
-	twoway 					(fpfitci mild_fs wave [pweight = weight], lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
-								(fpfitci mod_fs wave [pweight = weight], lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
-								(fpfitci sev_fs wave [pweight = weight], lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
+	collapse (mean) 		mild_fs mod_fs sev_fs, by(country wave)
+	
+	twoway 					(line mild_fs wave, lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
+								(line mod_fs wave, lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
+								(line sev_fs wave, lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
 								title("Ethiopia", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
 								ytitle("Percent Reporting Food Insecurity", size(small)) ///
 								xlabel(4 "2019" 5 "May20" 6 "Jun20" 7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20", ///
-								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (2 "Mild Food Insecurity") ///
-								label (4 "Moderate Food Insecurity") label (6 "Severe Food Insecurity") ///
-								pos(6) col(3) size(small) margin(-1.5 0 0 0) order(2 4 6)) name(eth_fies, replace)
+								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (1 "Mild Food Insecurity") ///
+								label (2 "Moderate Food Insecurity") label (3 "Severe Food Insecurity") ///
+								pos(6) col(3) size(small) margin(-1.5 0 0 0) ) name(eth_fies, replace)
 							
 	restore 		
 	
@@ -730,16 +747,18 @@ preserve
 	replace 				wave = 5 if wave == 0
 	replace 				wave = 17 if wave == 18
 	
-	twoway 					(fpfitci mild_fs wave [pweight = weight], lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
-								(fpfitci mod_fs wave [pweight = weight], lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
-								(fpfitci sev_fs wave [pweight = weight], lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
+	collapse (mean) 		mild_fs mod_fs sev_fs, by(country wave)
+	
+	twoway 					(line mild_fs wave, lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
+								(line mod_fs wave, lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
+								(line sev_fs wave, lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
 								title("Malawi", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
 								ytitle(" ", size(small)) ///
 								xlabel(5 "2019" 6 "Jun20" 7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20" 11 "Nov20" ///
 								12 "Dec20" 13 "Jan21" 14 "Feb21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
-								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (2 "Mild Food Insecurity") ///
-								label (4 "Moderate Food Insecurity") label (6 "Severe Food Insecurity") ///
-								pos(6) col(3) size(small) margin(-1.5 0 0 0) order(2 4 6)) name(mwi_fies, replace)
+								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (1 "Mild Food Insecurity") ///
+								label (2 "Moderate Food Insecurity") label (3 "Severe Food Insecurity") ///
+								pos(6) col(3) size(small) margin(-1.5 0 0 0) )  name(mwi_fies, replace)
 							
 	restore
 	
@@ -750,16 +769,18 @@ preserve
 	replace 				wave = 4 if wave == -1
 	replace 				wave = 5 if wave == 0
 	
-	twoway 					(fpfitci mild_fs wave [pweight = weight], lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
-								(fpfitci mod_fs wave [pweight = weight], lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
-								(fpfitci sev_fs wave [pweight = weight], lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
+	collapse (mean) 		mild_fs mod_fs sev_fs, by(country wave)
+	
+	twoway 					(line mild_fs wave, lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
+								(line mod_fs wave, lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
+								(line sev_fs wave, lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
 								title("Nigeria", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
 								ytitle(" ", size(small)) ///
 								xlabel(4 "2019pp" 5 "2019ph" 6 "Jun20" 7 "Jul20" 8 "Aug20" ///
 								9 "Sep20" 10 "Oct20" 11 "Nov20", ///
-								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (2 "Mild Food Insecurity") ///
-								label (4 "Moderate Food Insecurity") label (6 "Severe Food Insecurity") ///
-								pos(6) col(3) size(small) margin(-1.5 0 0 0) order(2 4 6)) name(nga_fies, replace)
+								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (1 "Mild Food Insecurity") ///
+								label (2 "Moderate Food Insecurity") label (3 "Severe Food Insecurity") ///
+								pos(6) col(3) size(small) margin(-1.5 0 0 0) )  name(nga_fies, replace)
 							
 	restore
 	
