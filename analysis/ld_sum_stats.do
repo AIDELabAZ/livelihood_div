@@ -733,10 +733,10 @@ preserve
 								(line sev_fs wave, lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
 								title("Ethiopia", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
 								ytitle("Percent Reporting Food Insecurity", size(small)) ///
-								xlabel(4 "2019" 5 "May20" 6 "Jun20" 7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20", ///
+								xlabel(4 "Jun/Jul19" 5 "May20" 6 "Jun20" 8 "Aug20" 9 "Sep20" 10 "Oct20", ///
 								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (1 "Mild Food Insecurity") ///
 								label (2 "Moderate Food Insecurity") label (3 "Severe Food Insecurity") ///
-								pos(6) col(3) size(small) margin(-1.5 0 0 0) ) name(eth_fies, replace)
+								pos(6) col(1) size(small) margin(-1.5 0 0 0) ) name(eth_fies, replace)
 							
 	restore 		
 	
@@ -754,11 +754,11 @@ preserve
 								(line sev_fs wave, lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
 								title("Malawi", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
 								ytitle(" ", size(small)) ///
-								xlabel(5 "2019" 6 "Jun20" 7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20" 11 "Nov20" ///
-								12 "Dec20" 13 "Jan21" 14 "Feb21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
+								xlabel(5 "2019" 6 "Jun20" 7 "Jul20" 8 "Aug20" 11 "Nov20" ///
+								12 "Dec20" 13 "Jan21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
 								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (1 "Mild Food Insecurity") ///
 								label (2 "Moderate Food Insecurity") label (3 "Severe Food Insecurity") ///
-								pos(6) col(3) size(small) margin(-1.5 0 0 0) )  name(mwi_fies, replace)
+								pos(6) col(1) size(small) margin(-1.5 0 0 0) )  name(mwi_fies, replace)
 							
 	restore
 	
@@ -776,17 +776,18 @@ preserve
 								(line sev_fs wave, lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
 								title("Nigeria", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
 								ytitle(" ", size(small)) ///
-								xlabel(4 "2019pp" 5 "2019ph" 6 "Jun20" 7 "Jul20" 8 "Aug20" ///
-								9 "Sep20" 10 "Oct20" 11 "Nov20", ///
+								xlabel(4 "Aug/Sep18" 5 "Jan/Feb19" 6 "Jun20" 8 "Aug20" 11 "Nov20", ///
 								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (1 "Mild Food Insecurity") ///
 								label (2 "Moderate Food Insecurity") label (3 "Severe Food Insecurity") ///
-								pos(6) col(3) size(small) margin(-1.5 0 0 0) )  name(nga_fies, replace)
+								pos(6) col(1) size(small) margin(-1.5 0 0 0) )  name(nga_fies, replace)
 							
 	restore
 	
-	grc1leg2 			eth_fies mwi_fies nga_fies, col(3) commonscheme name(fies_line, replace)			
+	grc1leg2 				eth_fies mwi_fies nga_fies, col(2) iscale(.5) ///
+								ring(0) pos(4) holes(4) commonscheme		
 	graph export 		"$export/figures/fies_line.pdf", as(pdf) replace
 	
+
 		twoway 			(line stringency_index wave [pweight = weight] if country == 1, sort lcolor(teal*1.3) clp(solid)) ///
 							(line stringency_index wave [pweight = weight] if country == 2, sort lcolor(lavender*1.3) clp(dash)) ///
 							(line stringency_index wave [pweight = weight] if country == 3, sort lcolor(olive*1.3) clp(dash_dot)) ///
