@@ -2,11 +2,11 @@
 * Created on: Feb 2024
 * Created by: jdm
 * Edited by: jdm
-* Last edited: Feb 27 2024
+* Last edited: 3 Dec 2024
 * Stata v.18.0
 
 * does
-	* address reviewer comments for JAAEA
+	* address reviewer comments for JAAEA and FP
 
 * assumes
 	* clean fies data

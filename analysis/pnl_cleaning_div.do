@@ -2,7 +2,7 @@
 * Created on: Sept 2021
 * Created by: amf
 * Edited by: jdm
-* Last edit: 11 Apr 2024
+* Last edit: 3 Dec 2024
 * Stata v.18.0
 
 
@@ -979,6 +979,8 @@ restore
 
 	gen 				wave_orig = wave
 
+	replace 			wave = 19 if wave_orig == 12 & country == 1
+	replace 			wave = 16 if wave_orig == 11 & country == 1
 	replace 			wave = 14 if wave_orig == 10 & country == 1
 	replace 			wave = 13 if wave_orig == 9 & country == 1
 	replace 			wave = 12 if wave_orig == 8 & country == 1
@@ -990,6 +992,7 @@ restore
 	replace 			wave = 5 if wave_orig == 2 & country == 1
 	replace 			wave = 4 if wave_orig == 1 & country == 1
 	
+	replace 			wave = 19 if wave_orig == 12 & country == 2
 	replace 			wave = 18 if wave_orig == 11 & country == 2
 	replace 			wave = 17 if wave_orig == 10 & country == 2
 	replace 			wave = 16 if wave_orig == 9 & country == 2
@@ -1002,6 +1005,8 @@ restore
 	replace 			wave = 7 if wave_orig == 2 & country == 2
 	replace 			wave = 6 if wave_orig == 1 & country == 2 
 	
+	replace 			wave = 16 if wave_orig == 12 & country == 3 
+	replace 			wave = 15 if wave_orig == 11 & country == 3 
 	replace 			wave = 14 if wave_orig == 10 & country == 3 
 	replace 			wave = 13 if wave_orig == 9 & country == 3 
 	replace 			wave = 12 if wave_orig == 8 & country == 3 
@@ -1013,24 +1018,14 @@ restore
 	replace 			wave = 6 if wave_orig == 2 & country == 3
 	replace 			wave = 5 if wave_orig == 1 & country == 3
 	
+	replace 			wave = 15 if wave_orig == 6 & country == 4	
 	replace 			wave = 14 if wave_orig == 5 & country == 4	
 	replace 			wave = 11 if wave_orig == 4 & country == 4
 	replace 			wave = 9 if wave_orig == 3 & country == 4
 	replace 			wave = 8 if wave_orig == 2 & country == 4
 	replace 			wave = 6 if wave_orig == 1 & country == 4
 	
-	replace 			wave = 19 if wave_orig == 10 & country == 5
-	replace 			wave = 16 if wave_orig == 9 & country == 5
-	replace 			wave = 15 if wave_orig == 8 & country == 5 
-	replace 			wave = 14 if wave_orig == 7 & country == 5 
-	replace 			wave = 13 if wave_orig == 6 & country == 5 
-	replace 			wave = 12 if wave_orig == 5 & country == 5	
-	replace 			wave = 11 if wave_orig == 4 & country == 5
-	replace 			wave = 10 if wave_orig == 3 & country == 5
-	replace 			wave = 8 if wave_orig == 2 & country == 5
-	replace 			wave = 6 if wave_orig == 1 & country == 5
-	
-	lab def 			months -1 "2019" 0 "2019" 4 "Apr20" 5 "May20" 6 "Jun20" 7 "Jul20" 8 "Aug20" ///
+	lab def 			months -1 "2018" 0 "2019" 4 "Apr20" 5 "May20" 6 "Jun20" 7 "Jul20" 8 "Aug20" ///
 							9 "Sep20" 10 "Oct20" 11 "Nov20" 12 "Dec20" 13 "Jan21" 14 "Feb21" ///
 							15 "Mar21" 16 "Apr21" 17 "May21" 18 "May21" 19 "Jun21"
 	lab val				wave months
@@ -1047,8 +1042,8 @@ restore
 
 * format & QC
 	compress
-	sort hhid wave_orig
-	isid hhid wave_orig
+	sort hhid wave
+	isid hhid wave
 
 * save 
 	save 			"$export/ld_pnl", replace
