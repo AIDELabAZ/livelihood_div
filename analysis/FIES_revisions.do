@@ -111,6 +111,25 @@
 	label var			hhid "Unique HH ID"
 	
 	drop				_merge
+
+* replace missing q3 in malawi baseline
+	
+* replace malawi fs9 for fs 6
+	replace					fs6 = fs9 if country == 2 & wave == 0
+	
+* generate new variables to measure types of food insecurity
+	gen						qual = 1 if fs2 == 1 | fs3 == 1
+	replace					qual = 0 if fs2 == 0 & fs3 == 0 & country != 2
+	replace					qual = 0 if fs2 == 0 & country == 2
+	lab var					qual "Poor food quality"
+	
+	gen						reduce = 1 if fs4 == 1 | fs5 == 1
+	replace					reduce = 0 if fs4 == 0 & fs5 == 0
+	lab var					reduce "Reduce food quantity"
+	
+	gen						hungry = 1 if fs6 == 1 | fs7 == 1
+	replace					hungry = 0 if fs6 == 0 & fs7 == 0
+	lab var					hungry "Went without eating"
 	
 	
 ************************************************************************
@@ -128,20 +147,24 @@
 	replace 				wave = 4 if wave == 0
 	drop 					if wave > 10	
 	
-	collapse (mean) 		probmod_sev probsev mild_fs mod_fs sev_fs, by(country wave)
+	collapse (mean) 		probmod_sev probsev mild_fs mod_fs sev_fs qual reduce hungry, by(country wave)
 	
 	twoway 					(line mild_fs wave, lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
 								(line mod_fs wave, lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
 								(line sev_fs wave, lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none)) ///
-								(line probmod_sev wave, lcolor(eltblue*.8) clp(solid) fc(cranberry%25) alw(none)) ///
-								(line probsev wave, lcolor(eltblue*1.6) clp(solid) fc(cranberry%25) alw(none) ///
+								(line probmod_sev wave, lcolor(eltblue*.8) clp(solid) fc(eltblue%25) alw(none)) ///
+								(line probsev wave, lcolor(eltblue*1.6) clp(solid) fc(eltblue%25) alw(none)) ///
+								(line qual wave, lcolor(emerald*.4) clp(solid) fc(emerald%25) alw(none)) ///
+								(line reduce wave, lcolor(emerald*.8) clp(solid) fc(emerald%25) alw(none)) ///
+								(line hungry wave, lcolor(emerald*1.6) clp(solid) fc(emerald%25) alw(none) ///
 								title("Ethiopia", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
 								ytitle("Prevalence of Moderate or Severe Food Insecurity", size(small)) ///
 								xlabel(4 "Jun/Jul19" 5 "May20" 6 "Jun20" 8 "Aug20" 9 "Sep20" 10 "Oct20", ///
 								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (1 "Mild Food Insecurity") ///
 								label (2 "Moderate Food Insecurity") label (3 "Severe Food Insecurity") ///
 								label (4 "Moderate or Severe Food Insecurity") label (5 "Severe Food Insecurity") ///
-								pos(6) col(1) size(small) margin(-1.5 0 0 0) ) ///
+								label (6 "Consummed Poor Quality Food") label (7 "Reduced Quantity of Food") ///
+								label (8 "Went Hungry for Less than a Day") pos(6) col(1) size(small) margin(-1.5 0 0 0) ) ///
 								name(eth_fies_prob, replace)
 							
 	restore 		
@@ -153,13 +176,16 @@
 	replace 				wave = 5 if wave == 0
 	replace 				wave = 17 if wave == 18
 	
-	collapse (mean) 		probmod_sev probsev mild_fs mod_fs sev_fs, by(country wave)
+	collapse (mean) 		probmod_sev probsev mild_fs mod_fs sev_fs qual reduce hungry, by(country wave)
 	
 	twoway 					(line mild_fs wave, lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
 								(line mod_fs wave, lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
 								(line sev_fs wave, lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none)) ///
-								(line probmod_sev wave, lcolor(eltblue*.8) clp(solid) fc(cranberry%25) alw(none)) ///
-								(line probsev wave, lcolor(eltblue*1.6) clp(solid) fc(cranberry%25) alw(none) ///
+								(line probmod_sev wave, lcolor(eltblue*.8) clp(solid) fc(eltblue%25) alw(none)) ///
+								(line probsev wave, lcolor(eltblue*1.6) clp(solid) fc(eltblue%25) alw(none)) ///
+								(line qual wave, lcolor(emerald*.4) clp(solid) fc(emerald%25) alw(none)) ///
+								(line reduce wave, lcolor(emerald*.8) clp(solid) fc(emerald%25) alw(none)) ///
+								(line hungry wave, lcolor(emerald*1.6) clp(solid) fc(emerald%25) alw(none) ///
 								title("Malawi", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
 								ytitle(" ", size(small)) ///
 								xlabel(5 "2019" 6 "Jun20" 7 "Jul20" 8 "Aug20" 11 "Nov20" ///
@@ -179,13 +205,16 @@
 	replace 				wave = 5 if wave == 0
 	drop 					if wave > 11
 	
-	collapse (mean) 		probmod_sev probsev mild_fs mod_fs sev_fs, by(country wave)
+	collapse (mean) 		probmod_sev probsev mild_fs mod_fs sev_fs qual reduce hungry, by(country wave)
 	
 	twoway 					(line mild_fs wave, lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
 								(line mod_fs wave, lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
 								(line sev_fs wave, lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none)) ///
-								(line probmod_sev wave, lcolor(eltblue*.8) clp(solid) fc(cranberry%25) alw(none)) ///
-								(line probsev wave, lcolor(eltblue*1.6) clp(solid) fc(cranberry%25) alw(none) ///
+								(line probmod_sev wave, lcolor(eltblue*.8) clp(solid) fc(eltblue%25) alw(none)) ///
+								(line probsev wave, lcolor(eltblue*1.6) clp(solid) fc(eltblue%25) alw(none)) ///
+								(line qual wave, lcolor(emerald*.4) clp(solid) fc(emerald%25) alw(none)) ///
+								(line reduce wave, lcolor(emerald*.8) clp(solid) fc(emerald%25) alw(none)) ///
+								(line hungry wave, lcolor(emerald*1.6) clp(solid) fc(emerald%25) alw(none) ///
 								title("Nigeria", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
 								ytitle("Prevalence of Moderate or Severe Food Insecurity", size(small)) ///
 								xlabel(4 "Aug/Sep18" 5 "Jan/Feb19" 6 "Jun20" 8 "Aug20" 11 "Nov20", ///
@@ -210,8 +239,6 @@
 	sort 					hhid wave_orig
 	xtset 					hhid wave_orig
 	
-* replace malawi fs9 for fs 6
-	replace					fs6 = fs9 if country == 2 & wave == 0
 	
 	* gen y0 fs and xfill by hhid
 		foreach 			f in mild_fs mod_fs sev_fs std_fs fs1 fs2 fs3 fs4 fs5 fs6 fs7 fs8 {
