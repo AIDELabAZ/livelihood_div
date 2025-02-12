@@ -31,7 +31,7 @@
 	log using					"$logout/ld_sum_stats", append
 
 * local countries
-	local 						countries = "1 2 3 4"	
+	local 						countries = "1 2 3"	
 
 * load panel data
 	use 						"$data/analysis/diversification/ld_pnl", replace	
@@ -73,12 +73,6 @@ preserve
 		local 				country = "C: Nigeria"
 		local 				obs1 = "1,950"
 		local 				obs2 = "755"
-		local 				end = " "
-	}
-	else 				if `c' == 4 {
-		local 				country = "D: Uganda"
-		local 				obs1 = "2,225"
-		local 				obs2 = "583"
 		local 				end = "\multicolumn{4}{p{360pt}}{\footnotesize \textit{Note}: The table displays the share of households engaged in each category of livelihood activity and the mean and standard deviation of income earned from that category. In the LSMS-ISA data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates.}  \\ \end{longtable} "
 		}
 		
@@ -265,38 +259,12 @@ preserve
 								name(nga_emp_line, replace)
 	restore 
 	
-	* Uganda 
-	preserve
-	keep 					if country == 4
-	replace 				wave = 5 if wave == 0
-	drop 					if wave > 14 
-	
-	collapse (mean) 		farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp save_std_pp pen_std_pp, by(country wave)
-	
-	twoway 					(line farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
-								(line wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
-								(line nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
-								(line rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
-								(line asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
-								(line save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
-								(line pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
-								title("Uganda", size(large))  ///
-								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
-								ytitle("", size(medlarge)) ///
-								xlabel(5 "2019" 6 "Jun20" 8 "Aug20" 9 "Sep20" 11 "Nov20" 14 "Feb21", ///
-								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (1 "Farm") ///
-								label (2 "Wages") label (3 "Non-Farm Enterprise") label (4 "Remittances") ///
-								label (5 "Assistance and Other") label (6 "Savings and Investments") ///
-								label (7 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0)) ///
-								name(uga_emp_line, replace)
-	restore 
-	
 	grc1leg2 				eth_emp_line mwi_emp_line nga_emp_line, col(2) iscale(.5) ///
 								ring(0) pos(4) holes(4) commonscheme
 	graph export 			"$export/figures/ind1_sources_time.pdf", as(pdf) replace
 	
 **## Kernel density graphs for each index
-	foreach 			c in 1 2 3 4 {
+	foreach 			c in 1 2 3 {
 		if `c' == 1 {
 			local 			x = "eth"
 			local 			t = "Ethiopia"
@@ -313,12 +281,6 @@ preserve
 			local 			x = "nga"
 			local 			t = "Nigeria"
 			local 			a = "Density"
-			local 			s = "Specialization Index"
-		}
-		if `c' == 4 {
-			local 			x = "uga"
-			local 			t = "Uganda"
-			local 			a = " "
 			local 			s = "Specialization Index"
 		}
 		* index 1
@@ -361,23 +323,23 @@ preserve
 	gr combine 			eth_std_pp mwi_std_pp nga_std_pp , col(2) commonscheme		
 	graph export 		"$export/figures/ind1_density.pdf", as(pdf) replace
 	
-	gr combine 			eth_pp mwi_pp nga_pp uga_pp, col(2) commonscheme		
+	gr combine 			eth_pp mwi_pp nga_pp, col(2) commonscheme		
 	graph export 		"$export/figures/ind2_density.pdf", as(pdf) replace	
 	
-	gr combine 			eth_std_frac mwi_std_frac nga_std_frac uga_std_frac, col(2) commonscheme		
+	gr combine 			eth_std_frac mwi_std_frac nga_std_frac, col(2) commonscheme		
 	graph export 		"$export/figures/ind3_density.pdf", as(pdf) replace	
 	
 	gr combine 			eth_std_hhi mwi_std_hhi nga_std_hhi, col(2) commonscheme		
 	graph export 		"$export/figures/ind4_density.pdf", as(pdf) replace
 	
-	gr combine 			eth_geo mwi_geo nga_geo uga_geo, col(2) commonscheme		
+	gr combine 			eth_geo mwi_geo nga_geo, col(2) commonscheme		
 	graph export 		"$export/figures/ind5_density.pdf", as(pdf) replace	
 	
-	gr combine 			eth_hhi mwi_hhi nga_hhi uga_hhi, col(2) commonscheme		
+	gr combine 			eth_hhi mwi_hhi nga_hhi, col(2) commonscheme		
 	graph export 		"$export/figures/ind6_density.pdf", as(pdf) replace
 	
 **## Kernel density graphs of HHI by gender and sector
-	foreach 			c in 1 2 3 4 {
+	foreach 			c in 1 2 3 {
 		if `c' == 1 {
 			local 			x = "eth"
 			local 			t = "Ethiopia"
@@ -394,12 +356,6 @@ preserve
 			local 			x = "nga"
 			local 			t = "Nigeria"
 			local 			a = "Density"
-			local 			s = "Specialization Index"
-		}
-		if `c' == 4 {
-			local 			x = "uga"
-			local 			t = "Uganda"
-			local 			a = " "
 			local 			s = "Specialization Index"
 		}
 		
@@ -515,45 +471,45 @@ preserve
 		
 	* export graphics for sec/sex by index type
 		* index 1
-		grc1leg2 				eth_std_pp_sex mwi_std_pp_sex nga_std_pp_sex uga_std_pp_sex, col(2) commonscheme			
+		grc1leg2 				eth_std_pp_sex mwi_std_pp_sex nga_std_pp_sex, col(2) commonscheme			
 		graph export 			"$export/figures/std_pp_density_sex.pdf", as(pdf) replace
 	
-		grc1leg2 				eth_std_pp_sec mwi_std_pp_sec nga_std_pp_sec uga_std_pp_sec, col(2) commonscheme		
+		grc1leg2 				eth_std_pp_sec mwi_std_pp_sec nga_std_pp_sec, col(2) commonscheme		
 		graph export 			"$export/figures/std_pp_density_sec.pdf", as(pdf) replace
 		
 		* index 2
-		grc1leg2 				eth_pp_sex mwi_pp_sex nga_pp_sex uga_pp_sex, col(2) commonscheme			
+		grc1leg2 				eth_pp_sex mwi_pp_sex nga_pp_sex, col(2) commonscheme			
 		graph export 			"$export/figures/pp_density_sex.pdf", as(pdf) replace
 	
-		grc1leg2 				eth_pp_sec mwi_pp_sec nga_pp_sec uga_pp_sec, col(2) commonscheme		
+		grc1leg2 				eth_pp_sec mwi_pp_sec nga_pp_sec, col(2) commonscheme		
 		graph export 			"$export/figures/pp_density_sec.pdf", as(pdf) replace
 			
 		* index 3
-		grc1leg2 				eth_std_frac_sex mwi_std_frac_sex nga_std_frac_sex uga_std_frac_sex, col(2) commonscheme			
+		grc1leg2 				eth_std_frac_sex mwi_std_frac_sex nga_std_frac_sex, col(2) commonscheme			
 		graph export 			"$export/figures/std_frac_density_sex.pdf", as(pdf) replace
 	
-		grc1leg2 				eth_std_frac_sec mwi_std_frac_sec nga_std_frac_sec uga_std_frac_sec, col(2) commonscheme		
+		grc1leg2 				eth_std_frac_sec mwi_std_frac_sec nga_std_frac_sec, col(2) commonscheme		
 		graph export 			"$export/figures/std_frac_density_sec.pdf", as(pdf) replace
 		
 		* index 4
-		grc1leg2 				eth_std_hhi_sex mwi_std_hhi_sex nga_std_hhi_sex uga_std_hhi_sex, col(2) commonscheme			
+		grc1leg2 				eth_std_hhi_sex mwi_std_hhi_sex nga_std_hhi_sex, col(2) commonscheme			
 		graph export 			"$export/figures/std_hhi_density_sex.pdf", as(pdf) replace
 	
-		grc1leg2 				eth_std_hhi_sec mwi_std_hhi_sec nga_std_hhi_sec uga_std_hhi_sec, col(2) commonscheme		
+		grc1leg2 				eth_std_hhi_sec mwi_std_hhi_sec nga_std_hhi_sec, col(2) commonscheme		
 		graph export 			"$export/figures/std_hhi_density_sec.pdf", as(pdf) replace
 
 		* index 5
-		grc1leg2 				eth_geo_sex mwi_geo_sex nga_geo_sex uga_geo_sex, col(2) commonscheme			
+		grc1leg2 				eth_geo_sex mwi_geo_sex nga_geo_sex, col(2) commonscheme			
 		graph export 			"$export/figures/geo_density_sex.pdf", as(pdf) replace
 	
-		grc1leg2 				eth_geo_sec mwi_geo_sec nga_geo_sec uga_geo_sec, col(2) commonscheme		
+		grc1leg2 				eth_geo_sec mwi_geo_sec nga_geo_sec, col(2) commonscheme		
 		graph export 			"$export/figures/geo_density_sec.pdf", as(pdf) replace
 		
 		* index 6
-		grc1leg2 				eth_hhi_sex mwi_hhi_sex nga_hhi_sex uga_hhi_sex, col(2) commonscheme 		
+		grc1leg2 				eth_hhi_sex mwi_hhi_sex nga_hhi_sex, col(2) commonscheme 		
 		graph export 			"$export/figures/hhi_density_sex.pdf", as(pdf) replace
 	
-		grc1leg2 				eth_hhi_sec mwi_hhi_sec nga_hhi_sec uga_hhi_sec, col(2) commonscheme 			
+		grc1leg2 				eth_hhi_sec mwi_hhi_sec nga_hhi_sec, col(2) commonscheme 			
 		graph export 			"$export/figures/hhi_density_sec.pdf", as(pdf) replace
 
 
@@ -573,11 +529,6 @@ preserve
 			local 			x = "nga"
 			local 			t = "Nigeria"
 			local 			s = "Specialization Index"
-		}
-		if `c' == 4 {
-			local 			x = "uga"
-			local 			t = "Uganda"
-			local 			s = " "
 		}
 		preserve
 		keep 				if country == `c'
@@ -608,7 +559,7 @@ preserve
 	}
 	
 	* export graphics over time by sector
-	grc1leg2 				std_pp_index_time_1 std_pp_index_time_2 std_pp_index_time_3 std_pp_index_time_4, ///
+	grc1leg2 				std_pp_index_time_1 std_pp_index_time_2 std_pp_index_time_3, ///
 								col(2) commonscheme 
 	gr export 				"$export/figures/std_pp_index_time.png", as(png) replace
 		
@@ -632,11 +583,6 @@ preserve
 			local 			t = "Nigeria"
 			local 			s = "Specialization Index"
 		}
-		if `c' == 4 {
-			local 			x = "uga"
-			local 			t = "Uganda"
-			local 			s = " "
-		}
 		preserve
 		keep 				if country == `c'
 		keep 				if std_pp_index != .
@@ -654,7 +600,7 @@ preserve
 	
 	* test for significance 
 	foreach 				het in sector sexhh {
-		foreach 				c in 1 2 3 4 {
+		foreach 				c in 1 2 3 {
 			preserve
 			keep 					if country == `c'
 			keep 					if std_pp_index != .
@@ -668,7 +614,7 @@ preserve
 	}
 	
 	* export graphics over time by sector
-	grc1leg2 				std_pp_index_time_sec_1 std_pp_index_time_sec_2 std_pp_index_time_sec_3 std_pp_index_time_sec_4, ///
+	grc1leg2 				std_pp_index_time_sec_1 std_pp_index_time_sec_2 std_pp_index_time_sec_3, ///
 								col(2) commonscheme 
 	gr export 				"$export/figures/std_pp_index_time_sector.png", as(png) replace
 
@@ -691,11 +637,6 @@ preserve
 			local 			t = "Nigeria"
 			local 			s = "Specialization Index"
 		}
-		if `c' == 4 {
-			local 			x = "uga"
-			local 			t = "Uganda"
-			local 			s = " "
-		}
 		preserve
 		keep 				if country == `c'
 		keep 				if std_pp_index != .
@@ -712,7 +653,7 @@ preserve
 	drop 					std_pp_index_sex*
 	
 	* export graphics over time by sex
-	grc1leg2 				std_pp_index_time_sex_1 std_pp_index_time_sex_2 std_pp_index_time_sex_3 std_pp_index_time_sex_4, ///
+	grc1leg2 				std_pp_index_time_sex_1 std_pp_index_time_sex_2 std_pp_index_time_sex_3, ///
 								col(2) commonscheme 
 	gr export 				"$export/figures/std_pp_index_time_sex.png", as(png) replace	
 	
@@ -785,59 +726,6 @@ preserve
 								ring(0) pos(4) holes(4) commonscheme		
 	graph export 		"$export/figures/fies_line.pdf", as(pdf) replace
 	
-							
-**# Education
-	levelsof		country, local(levels)
-	foreach			i of local levels {
-		reg 			edu_act i.wave [pweight = weight] if country == `i' & wave != -1, ///
-							vce(cluster hhid)
-		eststo 			wave_edu`i'
-	}
-	
-	* Ethiopia
-	coefplot			wave_edu1, msymbol(S) vertical base drop(_cons) ///
-							mcolor(black) mfcolor(blackl) lcolor(black) ciopts(color(black) ///
-							lp(shortdash) lwidth(*1) lcolor(black) ) yline(0, lcolor(maroon)) ///
-							levels(95) xtitle(" ") recast(line) ///
-							ytitle("Estimated Percent of Child Educational Engagement")  ///
-							title("Ethiopia") yscale(r(-.86 .14)) ylab(-.86(0.2).14) ///
-							ylab(.14 "100" -.06 "80" -.26 "60" -.46 "40" -.66 "20" -.86 "0") ///
-							xlabel(, angle(45)) legend(off) name(eth_edu, replace)	
-							
-	* Malawi
-	coefplot			wave_edu2, msymbol(S) vertical base drop(_cons) ///
-							mcolor(black) mfcolor(blackl) lcolor(black) ciopts(color(black) ///
-							lp(shortdash) lwidth(*1) lcolor(black) ) yline(0, lcolor(maroon)) ///
-							levels(95) xtitle(" ") recast(line) ///
-							ytitle(" ")  ///
-							title("Malawi") yscale(r(-.97 .03)) ylab(-.97(0.2).03) ///
-							ylab(.03 "100" -.17 "80" -.37 "60" -.57 "40" -.77 "20" -.97 "0") ///
-							xlabel(, angle(45)) legend(off) name(mwi_edu, replace)	
-							
-	* Nigeria
-	coefplot			wave_edu3, msymbol(S) vertical base drop(_cons) ///
-							mcolor(black) mfcolor(blackl) lcolor(black) ciopts(color(black) ///
-							lp(shortdash) lwidth(*1) lcolor(black) ) yline(0, lcolor(maroon)) ///
-							levels(95) xtitle(" ") recast(line) ///
-							ytitle("Estimated Percent of Child Educational Engagement")  ///
-							title("Nigeria") yscale(r(-.89 .11)) ylab(-.89(0.2)0.11) ///
-							ylab(.11 "100" -.09 "80" -.29 "60" -.49 "40" -.69 "20" -.89 "0") ///
-							xlabel(, angle(45)) legend(off) name(nga_edu, replace)	
-							
-	* Uganda
-	coefplot			wave_edu4, msymbol(S) vertical base drop(_cons) ///
-							mcolor(black) mfcolor(blackl) lcolor(black) ciopts(color(black) ///
-							lp(shortdash) lwidth(*1) lcolor(black) ) yline(0, lcolor(maroon)) ///
-							levels(95) xtitle(" ") recast(line) ///
-							ytitle(" ")  ///
-							title("Uganda") yscale(r(-.89 .11)) ylab(-.89(0.2)0.11) ///
-							ylab(.11 "100" -.09 "80" -.29 "60" -.49 "40" -.69 "20" -.89 "0") ///
-							xlabel(, angle(45)) legend(off) name(uga_edu, replace)	
-
-
-	graph combine 			eth_edu mwi_edu nga_edu uga_edu, col(2) iscale(.5) commonscheme imargin(0 0 0 0)				
-	graph export 		"$export/figures/edu_engage.pdf", as(pdf) replace 
-	
 	
 ************************************************************************
 **# sectors summary wages & NFE
@@ -895,14 +783,7 @@ preserve
 	use 				"$data/nigeria/raw/wave_00/sect3a_harvestw4.dta", clear
 	// NOTE: MAIN JOB
 	tab 				s3q14
-	
-* UGANDA
-	* NFE - gen this differently than other countries because prior section uses dif qualifier so nums do not match
-	use 			"$data/uganda/raw/wave_00//Household/GSEC12_2", clear	
-	tab 			N01_1
 
-	* wages
-	// no data
 	
 ************************************************************************
 **# end matters

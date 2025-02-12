@@ -47,12 +47,7 @@
 		global 		output_f "G:/.shortcut-targets-by-id/1wmQb8xn5Qop-2J14D7Z2rdKxJhcwfP_q/wb_covid/output"
     }
 
-	if `"`c(username)'"' == "annfu" {
-		global 		code  	"C:/Users/annfu/git/diversification"
-		global 		data	"G:/My Drive/wb_covid/data"
-		global 		output_f "G:/My Drive/wb_covid/output"
-	}
-
+	
 * **********************************************************************
 * 0 (b) - Check if any required packages are installed:
 * **********************************************************************
@@ -100,7 +95,6 @@ if $pack == 1 {
 	run				"$code/ethiopia/eth_build_0"
 	run 			"$code/malawi/mwi_build_0"
 	run				"$code/nigeria/nga_build_0"
-	run				"$code/uganda/uga_build_0"
 	
 	
 * run panel cleaning 
@@ -113,5 +107,7 @@ if $pack == 1 {
 
 	run 			"$code/analysis/ld_sum_stats"
 	run 			"$code/analysis/ld_regressions"
+	run 			"$code/analysis/revisions"
+	run 			"$code/analysis/fies_revisions"
 
 /* END */

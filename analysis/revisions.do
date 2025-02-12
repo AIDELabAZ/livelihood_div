@@ -14,7 +14,7 @@
 	* coefplot
 
 * TO DO:
-	* inc_sum table: issues with multicolumn footer - eliminated for now 
+	* done
 
 
 ***********************************************************************
