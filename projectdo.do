@@ -1,9 +1,9 @@
 * Project: DIVERSIFICATION
 * Created on: Sept 2021
 * Created by: amf
-* Edited by: alj
-* Edited on: 6 September 2022
-* Stata v.17.0 
+* Edited by: jdm
+* Edited on: 12 Feb 2025
+* Stata v.18.0 
 
 * does
 	* establishes an identical workspace between users
@@ -15,14 +15,14 @@
 	* access to all data and code
 
 * TO DO:
-	* update pathways for users 
+	* done
 
 * **********************************************************************
 * 0 - setup
 * **********************************************************************
 
 * set $pack to 0 to skip package installation
-	global 			pack 	0
+	global 			pack 	1
 		
 * Specify Stata version in use
     global stataVersion 18.0    // set Stata version
@@ -97,22 +97,21 @@ if $pack == 1 {
 * **********************************************************************
 
 * run div do files for each country
-	//run				"$code/ethiopia/eth_build_0"
-	//run 				"$code/malawi/mwi_build_0"
-	//run				"$code/nigeria/nga_build_0"
-	//run				"$code/uganda/uga_build_0"
-	//run 				"$code/burkina_faso/"
+	run				"$code/ethiopia/eth_build_0"
+	run 			"$code/malawi/mwi_build_0"
+	run				"$code/nigeria/nga_build_0"
+	run				"$code/uganda/uga_build_0"
 	
 	
 * run panel cleaning 
-	//run 				"$code/analysis/pnl_cleaning_div"
+	run 				"$code/analysis/pnl_cleaning_div"
 	
 	
 * **********************************************************************
 * 2 - run analysis .do files
 * **********************************************************************
 
-*	run 				"$code/analysis/ld_sum_stats"
-*	run 				"$code/analysis/ld_regressions"
+	run 				"$code/analysis/ld_sum_stats"
+	run 				"$code/analysis/ld_regressions"
 
 /* END */

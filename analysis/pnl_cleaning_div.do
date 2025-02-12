@@ -28,7 +28,6 @@
 	global	mwi		=	"$data/malawi/refined/wave_00"
 	global	nga		=	"$data/nigeria/refined/wave_00"
 	global	uga		=	"$data/uganda/refined/wave_00"
-	global	bf		=	"$data/burkina_faso/refined/wave_00"
 	global	export	=	"$data/analysis/diversification"
 	global	logout	=	"$data/analysis/diversification/logs"
 
