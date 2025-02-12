@@ -104,14 +104,14 @@ if $pack == 1 {
 	
 	
 * run panel cleaning 
-	run 				"$code/analysis/pnl_cleaning_div"
+	run 			"$code/analysis/pnl_cleaning_div"
 	
 	
 * **********************************************************************
 * 2 - run analysis .do files
 * **********************************************************************
 
-	run 				"$code/analysis/ld_sum_stats"
-	run 				"$code/analysis/ld_regressions"
+	run 			"$code/analysis/ld_sum_stats"
+	run 			"$code/analysis/ld_regressions"
 
 /* END */

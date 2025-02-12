@@ -1,10 +1,8 @@
-/* BEGIN */	
-
 * Project: diversification
 * Created on: Dec 2021
 * Created by: amf
 * Edited by: jdm
-* Last edited: Feb 6 2024
+* Last edited: 12 Feb 2025
 * Stata v.18.0
 
 * does
@@ -787,11 +785,6 @@ preserve
 								ring(0) pos(4) holes(4) commonscheme		
 	graph export 		"$export/figures/fies_line.pdf", as(pdf) replace
 	
-
-		twoway 			(line stringency_index wave [pweight = weight] if country == 1, sort lcolor(teal*1.3) clp(solid)) ///
-							(line stringency_index wave [pweight = weight] if country == 2, sort lcolor(lavender*1.3) clp(dash)) ///
-							(line stringency_index wave [pweight = weight] if country == 3, sort lcolor(olive*1.3) clp(dash_dot)) ///
-							(line stringency_index wave [pweight = weight] if country == 4, sort lcolor(sienna*1.5) clp(dot) ///
 							
 **# Education
 	levelsof		country, local(levels)
