@@ -25,9 +25,11 @@
 ***********************************************************************
 
 * define
-	global	export	=		"$data/analysis/diversification"
-	global	logout	=		"$data/analysis/logs"
-	global  fies 	= 		"$data/analysis/food_security"
+	global	root	=			"$output"
+	global  fies	=			"$data/other"
+	global	figures	=			"$output/figures"
+	global	tables	=			"$output/tables"
+	global	logout	=			"$output/logs"
 
 * open log
 	cap log 				close
@@ -43,7 +45,7 @@
 ***********************************************************************
 
 * load panel data
-	use 					"$data/analysis/diversification/ld_pnl", replace	
+	use 					"$root/ld_pnl", replace	
 	
 * keep what we need
 	keep if					country < 4
@@ -99,7 +101,7 @@
 	}
 	
 * merge back in to panel data
-	merge 1:1			hhid wave using "$data/analysis/diversification/ld_pnl"
+	merge 1:1			hhid wave using "$root/ld_pnl"
 
 * order variables
 	order				wave_orig, after(wave)
@@ -228,7 +230,7 @@
 	
 	grc1leg2 				eth_fies_prob mwi_fies_prob nga_fies_prob, col(2) iscale(.5) ///
 								ring(0) pos(4) holes(4) commonscheme		
-	graph export 		"$export/figures/fies_line_prob.pdf", as(pdf) replace
+	graph export 		"$figures/fies_line_prob.pdf", as(pdf) replace
 
 	
 ************************************************************************
@@ -360,7 +362,7 @@
 	grc1leg2  				std_pp_index_fsQ_dyn_eth std_pp_index_fsQ_dyn_mwi ///
 								 std_pp_index_fsQ_dyn_nga, col(2) iscale(.5) ///
 								ring(0) pos(4) holes(4) commonscheme	
-	graph export			"$export/figures/dyn_fsQ.pdf", as(pdf) replace
+	graph export			"$figures/dyn_fsQ.pdf", as(pdf) replace
 
 	
 ************************************************************************
@@ -439,7 +441,7 @@ eststo 					clear
 	
 	grc1leg2  				anc_hhi_fs_eth anc_hhi_fs_mwi anc_hhi_fs_nga, col(2) iscale(.5) ///
 								ring(0) pos(4) holes(4) commonscheme	
-	graph export			"$export/figures/fsQ_anc.pdf", as(pdf) replace
+	graph export			"$figures/fsQ_anc.pdf", as(pdf) replace
 
 
 	

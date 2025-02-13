@@ -25,7 +25,6 @@
 	global	root	=	"$data/malawi/raw"
 	global	export	=	"$data/malawi/refined"
 	global	logout	=	"$data/malawi/logs"
-	global  fies 	= 	"$data/analysis/raw/Malawi"
 
 * open log
 	cap log 		close

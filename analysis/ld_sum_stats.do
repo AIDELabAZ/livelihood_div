@@ -22,9 +22,10 @@
 * **********************************************************************
 
 * define
-	global	export	=			"$data/analysis/diversification"
-	global	logout	=			"$data/analysis/logs"
-	global  fies 	= 			"$data/analysis/food_security"
+	global	root	=			"$output"
+	global	figures	=			"$output/figures"
+	global	tables	=			"$output/tables"
+	global	logout	=			"$output/logs"
 
 * open log
 	cap log 					close
@@ -34,7 +35,7 @@
 	local 						countries = "1 2 3"	
 
 * load panel data
-	use 						"$data/analysis/diversification/ld_pnl", replace	
+	use 						"$root/ld_pnl", replace	
 	
 * clear memory 
 	graph 						drop _all
@@ -80,7 +81,7 @@ preserve
 
 	
 	if 					`c' == 1 {
-		esttab 				using "$export/tables/inc_sum.tex", replace ///
+		esttab 				using "$tables/inc_sum.tex", replace ///
 								prehead("\begin{longtable}{l ccc} " ///
 								"\caption{2019 Engagement in and Earnings from Income Sources} \label{incsum} \\ [-1.8ex] \hline \hline " ///
 								"& & \multicolumn{2}{c}{\textbf{Income (USD)}} \\  " ///
@@ -97,7 +98,7 @@ preserve
 								nogaps fragment label noobs 
 	} 
 	else 				{
-		esttab 				using "$export/tables/inc_sum.tex", append ///
+		esttab 				using "$tables/inc_sum.tex", append ///
 								prehead("\multicolumn{4}{c}{\textit{Panel `country' }} \\ ") ///
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs 
@@ -117,12 +118,12 @@ preserve
 		qui: sum 				`var'0 if country == `c' & wave == 0 [aweight = weight]
 		
 		local 				label : variable label `var'0
-		esttab 				using "$export/tables/inc_sum.tex", append ///
+		esttab 				using "$tables/inc_sum.tex", append ///
 								posthead("`label' & `mean1' & `mean1a' & `mean1b' \\ ") ///
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs 
 	}
-	esttab 					using "$export/tables/inc_sum.tex", append ///		
+	esttab 					using "$tables/inc_sum.tex", append ///		
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs  ///
 								postfoot("\multicolumn{1}{l}{Observations} & " ///
@@ -152,7 +153,7 @@ preserve
 							name(stringency, replace)
 							
 	
-	gr export 			"$export/figures/stringency.pdf", as(pdf) replace
+	gr export 			"$figures/stringency.pdf", as(pdf) replace
 	restore 	
 	
 **## index 1 over time 	
@@ -175,7 +176,7 @@ preserve
 							name(index1_time, replace)
 							
 	
-	gr export 			"$export/figures/index1_time.pdf", as(pdf) replace
+	gr export 			"$figures/index1_time.pdf", as(pdf) replace
 	restore 	
 						
 **## income sources over time 
@@ -261,7 +262,7 @@ preserve
 	
 	grc1leg2 				eth_emp_line mwi_emp_line nga_emp_line, col(2) iscale(.5) ///
 								ring(0) pos(4) holes(4) commonscheme
-	graph export 			"$export/figures/ind1_sources_time.pdf", as(pdf) replace
+	graph export 			"$figures/ind1_sources_time.pdf", as(pdf) replace
 	
 **## Kernel density graphs for each index
 	foreach 			c in 1 2 3 {
@@ -321,22 +322,22 @@ preserve
 	
 	* export graphics by index type
 	gr combine 			eth_std_pp mwi_std_pp nga_std_pp , col(2) commonscheme		
-	graph export 		"$export/figures/ind1_density.pdf", as(pdf) replace
+	graph export 		"$figures/ind1_density.pdf", as(pdf) replace
 	
 	gr combine 			eth_pp mwi_pp nga_pp, col(2) commonscheme		
-	graph export 		"$export/figures/ind2_density.pdf", as(pdf) replace	
+	graph export 		"$figures/ind2_density.pdf", as(pdf) replace	
 	
 	gr combine 			eth_std_frac mwi_std_frac nga_std_frac, col(2) commonscheme		
-	graph export 		"$export/figures/ind3_density.pdf", as(pdf) replace	
+	graph export 		"$figures/ind3_density.pdf", as(pdf) replace	
 	
 	gr combine 			eth_std_hhi mwi_std_hhi nga_std_hhi, col(2) commonscheme		
-	graph export 		"$export/figures/ind4_density.pdf", as(pdf) replace
+	graph export 		"$figures/ind4_density.pdf", as(pdf) replace
 	
 	gr combine 			eth_geo mwi_geo nga_geo, col(2) commonscheme		
-	graph export 		"$export/figures/ind5_density.pdf", as(pdf) replace	
+	graph export 		"$figures/ind5_density.pdf", as(pdf) replace	
 	
 	gr combine 			eth_hhi mwi_hhi nga_hhi, col(2) commonscheme		
-	graph export 		"$export/figures/ind6_density.pdf", as(pdf) replace
+	graph export 		"$figures/ind6_density.pdf", as(pdf) replace
 	
 **## Kernel density graphs of HHI by gender and sector
 	foreach 			c in 1 2 3 {
@@ -472,45 +473,45 @@ preserve
 	* export graphics for sec/sex by index type
 		* index 1
 		grc1leg2 				eth_std_pp_sex mwi_std_pp_sex nga_std_pp_sex, col(2) commonscheme			
-		graph export 			"$export/figures/std_pp_density_sex.pdf", as(pdf) replace
+		graph export 			"$figures/std_pp_density_sex.pdf", as(pdf) replace
 	
 		grc1leg2 				eth_std_pp_sec mwi_std_pp_sec nga_std_pp_sec, col(2) commonscheme		
-		graph export 			"$export/figures/std_pp_density_sec.pdf", as(pdf) replace
+		graph export 			"$figures/std_pp_density_sec.pdf", as(pdf) replace
 		
 		* index 2
 		grc1leg2 				eth_pp_sex mwi_pp_sex nga_pp_sex, col(2) commonscheme			
-		graph export 			"$export/figures/pp_density_sex.pdf", as(pdf) replace
+		graph export 			"$figures/pp_density_sex.pdf", as(pdf) replace
 	
 		grc1leg2 				eth_pp_sec mwi_pp_sec nga_pp_sec, col(2) commonscheme		
-		graph export 			"$export/figures/pp_density_sec.pdf", as(pdf) replace
+		graph export 			"$figures/pp_density_sec.pdf", as(pdf) replace
 			
 		* index 3
 		grc1leg2 				eth_std_frac_sex mwi_std_frac_sex nga_std_frac_sex, col(2) commonscheme			
-		graph export 			"$export/figures/std_frac_density_sex.pdf", as(pdf) replace
+		graph export 			"$figures/std_frac_density_sex.pdf", as(pdf) replace
 	
 		grc1leg2 				eth_std_frac_sec mwi_std_frac_sec nga_std_frac_sec, col(2) commonscheme		
-		graph export 			"$export/figures/std_frac_density_sec.pdf", as(pdf) replace
+		graph export 			"$figures/std_frac_density_sec.pdf", as(pdf) replace
 		
 		* index 4
 		grc1leg2 				eth_std_hhi_sex mwi_std_hhi_sex nga_std_hhi_sex, col(2) commonscheme			
-		graph export 			"$export/figures/std_hhi_density_sex.pdf", as(pdf) replace
+		graph export 			"$figures/std_hhi_density_sex.pdf", as(pdf) replace
 	
 		grc1leg2 				eth_std_hhi_sec mwi_std_hhi_sec nga_std_hhi_sec, col(2) commonscheme		
-		graph export 			"$export/figures/std_hhi_density_sec.pdf", as(pdf) replace
+		graph export 			"$figures/std_hhi_density_sec.pdf", as(pdf) replace
 
 		* index 5
 		grc1leg2 				eth_geo_sex mwi_geo_sex nga_geo_sex, col(2) commonscheme			
-		graph export 			"$export/figures/geo_density_sex.pdf", as(pdf) replace
+		graph export 			"$figures/geo_density_sex.pdf", as(pdf) replace
 	
 		grc1leg2 				eth_geo_sec mwi_geo_sec nga_geo_sec, col(2) commonscheme		
-		graph export 			"$export/figures/geo_density_sec.pdf", as(pdf) replace
+		graph export 			"$figures/geo_density_sec.pdf", as(pdf) replace
 		
 		* index 6
 		grc1leg2 				eth_hhi_sex mwi_hhi_sex nga_hhi_sex, col(2) commonscheme 		
-		graph export 			"$export/figures/hhi_density_sex.pdf", as(pdf) replace
+		graph export 			"$figures/hhi_density_sex.pdf", as(pdf) replace
 	
 		grc1leg2 				eth_hhi_sec mwi_hhi_sec nga_hhi_sec, col(2) commonscheme 			
-		graph export 			"$export/figures/hhi_density_sec.pdf", as(pdf) replace
+		graph export 			"$figures/hhi_density_sec.pdf", as(pdf) replace
 
 
 **## index 1 over time 		
@@ -561,7 +562,7 @@ preserve
 	* export graphics over time by sector
 	grc1leg2 				std_pp_index_time_1 std_pp_index_time_2 std_pp_index_time_3, ///
 								col(2) commonscheme 
-	gr export 				"$export/figures/std_pp_index_time.png", as(png) replace
+	gr export 				"$figures/std_pp_index_time.png", as(png) replace
 		
 		
 **## index 1 over time by sector	
@@ -616,7 +617,7 @@ preserve
 	* export graphics over time by sector
 	grc1leg2 				std_pp_index_time_sec_1 std_pp_index_time_sec_2 std_pp_index_time_sec_3, ///
 								col(2) commonscheme 
-	gr export 				"$export/figures/std_pp_index_time_sector.png", as(png) replace
+	gr export 				"$figures/std_pp_index_time_sector.png", as(png) replace
 
 **## index 1 over time by sex	
 	gen 				std_pp_index_sex1 = std_pp_index if sexhh == 1
@@ -655,7 +656,7 @@ preserve
 	* export graphics over time by sex
 	grc1leg2 				std_pp_index_time_sex_1 std_pp_index_time_sex_2 std_pp_index_time_sex_3, ///
 								col(2) commonscheme 
-	gr export 				"$export/figures/std_pp_index_time_sex.png", as(png) replace	
+	gr export 				"$figures/std_pp_index_time_sex.png", as(png) replace	
 	
 	
 **# FIES
@@ -724,7 +725,7 @@ preserve
 	
 	grc1leg2 				eth_fies mwi_fies nga_fies, col(2) iscale(.5) ///
 								ring(0) pos(4) holes(4) commonscheme		
-	graph export 		"$export/figures/fies_line.pdf", as(pdf) replace
+	graph export 		"$figures/fies_line.pdf", as(pdf) replace
 	
 	
 ************************************************************************

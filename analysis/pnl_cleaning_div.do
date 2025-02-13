@@ -23,12 +23,12 @@
 ************************************************************************
 
 * define
-	global  root    =	"$data/analysis"
+	global  root    =	"$data/other"
 	global	eth		=	"$data/ethiopia/refined/wave_00"
 	global	mwi		=	"$data/malawi/refined/wave_00"
 	global	nga		=	"$data/nigeria/refined/wave_00"
-	global	export	=	"$data/analysis/diversification"
-	global	logout	=	"$data/analysis/diversification/logs"
+	global	export	=	"$output"
+	global	logout	=	"$output/logs"
 
 * open log
 	cap log 			close
@@ -630,7 +630,7 @@
 
 * prep fies baseline 
 	preserve
-		use 			"$data/analysis/food_security/ld_reg_data", clear
+		use 			"$root/ld_reg_data", clear
 		keep 			if wave <= 0 & (country == 1 | country == 2 | country == 3)
 		tempfile 		fies
 		save 			`fies'
@@ -648,7 +648,7 @@
 
 * prep fies post rounds
 	preserve
-		use 			"$data/analysis/food_security/ld_reg_data", clear
+		use 			"$root/ld_reg_data", clear
 		keep			if wave > 0 & (country == 1 | country == 2 | country == 3)
 		tempfile		post 
 		save 			`post'
@@ -683,7 +683,7 @@
 preserve 
 
 * import data from https://ourworldindata.org/covid-stringency-index
-	insheet 			using "$data/shocks/raw/covid_stringency_index.csv", clear
+	insheet 			using "$root/covid_stringency_index.csv", clear
 	keep 				if location == "Ethiopia" | location == "Malawi" | ///
 							location == "Nigeria"
 	gen 				country = 1 if location == "Ethiopia"

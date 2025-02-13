@@ -2,7 +2,7 @@
 * Created on: Jan 2022
 * Created by: amf
 * Edited by: jdm
-* Last edited: 11 Apr 2024
+* Last edited: 13 Feb 2025
 * Stata v.18.0
 
 * does
@@ -14,17 +14,18 @@
 	* coefplot
 
 * TO DO:
-	* changes made through line 727 - no changes in section on heterogeneous effects
-	* should consider: relabeling graphs and figures (away from index 1, 2, etc.)
-
+	* complete
+	
+	
 * **********************************************************************
 **# setup
 * **********************************************************************
 
 * define
-	global	export	=		"$data/analysis/diversification"
-	global	logout	=		"$data/analysis/logs"
-	global  fies 	= 		"$data/analysis/food_security"
+	global	root	=			"$output"
+	global	figures	=			"$output/figures"
+	global	tables	=			"$output/tables"
+	global	logout	=			"$output/logs"
 
 * open log
 	cap log 				close
@@ -39,7 +40,7 @@
 * **********************************************************************
 
 * load data
-	use 					"$data/analysis/diversification/ld_pnl", replace
+	use 					"$root/ld_pnl", replace
 				
 * prep panel 
 	sort 					hhid wave_orig
@@ -135,13 +136,13 @@
 
 	grc1leg2  				std_pp_index_fs_dyn_eth std_pp_index_fs_dyn_mwi ///
 								 std_pp_index_fs_dyn_nga, col(3) commonscheme title("Fractional Index") 
-	graph export			"$export/figures/dyn_fs_index1.pdf", as(pdf) replace
+	graph export			"$figures/dyn_fs_index1.pdf", as(pdf) replace
 
 	* generate table
 	esttab 					std_pp_index_std_dyn_1 std_pp_index_mild_dyn_1 std_pp_index_mod_dyn_1 std_pp_index_sev_dyn_1  ///
 								std_pp_index_std_dyn_2 std_pp_index_mild_dyn_2 std_pp_index_mod_dyn_2 std_pp_index_sev_dyn_2  ///
 								std_pp_index_std_dyn_3 std_pp_index_mild_dyn_3 std_pp_index_mod_dyn_3 std_pp_index_sev_dyn_3 ///
-								using "$export/tables/dyn_fs.tex", b(3) se(3) replace drop(*wave* _cons) noobs ///
+								using "$tables/dyn_fs.tex", b(3) se(3) replace drop(*wave* _cons) noobs ///
 								booktabs nonum nomtitle collabels(none) nobaselevels nogaps ///
 								stat(N, labels("Observations") fmt(%9.0fc)) ///
 								fragment label prehead("\begin{tabular}{l*{12}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] " ///
@@ -237,13 +238,13 @@ eststo 					clear
 		
 	*grc1leg2  				std_pp_index_fs_inter_eth std_pp_index_fs_inter_mwi ///
 								 std_pp_index_fs_inter_nga, col(3) commonscheme title("Fractional Index") 
-	*graph export			"$export/figures/inter_fs_index1.pdf", as(pdf) replace
+	*graph export			"$figures/inter_fs_index1.pdf", as(pdf) replace
 
 	* generate table
 	esttab 					std_pp_index_std_inter_1 std_pp_index_mild_inter_1 std_pp_index_mod_inter_1 std_pp_index_sev_inter_1 ///
 								std_pp_index_std_inter_2 std_pp_index_mild_inter_2 std_pp_index_mod_inter_2 std_pp_index_sev_inter_2 ///
 								std_pp_index_std_inter_3 std_pp_index_mild_inter_3 std_pp_index_mod_inter_3 std_pp_index_sev_inter_3 ///
-								using "$export/tables/inter_fs.tex", b(3) se(3) replace drop(*wave* _cons) noobs ///
+								using "$tables/inter_fs.tex", b(3) se(3) replace drop(*wave* _cons) noobs ///
 								booktabs nonum nomtitle collabels(none) nobaselevels nogaps ///
 								stat(N, labels("Observations") fmt(%9.0fc)) ///
 								fragment label prehead("\begin{tabular}{l*{12}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] " ///
@@ -325,14 +326,14 @@ eststo 					clear
 	
 	grc1leg2  				anc_std_pre_index_hhi_fs_eth anc_std_pre_index_hhi_fs_mwi ///
 								 anc_std_pre_index_hhi_fs_nga, col(3) commonscheme title("HHI") 
-	graph export			"$export/figures/fs_anc.pdf", as(pdf) replace
+	graph export			"$figures/fs_anc.pdf", as(pdf) replace
 
 	* generate table
 	esttab 					std_an_std_pre_index_hhi_1 mild_an_std_pre_index_hhi_1 mod_an_std_pre_index_hhi_1 ///
 								sev_an_std_pre_index_hhi_1 std_an_std_pre_index_hhi_2 mild_an_std_pre_index_hhi_2 ///
 								mod_an_std_pre_index_hhi_2 std_an_std_pre_index_hhi_3 ///
 								mild_an_std_pre_index_hhi_3 mod_an_std_pre_index_hhi_3 sev_an_std_pre_index_hhi_3 ///
-								using "$export/tables/anc_fs.tex", b(3) se(3) replace drop(*wave* _cons) noobs ///
+								using "$tables/anc_fs.tex", b(3) se(3) replace drop(*wave* _cons) noobs ///
 								booktabs nonum nomtitle collabels(none) nobaselevels nogaps ///
 								stat(N, labels("Observations") fmt(%9.0fc)) ///
 								fragment label prehead("\begin{tabular}{l*{11}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] " ///
@@ -355,7 +356,7 @@ eststo 					clear
 								std_an_std_pre_index_hhi_1 mild_an_std_pre_index_hhi_2 mod_an_std_pre_index_hhi_2 ///
 								sev_an_std_pre_index_hhi_2 std_an_std_pre_index_hhi_2 mild_an_std_pre_index_hhi_3 ///
 								mod_an_std_pre_index_hhi_3 sev_an_std_pre_index_hhi_3 std_an_std_pre_index_hhi_3 ///
-								using "$export/tables/anc_fs.tex", b(3) se(3) replace drop(*wave* _cons) noobs ///
+								using "$tables/anc_fs.tex", b(3) se(3) replace drop(*wave* _cons) noobs ///
 								booktabs nonum nomtitle collabels(none) nobaselevels nogaps ///
 								stat(N, labels("Observations") fmt(%9.0fc)) ///
 								fragment label prehead("\begin{tabular}{l*{12}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] " ///
@@ -401,7 +402,7 @@ eststo 					clear
 	
 	grc1leg2  				dd_std_pre_index_hhi_fs_eth dd_std_pre_index_hhi_fs_mwi ///
 								 dd_std_pre_index_hhi_fs_nga, col(3) commonscheme title("HHI") 
-	graph export			"$export/figures/fs_dd.pdf", as(pdf) replace
+	graph export			"$figures/fs_dd.pdf", as(pdf) replace
 	
 	
 * **********************************************************************
@@ -469,7 +470,7 @@ eststo 					clear
 
 	grc1leg2  				pp_index_fs_dyn_eth pp_index_fs_dyn_mwi ///
 								 pp_index_fs_dyn_nga, col(3) commonscheme title("Dynamic Panel Regressions") 
-	graph export			"$export/figures/dyn_fs_index2.pdf", as(pdf) replace
+	graph export			"$figures/dyn_fs_index2.pdf", as(pdf) replace
 
 
 * **********************************************************************
@@ -547,7 +548,7 @@ eststo 					clear
 	grc1leg2  				pp_index_fs_inter_eth pp_index_fs_inter_mwi ///
 								 pp_index_fs_inter_nga, col(3) commonscheme ///
 								 title("Dynamic Panel Regressions with Government Stringency Score")
-	graph export			"$export/figures/inter_fs_index2.pdf", as(pdf) replace
+	graph export			"$figures/inter_fs_index2.pdf", as(pdf) replace
 
 
 * **********************************************************************
@@ -612,15 +613,15 @@ eststo 					clear
 	foreach 						r in anc did {
 		grc1leg2  						`r'_std_pre_index_frac_1 `r'_std_pre_index_frac_2 `r'_std_pre_index_frac_3, ///
 											col(2) commonscheme title("Fractional Index 3") 
-		graph export					"$export/figures/`r'_index3_fs.pdf", as(pdf) replace
+		graph export					"$figures/`r'_index3_fs.pdf", as(pdf) replace
 
 		grc1leg2  						`r'_pre_index_frac_1 `r'_pre_index_frac_2 `r'_pre_index_frac_3, ///
 											col(2) commonscheme title("Fractional Index 4") 
-		graph export					"$export/figures/`r'_index4_fs.pdf", as(pdf) replace
+		graph export					"$figures/`r'_index4_fs.pdf", as(pdf) replace
 		
 		grc1leg2  						`r'_pre_index_hhi_1 `r'_pre_index_hhi_2 `r'_pre_index_hhi_3, ///
 											col(2) commonscheme title("HHI 2") 
-		graph export					"$export/figures/`r'_index6_fs.pdf", as(pdf) replace
+		graph export					"$figures/`r'_index6_fs.pdf", as(pdf) replace
 	}
 
 * **********************************************************************
@@ -714,38 +715,38 @@ eststo 					clear
 		foreach 						r in anc did {
 			grc1leg2  						`r'_std_pre_frac_sexhh_1 `r'_std_pre_frac_sexhh_2 `r'_std_pre_frac_sexhh_3, ///
 												col(2) commonscheme title("Fractional Index 3")
-			graph export					"$export/figures/fs_`r'_sexhh_fi3.pdf", as(pdf) replace
+			graph export					"$figures/fs_`r'_sexhh_fi3.pdf", as(pdf) replace
 			
 			grc1leg2  						`r'_std_pre_hhi_sexhh_1 `r'_std_pre_hhi_sexhh_2 `r'_std_pre_hhi_sexhh_3, ///
 												col(2) commonscheme title("HHI 1")
-			graph export					"$export/figures/fs_`r'_sexhh_hhi1.pdf", as(pdf) replace
+			graph export					"$figures/fs_`r'_sexhh_hhi1.pdf", as(pdf) replace
 			
 			grc1leg2  						`r'_pre_frac_sexhh_1 `r'_pre_frac_sexhh_2 `r'_pre_frac_sexhh_3, ///
 												col(2) commonscheme title("Fractional Index 4")
-			graph export					"$export/figures/fs_`r'_sexhh_fi4.pdf", as(pdf) replace
+			graph export					"$figures/fs_`r'_sexhh_fi4.pdf", as(pdf) replace
 
 			grc1leg2  						`r'_pre_hhi_sexhh_1 `r'_pre_hhi_sexhh_2 `r'_pre_hhi_sexhh_3, ///
 												col(2) commonscheme title("HHI 2")
-			graph export					"$export/figures/fs_`r'_sexhh_hhi2.pdf", as(pdf) replace
+			graph export					"$figures/fs_`r'_sexhh_hhi2.pdf", as(pdf) replace
 		}
 
 	* sector 
 		foreach 						r in anc did {
 			grc1leg2  						`r'_std_pre_frac_sector_1 `r'_std_pre_frac_sector_2 `r'_std_pre_frac_sector_3, ///
 												col(2) commonscheme title("Fractional Index 3")
-			graph export					"$export/figures/fs_`r'_sector_fi3.pdf", as(pdf) replace
+			graph export					"$figures/fs_`r'_sector_fi3.pdf", as(pdf) replace
 			
 			grc1leg2  						`r'_std_pre_hhi_sector_1 `r'_std_pre_hhi_sector_2 `r'_std_pre_hhi_sector_3, ///
 												col(2) commonscheme title("HHI 1")
-			graph export					"$export/figures/fs_`r'_sector_hhi1.pdf", as(pdf) replace
+			graph export					"$figures/fs_`r'_sector_hhi1.pdf", as(pdf) replace
 			
 			grc1leg2  						`r'_pre_frac_sector_1 `r'_pre_frac_sector_2 `r'_pre_frac_sector_3, ///
 												col(2) commonscheme title("Fractional Index 4")
-			graph export					"$export/figures/fs_`r'_sector_fi4.pdf", as(pdf) replace
+			graph export					"$figures/fs_`r'_sector_fi4.pdf", as(pdf) replace
 
 			grc1leg2  						`r'_pre_hhi_sector_1 `r'_pre_hhi_sector_2 `r'_pre_hhi_sector_3, ///
 												col(2) commonscheme title("HHI 2")
-			graph export					"$export/figures/fs_`r'_sector_hhi2.pdf", as(pdf) replace
+			graph export					"$figures/fs_`r'_sector_hhi2.pdf", as(pdf) replace
 		}
 	restore
 	

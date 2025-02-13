@@ -22,23 +22,25 @@
 ***********************************************************************
 
 * define
-	global	export	=		"$data/analysis/diversification"
-	global	logout	=		"$data/analysis/logs"
-	global  fies 	= 		"$data/analysis/food_security"
+	global	root	=			"$output"
+	global	figures	=			"$output/figures"
+	global	tables	=			"$output/tables"
+	global	logout	=			"$output/logs"
 
 * open log
 	cap log 				close
 	log using				"$logout/revisions", append
 
-* load panel data
-	use 					"$data/analysis/diversification/ld_pnl", replace	
-	
 * clear memory 
 	graph 					drop _all
 	eststo 					clear
+	
+***********************************************************************
+**# 1. set up data
+***********************************************************************	
 
 * load data
-	use 					"$data/analysis/diversification/ld_pnl", replace
+	use 					"$root/ld_pnl", replace
 				
 * prep panel 
 	sort 					hhid wave_orig
@@ -132,7 +134,7 @@
 	}
 	
 	grc1leg2  				inc_fs_dyn_eth inc_fs_dyn_mwi, col(2) commonscheme title("Fractional Index") 
-	graph export			"$export/figures/inc_fs_dyn.pdf", as(pdf) replace
+	graph export			"$figures/inc_fs_dyn.pdf", as(pdf) replace
 
 	
 ***********************************************************************
@@ -197,7 +199,7 @@
 
 	grc1leg2  				std_pp_indexa_fs_dyn_eth std_pp_indexa_fs_dyn_mwi ///
 								 std_pp_indexa_fs_dyn_nga, col(3) commonscheme title("Fractional Index") 
-	graph export			"$export/figures/dyn_fs_index1a.pdf", as(pdf) replace
+	graph export			"$figures/dyn_fs_index1a.pdf", as(pdf) replace
 
 
 ***********************************************************************
@@ -299,13 +301,13 @@
 	}
 	
 	grc1leg2  				inc_dyn_eth inc_dyn_mwi, col(2) commonscheme title("Fractional Index") 
-	graph export			"$export/figures/inc_dyn.pdf", as(pdf) replace
+	graph export			"$figures/inc_dyn.pdf", as(pdf) replace
 	
 
 	* generate table
 	esttab 					std_pp_index_mild_dyn_1 std_pp_index_mod_dyn_1 std_pp_index_sev_dyn_1 std_pp_index_std_dyn_1 ///
 								std_pp_index_mild_dyn_2 std_pp_index_mod_dyn_2 std_pp_index_sev_dyn_2 std_pp_index_std_dyn_2 ///
-								using "$export/tables/inc_dyn_fs.tex", b(3) se(3) replace drop(*wave* _cons geo_control) noobs ///
+								using "$tables/inc_dyn_fs.tex", b(3) se(3) replace drop(*wave* _cons geo_control) noobs ///
 								booktabs nonum nomtitle collabels(none) nobaselevels nogaps ///
 								stat(N, labels("Observations") fmt(%9.0fc)) ///
 								fragment label prehead("\begin{tabular}{l*{8}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] " ///
@@ -383,7 +385,7 @@
 	}
 	
 	grc1leg2  				fs_dyn_eth_2 fs_dyn_mwi_2, col(2) commonscheme title("Fractional Index") 
-	graph export			"$export/figures/fs_dyn_2.pdf", as(pdf) replace
+	graph export			"$figures/fs_dyn_2.pdf", as(pdf) replace
 
 	
 ***********************************************************************
@@ -432,7 +434,7 @@
 * generate table
 	esttab 					std_pp_index_std_bond_1 std_pp_index_mild_bond_1 std_pp_index_mod_bond_1 std_pp_index_sev_bond_1  ///
 								std_pp_index_std_bond_2 std_pp_index_mild_bond_2 std_pp_index_mod_bond_2 std_pp_index_sev_bond_2  ///
-								using "$export/tables/inc_bond_fs_end.tex", b(3) se(3) replace drop(_cons wt_* _IregX*) noobs ///
+								using "$tables/inc_bond_fs_end.tex", b(3) se(3) replace drop(_cons wt_* _IregX*) noobs ///
 								booktabs nonum nomtitle collabels(none) nobaselevels nogaps ///
 								stat(N, labels("Observations") fmt(%9.0fc)) ///
 								fragment label prehead("\begin{tabular}{l*{8}{c}} \\ [-1.8ex]\hline \hline \\[-1.8ex] " ///
