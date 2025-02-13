@@ -1,6 +1,6 @@
 # Coping or Hoping? Livelihood Diversification and Food Insecurity in the COVID-19 Pandemic: Replication Code
 
-This README describes the directory structure & Stata packages necessary to replicate all analysis for the paper "Coping or Hoping? Livelihood Diversification and Food Insecurity in the COVID-19 Pandemic" in *Food Policy*. The work relies on the World Bank LSMS and World Bank COVID phone surveys. For more information and to access these surveys, visit the [World Bank Microdata Library][4]. The relevant surveys are available under under the [High-Frequency Phone Survey collection][2] and the [LSMS - Integrated Surveys on Agriculture (ISA) collection][3]. To replicate the analysis, one needs to download the LSMS-ISA data and merge it with the already cleaned phone survey data. The phone survey data was cleaned at part of another project and we provide the cleaned data in this repo. The replication code does the merging. We make no guarantee that variables not used in the analysis are cleaned or accurate. THe analysis is based on a [pre-analysis plan][1] filed with the Open Science Framework (OSF).
+This README describes the directory structure & Stata packages necessary to replicate all analysis for the paper "Coping or Hoping? Livelihood Diversification and Food Insecurity in the COVID-19 Pandemic" in *Food Policy*. The work relies on the World Bank LSMS and World Bank COVID phone surveys. For more information and to access these surveys, visit the [World Bank Microdata Library][4]. The relevant surveys are available under under the [High-Frequency Phone Survey collection][2] and the [LSMS - Integrated Surveys on Agriculture (ISA) collection][3]. To replicate the analysis, one needs to download the LSMS-ISA data and merge it with the already cleaned phone survey data. The phone survey data was cleaned at part of another project and code for the cleaning is [available available on a Github repo][5]. We provide the cleaned data as part of this current repo. The replication code does the merging. We make no guarantee that variables not used in the analysis are cleaned or accurate. THe analysis is based on a [pre-analysis plan][1] filed with the Open Science Framework (OSF).
 
 Last updated: February 2025. 
 
@@ -107,3 +107,4 @@ Run the `projectdo.do` file. Output tables and figures will be saved to the rele
 [2]: http://bit.ly/microdata-hfps
 [3]: https://www.worldbank.org/en/programs/lsms/initiatives/lsms-ISA
 [4]: https://microdata.worldbank.org/index.php/home
+[5]: https://github.com/AIDELabAZ/wb_covid
