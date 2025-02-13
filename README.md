@@ -51,7 +51,8 @@ evolving_impacts_covid_africa
 ├────LICENSE
 ├────.gitignore
 ├────country             /* one dir for each country */
-└────analysis            /* overall analysis */
+├────analysis            /* overall analysis */
+└────cleaned_data	/* data to be moved into data folder with WB data */
 ```
 
 ### Step 2
@@ -92,7 +93,7 @@ C:/Users/USERNAME/livelihood_div
      │    ├──refined
      │    └──raw
      │         └──wave_00
-     └──other
+     └──cleaned_data
 ```
 
 ### Step 4
@@ -100,6 +101,10 @@ C:/Users/USERNAME/livelihood_div
 Download the LSMS-ISA microdata Stata files from World Bank Microdata Library. You will need to create an account with the World Bank if you do not already have one and will be asked to provide a reason for downloading the data. Once data are downloaded, save the data files to the corresponding folders created in Step 3. 
 
 ### Step 5
+
+Move the data sets in the `cleaned_data` folder in this repo into the `cleaned_data` folder you created in step 3.
+
+### Step 6
 
 Run the `projectdo.do` file. Output tables and figures will be saved to the relevant subfolders in the `output` folder. 
 
