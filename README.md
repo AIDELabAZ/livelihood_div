@@ -97,14 +97,11 @@ C:/Users/USERNAME/livelihood_div
 
 ### Step 4
 
-Download microdata Stata files from the following links. You will need to create an account with the World Bank if you do not already have one and will be asked to provide a reason for downloading the data. Once data are downloaded, save the data files to the corresponding folders created in Step 3. 
- - Ethiopia Waves 1-5: http://bit.ly/ethiopia-phonesurvey 
- - Malawi Waves 1-4: http://bit.ly/malawi-phonesurvey 
- - Nigeria Waves 1-5: http://bit.ly/nigeria-phonesurvey
+Download the LSMS-ISA microdata Stata files from World Bank Microdata Library. You will need to create an account with the World Bank if you do not already have one and will be asked to provide a reason for downloading the data. Once data are downloaded, save the data files to the corresponding folders created in Step 3. 
 
 ### Step 5
 
-Run the `projectdo.do` file. Output graphs will be saved to the `output` folder. 
+Run the `projectdo.do` file. Output tables and figures will be saved to the relevant subfolders in the `output` folder. 
 
 [1]: https://osf.io/nu593
 [2]: http://bit.ly/microdata-hfps
