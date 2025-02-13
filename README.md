@@ -1,81 +1,110 @@
-# Livelihood Diversification project(s)
-This README describes the directory structure & should enable users to replicate all tables and figures for work related to the World Bank LSMS and World Bank COVID phone surveys, related to diversification and various projects by the contributors listed below. For more information and to access these phone surveys, visit the World Bank Microdata Library. The relevant surveys are available under under the High-Frequency Phone Survey collection: http://bit.ly/microdata-hfps.  
+# Coping or Hoping? Livelihood Diversification and Food Insecurity in the COVID-19 Pandemic: Replication Code
 
-THIS IS AN ATTEMPTED COPY OF AIDELabAZ/diversification in attempts to repair that repo.
+This README describes the directory structure & Stata packages necessary to replicate all analysis for the paper "Coping or Hoping? Livelihood Diversification and Food Insecurity in the COVID-19 Pandemic" in *Food Policy*. The work relies on the World Bank LSMS and World Bank COVID phone surveys. For more information and to access these surveys, visit the [World Bank Microdata Library][4]. The relevant surveys are available under under the [High-Frequency Phone Survey collection][2] and the [LSMS - Integrated Surveys on Agriculture (ISA) collection][3]. To replicate the analysis, one needs to download the LSMS-ISA data and merge it with the already cleaned phone survey data. The phone survey data was cleaned at part of another project and code for the cleaning is [available available on a Github repo][5]. We provide the cleaned data as part of this current repo. The replication code does the merging. We make no guarantee that variables not used in the analysis are cleaned or accurate. THe analysis is based on a [pre-analysis plan][1] filed with the Open Science Framework (OSF).
 
-Last update: August 2022. 
+Last updated: February 2025. 
+
+For issues or concerns with this repo, please contact Anna Josephson or Jeffrey Michler.
 
  ## Index
-
- - [Introduction](#introduction)
+ 
+ - [Contributors](#contributors)
  - [Data](#data)
  - [Data cleaning](#data-cleaning)
- - [Pre-requisites](#pre-requisites)
- - [Folder structure](#folder-structure)
+ - [Developing Environment](#developing-environment)
 
-## Introduction
+## Contributors
 
-Contributors:
-* Anna Josephson
-* Jeffrey D. Michler
-* Ann Furbush 
-* Talip Kilic 
-* Lorin Rudin-Rush
-
-Scripts various go through each step, from cleaning raw data to analysis.
-
-## Data 
-
-The publicly-available data for each survey round is coupled with a basic information document, interview manual, and questionnaire for that round, which can be accessed through: 
- - Ethiopia: http://bit.ly/ethiopia-phonesurvey 
- - Malawi: http://bit.ly/malawi-phonesurvey 
- - Nigeria: http://bit.ly/nigeria-phonesurvey
- - Uganda: http://bit.ly/uganda-phonesurvey 
- 
-The approach to the phone survey questionnaire design and sampling is comparable across countries. It is informed by the template questionnaire and the phone survey sampling guidelines that have been publicly made available by the World Bank. These can be accessed through: 
- - Template Questionnaire: http://bit.ly/templateqx 
- - Manual: http://bit.ly/interviewermanual
- - Sampling Guidelines: http://bit.ly/samplingguidelines.
+* Ann Furbush (Writing - original draft, Formal Analysis, Data curation)
+* Anna Josephson [aljosephson@arizona.edu] (Writing - review & editing, Supervision, Conceptualization)
+* Talip Kilic (Resources, Funding acquisition, Conceptualization)
+* Jeffrey D. Michler [jdmichler@arizona.edu] (Writing - review & editing, Writing - original draft, Supervision, Project administration, Formal analysis, Conceptualization)
 
 ## Data cleaning
 
-The code in this repository cleans the raw phone surveys and base survey (00) rounds. This includes updates through August of 2022.
-
 ### Pre-requisites
-
-#### Stata reqs
 
 The data processing and analysis requires a number of user-written Stata programs:
    * 1. `blindschemes`
-   * 2. `estout`
-   * 3. `mdesc`
-   * 4. `grc1leg2`
-   * 5. `distinct`
-   * 6. `winsor2`
-   * 7. `palettes`
-   * 8. `catplot`
-   * 9. `colrspace` 
+   * 2. `mdesc`
+   * 3. `estout`
+     4. `distinct`
+     5. `winsor2`
+     6. `palettes`
+     7. `catplot`
+     8. `grc1leg2`
+     9. `colrspace`
+     10. `xfill`
 
-#### Folder structure
+The `projectdo.do` file will help you install these.
 
-The general repo structure looks as follows:<br>
+## Developing Environment
+
+### Step 1
+
+Clone this  repository https://github.com/AIDELabAZ/livelihood_div. The general repo structure looks as follows:<br>
 
 ```stata
-wb_covid
+evolving_impacts_covid_africa
 ├────README.md
 ├────projectdo.do
 ├────LICENSE
-│    
+├────.gitignore
 ├────country             /* one dir for each country */
-│    ├──household_data
-│    │  └──wave          /* one dir for each wave */
-│    ├──household_cleaning_code 
-│
-│────Analysis            /* overall analysis */
-│    ├──code
-│    └──output
-│       ├──tables
-│       └──figures
-│   
-└────config
+└────analysis            /* overall analysis */
 ```
+
+### Step 2
+
+Open the projectdo.do file and update the global filepath with your username in Section 0 (a).
+
+   ```
+    if `"`c(username)'"' == "USERNAME" {
+       	global 		code  	"C:/Users/USERNAME/git/livelihood_div"
+		global 		data	"C:/Users/USERNAME/livelihood_div/data"
+		global 		output  "C:/Users/USERNAME/livelihood_div/output"
+    }
+   ```
+
+### Step 3
+
+Set up the file structure on your local machine as outlined below: 
+
+```stata
+C:/Users/USERNAME/livelihood_div
+├────output
+│    ├──logs
+│    ├──figures
+│    └──tables
+└────data
+     ├──ethiopia
+     │    ├──logs
+     │    ├──refined
+     │    └──raw
+     │         └──wave_00
+     ├──malawi
+     │    ├──logs
+     │    ├──refined
+     │    └──raw
+     │         └──wave_00
+     ├──nigeria
+     │    ├──logs
+     │    ├──refined
+     │    └──raw
+     │         └──wave_00
+     └──other
+```
+
+### Step 4
+
+Download the LSMS-ISA microdata Stata files from World Bank Microdata Library. You will need to create an account with the World Bank if you do not already have one and will be asked to provide a reason for downloading the data. Once data are downloaded, save the data files to the corresponding folders created in Step 3. 
+
+### Step 5
+
+Run the `projectdo.do` file. Output tables and figures will be saved to the relevant subfolders in the `output` folder. 
+
+[1]: https://osf.io/nu593
+[2]: http://bit.ly/microdata-hfps
+[3]: https://www.worldbank.org/en/programs/lsms/initiatives/lsms-ISA
+[4]: https://microdata.worldbank.org/index.php/home
+[5]: https://github.com/AIDELabAZ/wb_covid
