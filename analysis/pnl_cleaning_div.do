@@ -23,7 +23,7 @@
 ************************************************************************
 
 * define
-	global  root    =	"$data/other"
+	global  root    =	"$data/cleaned_data"
 	global	eth		=	"$data/ethiopia/refined/wave_00"
 	global	mwi		=	"$data/malawi/refined/wave_00"
 	global	nga		=	"$data/nigeria/refined/wave_00"

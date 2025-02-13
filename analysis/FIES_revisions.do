@@ -26,7 +26,7 @@
 
 * define
 	global	root	=			"$output"
-	global  fies	=			"$data/other"
+	global  fies	=			"$data/cleaned_data"
 	global	figures	=			"$output/figures"
 	global	tables	=			"$output/tables"
 	global	logout	=			"$output/logs"
