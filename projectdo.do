@@ -22,7 +22,7 @@
 * **********************************************************************
 
 * set $pack to 0 to skip package installation
-	global 			pack 	0
+	global 			pack 	1
 		
 * Specify Stata version in use
     global stataVersion 18.0    // set Stata version
@@ -41,9 +41,10 @@
 		global 		output	"C:/Users/jdmichler/OneDrive - University of Arizona/livelihood_div/output"
     }
 
-    if `"`c(username)'"' == "aljosephson" {
-        global 		code  	"C:/Users/aljosephson/git/AIDELabAZ/livelihood_div"
-		global 		data	"G:/.shortcut-targets-by-id/1wmQb8xn5Qop-2J14D7Z2rdKxJhcwfP_q/wb_covid/data"
+    if `"`c(username)'"' == "aljos" {
+        global 		code  	"C:/Users/aljos/git/livelihood_div"
+		global 		data	"C:/Users/aljos/OneDrive - University of Arizona/livelihood_div/data"
+		global 		output	"C:/Users/aljos/OneDrive - University of Arizona/livelihood_div/output"
     }
 
 	
@@ -55,7 +56,7 @@
 if $pack == 1 {
 	
 	* for packages/commands, make a local containing any required packages
-		loc userpack "blindschemes mdesc estout distinct winsor2 palettes catplot grc1leg2 colrspace" 
+		loc userpack "blindschemes mdesc estout distinct winsor2 palettes catplot grc1leg2 colrspace xtabond2" 
 	
 	* install packages that are on ssc	
 		foreach package in `userpack' {
