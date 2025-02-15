@@ -24,7 +24,6 @@
 	global	root	=	"$data/ethiopia/raw"
 	global	export	=	"$data/ethiopia/refined"
 	global	logout	=	"$data/ethiopia/logs"
-	global  fies 	= 	"$data/analysis/raw/Ethiopia"
 
 * open log
 	cap log 		close

@@ -1,11 +1,9 @@
-/* BEGIN */	
-
 * Project: diversification
 * Created on: Dec 2021
 * Created by: amf
-* Edited by: jdm, amf, alj
-* Last edited: September 16 2022
-* Stata v.17.0
+* Edited by: jdm
+* Last edited: 12 Feb 2025
+* Stata v.18.0
 
 * does
 	* generates summary statistics tables
@@ -16,7 +14,7 @@
 	* coefplot
 
 * TO DO:
-	* inc_sum table: issues with multicolumn footer - eliminated for now 
+	* done
 
 
 * **********************************************************************
@@ -24,19 +22,20 @@
 * **********************************************************************
 
 * define
-	global	export	=			"$data/analysis/diversification"
-	global	logout	=			"$data/analysis/logs"
-	global  fies 	= 			"$data/analysis/food_security"
+	global	root	=			"$output"
+	global	figures	=			"$output/figures"
+	global	tables	=			"$output/tables"
+	global	logout	=			"$output/logs"
 
 * open log
 	cap log 					close
 	log using					"$logout/ld_sum_stats", append
 
 * local countries
-	local 						countries = "1 2 3 4"	
+	local 						countries = "1 2 3"	
 
 * load panel data
-	use 						"$data/analysis/diversification/ld_pnl", replace	
+	use 						"$root/ld_pnl", replace	
 	
 * clear memory 
 	graph 						drop _all
@@ -46,7 +45,8 @@
 * **********************************************************************
 **# tables
 * **********************************************************************	
-* Aggregate 
+
+**## Aggregate 
 preserve
 	gen 				geo = ea if country != 2
 	replace 			geo = ta_code if country == 2
@@ -57,53 +57,49 @@ preserve
 	local 				list4 = "crop_inc_ live_inc_ live_prod_ wage_emp_ nfe_inc_ cash_dom_ kind_dom_ cash_for_ kind_for_ sage_ pen_inc_ rent_inc_ interest_ oth_inc_"
 	
 
-	estpost 			sum wave //need random stored variable for esttabs below to work, even though this is not referenced
+	estpost 			sum wave // need random stored variable for esttabs below to work, even though this is not referenced
 	foreach 			c in `countries' {
 	if 					`c' == 1 {
-		local 				obs1 = "977"
-		local 				obs2 = "2270"
+		local 				obs1 = "3,247"
+		local 				obs2 = "2,270"
 		local 				end = " "
 	}
 	else 				if 	`c' == 2 {
 		local 				country = "B: Malawi"
-		local 				obs1 = "1092"
+		local 				obs1 = "1,726"
 		local 				obs2 = "634"
 		local 				end = " "
 	}
 	else 				if `c' == 3 {
 		local 				country = "C: Nigeria"
-		local 				obs1 = "1195"
+		local 				obs1 = "1,950"
 		local 				obs2 = "755"
-		local 				end = " "
-	}
-	else 				if `c' == 4 {
-		local 				country = "D: Uganda"
-		local 				obs1 = "1642"
-		local 				obs2 = "583"
-		local 				end = "   \end{longtable} "
+		local 				end = "\multicolumn{4}{p{360pt}}{\footnotesize \textit{Note}: The table displays the share of households engaged in each category of livelihood activity and the mean and standard deviation of income earned from that category. In the LSMS-ISA data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates.}  \\ \end{longtable} "
 		}
 		
-		*"\multicolumn{3}{r}{\small \textit{Note}: The table displays the percent of households engaged in and the mean income earned from each income category. In the LSMS data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates found at \href{https://exchangerates.org}{https://exchangerates.org}. We use LSMS data to generate the table, which covers the pre-COVID-19 period.} 
+		
 
 	
 	if 					`c' == 1 {
-		esttab 				using "$export/tables/inc_sum.tex", replace ///
-								prehead("\begin{longtable}{l l l} " ///
-								"\caption{2019 Engagement in and Earnings from Income Sources} \label{incsum} \\ [-1.8ex] \hline \hline & " ///
-								"\multicolumn{1}{c}{\textbf{Percent Engaged}} & \multicolumn{1}{c}{\textbf{Mean Income (USD)}} \\  " ///
+		esttab 				using "$tables/inc_sum.tex", replace ///
+								prehead("\begin{longtable}{l ccc} " ///
+								"\caption{2019 Engagement in and Earnings from Income Sources} \label{incsum} \\ [-1.8ex] \hline \hline " ///
+								"& & \multicolumn{2}{c}{\textbf{Income (USD)}} \\  " ///
+								"& \multicolumn{1}{c}{\textbf{Share Engaged}} & \multicolumn{1}{c}{\textbf{Mean}} & \multicolumn{1}{c}{\textbf{Standard Deviation}} \\  " ///
 								"\endfirsthead " ///
-								"\hline & \multicolumn{1}{c}{\textbf{Percent Engaged}} & \multicolumn{1}{c}{\textbf{Mean Income (USD)}} \\  " ///
+								"\hline & & \multicolumn{2}{c}{\textbf{Income (USD)}} \\  " ///
+								"& \multicolumn{1}{c}{\textbf{Share Engaged}} & \multicolumn{1}{c}{\textbf{Mean}} & \multicolumn{1}{c}{\textbf{Standard Deviation}} \\ \midrule " ///
 								"\endhead " ///
-								"\midrule \multicolumn{3}{c}{{Continued on Next Page\ldots}} " ///
+								"\midrule \multicolumn{4}{c}{{Continued on Next Page\ldots}} " ///
 								"\endfoot " ///
 								"\endlastfoot " ///
-								"\midrule \multicolumn{3}{c}{\textit{Panel A: Ethiopia}} \\ ") ///
+								"\midrule \multicolumn{4}{c}{\textit{Panel A: Ethiopia}} \\ ") ///
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs 
 	} 
 	else 				{
-		esttab 				using "$export/tables/inc_sum.tex", append ///
-								prehead("\multicolumn{3}{c}{\textit{Panel `country' }} \\ ") ///
+		esttab 				using "$tables/inc_sum.tex", append ///
+								prehead("\multicolumn{4}{c}{\textit{Panel `country' }} \\ ") ///
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs 
 	}
@@ -111,334 +107,104 @@ preserve
 	foreach 					var in `list`c'' {
 		replace 					`var'amnt_0 = . if `var'amnt_0 == 0
 		
-		quietly: sum 				`var'0 if country == `c' & wave == 0 [aweight = weight]
+		qui: sum 				`var'0 if country == `c' & wave == 0 [aweight = weight]
 		local 						temp1 = r(mean) 
 		local 						mean1 : display %4.3f `temp1'
-		quietly: sum 				`var'amnt_0 if country == `c' & wave == 0  [aweight = weight]
+		qui: sum 				`var'amnt_0 if country == `c' & wave == 0  [aweight = weight]
 		local 						temp1a = r(mean) 
-		local 						mean1a : display %4.0f `temp1a'
-		quietly: sum 				`var'0 if country == `c' & wave == 0 [aweight = weight]
+		local 						mean1a : display %8.0fc `temp1a'
+		local 						temp1b = r(sd) 
+		local 						mean1b : display %8.0fc `temp1b'
+		qui: sum 				`var'0 if country == `c' & wave == 0 [aweight = weight]
 		
 		local 				label : variable label `var'0
-		esttab 				using "$export/tables/inc_sum.tex", append ///
-								posthead("`label' & `mean1' & `mean1a' \\ ") ///
+		esttab 				using "$tables/inc_sum.tex", append ///
+								posthead("`label' & `mean1' & `mean1a' & `mean1b' \\ ") ///
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs 
 	}
-	esttab 					using "$export/tables/inc_sum.tex", append ///		
+	esttab 					using "$tables/inc_sum.tex", append ///		
 								booktabs nonum nomtitle collabels(none) ///
 								nogaps fragment label noobs  ///
 								postfoot("\multicolumn{1}{l}{Observations} & " ///
-								"\multicolumn{2}{l}{`obs1'} \\ \midrule `end' ")	
+								"\multicolumn{3}{c}{`obs1'} \\ \midrule `end' ")	
 
 	}
 	restore 					
-
-
-* Sector 	
-preserve
-	gen 				geo = ea if country != 2
-	replace 			geo = ta_code if country == 2
-	
-	local 				list1 = "crop_inc_ live_inc_ live_prod_ wage_emp_ casual_emp_ temp_emp_ nfe_inc_ kind_trans_ cash_trans_ food_trans_ asst_kind_ asst_cash_ asst_food_ pen_inc_ rent_inc_ asset_ save_inc_ oth_inc_"
-	local 				list2  "crop_inc_ tree_inc_ live_inc_ live_prod_ wage_emp_ casual_emp_ nfe_inc_	cash_trans_ food_trans_ kind_trans_ cash_child_	kind_child_ asst_food_ asst_cash_ for_wrk_ masaf_ pen_inc_ rent_inc_ asset_	save_inc_ oth_inc_"
-	local 				list3 = "crop_inc_ tree_inc_ live_inc_ live_prod_ wage_emp_ nfe_inc_ cash_dom_ cash_for_ kind_inc_ asst_inc_ pen_inc_ rent_nonag_ ag_rent_ save_inc_ oth_inc_"
-	local 				list4 = "crop_inc_ live_inc_ live_prod_ wage_emp_ nfe_inc_ cash_dom_ kind_dom_ cash_for_ kind_for_ sage_ pen_inc_ rent_inc_ interest_ oth_inc_"
-	
-
-	estpost 			sum wave //need random stored variable for esttabs below to work, even though this is not referenced
-	foreach 			c in `countries' {
-	if 					`c' == 1 {
-		local 				obs1 = "977"
-		local 				obs2 = "2270"
-		local 				end = " "
-	}
-	else 				if 	`c' == 2 {
-		local 				country = "B: Malawi"
-		local 				obs1 = "1092"
-		local 				obs2 = "634"
-		local 				end = " "
-	}
-	else 				if `c' == 3 {
-		local 				country = "C: Nigeria"
-		local 				obs1 = "1195"
-		local 				obs2 = "755"
-		local 				end = " "
-	}
-	else 				if `c' == 4 {
-		local 				country = "D: Uganda"
-		local 				obs1 = "1642"
-		local 				obs2 = "583"
-		local 				end = "\multicolumn{7}{C{15cm}}{\small \textit{Note}: The table displays the percent of households engaged in (columns 1-3) and the mean income earned from (columns 4-6) each income category used to generate Indices 5 and 6. We present average values by sector. In the LSMS data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates found at \href{https://exchangerates.org}{https://exchangerates.org}. We use LSMS data to generate the table, which covers the pre-COVID-19 period. We calculate statistical significance of urban/rural differences using simple regressions clustered at the region level. Standard errors are reported in parentheses (*** p$<$0.001, ** p$<$0.01, * p$<$0.05). Urban households in Ethiopia were not asked about agricultural engagement in the 2019 LSMS survey.} \end{longtable}"
-	}
-	if 					`c' == 1 {
-		esttab 				using "$export/tables/inc_sec_sum.tex", replace ///
-								prehead("\begin{longtable}{l P{1cm} P{1cm} P{1.5cm} P{1cm} P{1cm} P{1.5cm}} " ///
-								"\caption{2019 Engagement in and Earnings from Income Sources by Sector} \label{incsecsum} \\ [-1.8ex] \hline \hline & " ///
-								"\multicolumn{3}{c}{\textbf{Percent Engaged}} & \multicolumn{3}{c}{\textbf{Mean Income (USD)}} \\ & " ///
-								"\multicolumn{1}{c}{Rural} & \multicolumn{1}{c}{Urban} & \multicolumn{1}{c}{Difference} & " ///
-								"\multicolumn{1}{c}{Rural} & \multicolumn{1}{c}{Urban} & \multicolumn{1}{c}{Difference} \\ " ///
-								"\endfirsthead " ///
-								"\hline & \multicolumn{3}{c}{\textbf{Percent Engaged}} & \multicolumn{3}{c}{\textbf{Mean Income (USD)}} \\ & " ///
-								"\multicolumn{1}{c}{Rural} & \multicolumn{1}{c}{Urban} & \multicolumn{1}{c}{Difference} & " ///
-								"\multicolumn{1}{c}{Rural} & \multicolumn{1}{c}{Urban} & \multicolumn{1}{c}{Difference} \\ \hline " ///
-								"\endhead " ///
-								"\multicolumn{7}{c}{{Continued on Next Page\ldots}} " ///
-								"\endfoot " ///
-								"\endlastfoot " ///
-								"\midrule \multicolumn{4}{r}{\textit{Panel A: Ethiopia}} \\ ") ///
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs 
-	} 
-	else 				{
-		esttab 				using "$export/tables/inc_sec_sum.tex", append ///
-								prehead("\multicolumn{4}{r}{\textit{Panel `country' }} \\ ") ///
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sector _cons)
-	}
-	
-	foreach 					var in `list`c'' {
-		replace 					`var'amnt_0 = . if `var'amnt_0 == 0
-		
-		quietly: sum 				`var'0 if country == `c' & wave == 0 & sector == 1 [aweight = weight]
-		local 						temp1 = r(mean) 
-		local 						mean1 : display %4.3f `temp1'
-		quietly: sum 				`var'amnt_0 if country == `c' & wave == 0 & sector == 1 [aweight = weight]
-		local 						temp1a = r(mean) 
-		local 						mean1a : display %4.0f `temp1a'
-		quietly: sum 				`var'0 if country == `c' & wave == 0 & sector == 2 [aweight = weight]
-		local 						temp2 = r(mean)
-		local 						mean2 : display %4.3f `temp2'
-		quietly: sum 				`var'amnt_0 if country == `c' & wave == 0 & sector == 2 [aweight = weight]
-		local 						temp2a = r(mean) 
-		local 						mean2a : display %4.0f `temp2a'
-		local 						temp3 = `temp1' - `temp2'
-		local 						dif : display %4.3f `temp3'
-		reg 						`var'0 sector if country == `c' & wave == 0 [aweight = weight], cluster(geo)
-		local 						pval = r(table)[4, 1]
-		if 							`pval' <= .1 {
-			local 						star = "*"
-		} 
-		if 							`pval' <= .05 {
-			local 						star = "**" 
-		}
-		if 							`pval' <= .01 {
-			local 						star = "***"
-		}
-		else if 					`pval' > .1 {
-			local 						star = " "
-		}
-		local 						temp4 = `temp1a' - `temp2a'
-		local 						difa : display %4.0f `temp4'
-		reg 						`var'amnt_0 sector if country == `c' & wave == 0 [aweight = weight], cluster(geo)
-		local 						pvala = r(table)[4, 1]
-		if 							`pvala' <= .1 {
-			local 						stara = "*"
-		} 
-		if 							`pvala' <= .05 {
-			local 						stara = "**" 
-		}
-		if 							`pvala' <= .01 {
-			local 						stara = "***"
-		}
-		else if 					`pvala' > .1 {
-			local 						stara = " "
-		}
-		local 				label : variable label `var'0
-		esttab 				using "$export/tables/inc_sec_sum.tex", append ///
-								posthead("`label' & `mean1' & `mean2' & `dif'\sym{`star'} & `mean1a' & `mean2a' & `difa'\sym{`stara'} \\ ") ///
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sector _cons)
-	}
-	esttab 					using "$export/tables/inc_sec_sum.tex", append ///		
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sector _cons) ///
-								postfoot("\multicolumn{1}{l}{Observations} & " ///
-								"`obs1' & `obs2' & & `obs1' & `obs2' & \\ \midrule `end' ")	
-
-	}
-	restore 					
-
-* Gender HOH
-preserve
-	gen 				geo = ea if country != 2
-	replace 			geo = ta_code if country == 2
-	
-	local 				list1 = "crop_inc_ live_inc_ live_prod_ wage_emp_ casual_emp_ temp_emp_ nfe_inc_ kind_trans_ cash_trans_ food_trans_ asst_kind_ asst_cash_ asst_food_ pen_inc_ rent_inc_ asset_ save_inc_ oth_inc_"
-	local 				list2  "crop_inc_ tree_inc_ live_inc_ live_prod_ wage_emp_ casual_emp_ nfe_inc_	cash_trans_ food_trans_ kind_trans_ cash_child_	kind_child_ asst_food_ asst_cash_ for_wrk_ masaf_ pen_inc_ rent_inc_ asset_	save_inc_ oth_inc_"
-	local 				list3 = "crop_inc_ tree_inc_ live_inc_ live_prod_ wage_emp_ nfe_inc_ cash_dom_ cash_for_ kind_inc_ asst_inc_ pen_inc_ rent_nonag_ ag_rent_ save_inc_ oth_inc_"
-	local 				list4 = "crop_inc_ live_inc_ live_prod_ wage_emp_ nfe_inc_ cash_dom_ kind_dom_ cash_for_ kind_for_ sage_ pen_inc_ rent_inc_ interest_ oth_inc_"
-	
-	foreach 			c in `countries' {
-	if 					`c' == 1 {
-		local 				obs1 = "2251 "
-		local 				obs2 = "996"
-		local 				end = " "
-	}
-	else 				if 	`c' == 2 {
-		local 				country = "B: Malawi"
-		local 				obs1 = "1343"
-		local 				obs2 = "383"
-		local 				end = " "
-	}
-	else 				if `c' == 3 {
-		local 				country = "C: Nigeria"
-		local 				obs1 = "1578 "
-		local 				obs2 = "372"
-		local 				end = " "
-	}
-	else 				if `c' == 4 {
-		local 				country = "D: Uganda"
-		local 				obs1 = "1494 "
-		local 				obs2 = "731"
-		local 				end = " \midrule \multicolumn{7}{C{15cm}}{\small \textit{Note}: The table displays the percent of households engaged in (columns 1-3) and the mean income earned from (columns 4-6) each income category used to generate Indices 5 and 6. We present average values by head-of-household-gender. In the LSMS data, income is reported in the local currency. To allow for cross-country comparisons, we convert income values to US dollars using 2019 exchange rates found at \href{https://exchangerates.org}{https://exchangerates.org}. We use LSMS data to generate the table, which covers the pre-COVID-19 period. We calculate statistical significance of male- versus female-headed household differences using simple regressions clustered at the region level. Standard errors are reported in parentheses (*** p$<$0.001, ** p$<$0.01, * p$<$0.05).} \end{longtable}"
-	}
-	if 					`c' == 1 {
-		esttab 				using "$export/tables/inc_sex_sum.tex", replace ///
-								prehead("\begin{longtable}{l P{1cm} P{1cm} P{1.5cm} P{1cm} P{1cm} P{1.5cm}} " ///
-								"\caption{2019 Engagement in and Earnings from Income Sources by Head of Household Gender} \label{incsexsum} \\ [-1.8ex] \hline \hline & " ///
-								"\multicolumn{3}{c}{\textbf{Percent Engaged}} & \multicolumn{3}{c}{\textbf{Mean Income (USD)}} \\ & " ///
-								"\multicolumn{1}{c}{Male} & \multicolumn{1}{c}{Female} & \multicolumn{1}{c}{Difference} & " ///
-								"\multicolumn{1}{c}{Male} & \multicolumn{1}{c}{Female} & \multicolumn{1}{c}{Difference} \\ " ///
-								"\endfirsthead " ///
-								"\hline & \multicolumn{3}{c}{\textbf{Percent Engaged}} & \multicolumn{3}{c}{\textbf{Mean Income (USD)}} \\ & " ///
-								"\multicolumn{1}{c}{Male} & \multicolumn{1}{c}{Female} & \multicolumn{1}{c}{Difference} & " ///
-								"\multicolumn{1}{c}{Male} & \multicolumn{1}{c}{Female} & \multicolumn{1}{c}{Difference} \\ \hline " ///
-								"\endhead " ///
-								"\multicolumn{7}{c}{{Continued on Next Page\ldots}} " ///
-								"\endfoot " ///
-								"\endlastfoot " ///
-								"\midrule \multicolumn{4}{r}{\textit{Panel A: Ethiopia}} \\ ") ///
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sector _cons)
-	} 
-	else 				{
-		esttab 				using "$export/tables/inc_sex_sum.tex", append ///
-								prehead("\multicolumn{4}{r}{\textit{Panel `country' }} \\ ") ///
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sexhh _cons)
-	}
-	
-	foreach 					var in `list`c'' {
-		replace 					`var'amnt_0 = . if `var'amnt_0 == 0
-		
-		quietly: sum 				`var'0 if country == `c' & wave == 0 & sexhh== 1 [aweight = weight]
-		local 						temp1 = r(mean) 
-		local 						mean1 : display %4.3f `temp1'
-		quietly: sum 				`var'amnt_0 if country == `c' & wave == 0 & sexhh == 1 [aweight = weight]
-		local 						temp1a = r(mean) 
-		local 						mean1a : display %4.0f `temp1a'
-		quietly: sum 				`var'0 if country == `c' & wave == 0 & sexhh == 2 [aweight = weight]
-		local 						temp2 = r(mean)
-		local 						mean2 : display %4.3f `temp2'
-		quietly: sum 				`var'amnt_0 if country == `c' & wave == 0 & sexhh == 2 [aweight = weight]
-		local 						temp2a = r(mean) 
-		local 						mean2a : display %4.0f `temp2a'
-		local 						temp3 = `temp1' - `temp2'
-		local 						dif : display %4.3f `temp3'
-		reg 						`var'0 sexhh if country == `c' & wave == 0 [aweight = weight], cluster(geo)
-		local 						pval = r(table)[4, 1]
-		if 							`pval' <= .1 {
-			local 						star = "*"
-		} 
-		if 							`pval' <= .05 {
-			local 						star = "**" 
-		}
-		if 							`pval' <= .01 {
-			local 						star = "***"
-		}
-		else if 					`pval' > .1 {
-			local 						star = " "
-		}
-		local 						temp4 = `temp1a' - `temp2a'
-		local 						difa : display %4.0f `temp4'
-		reg 						`var'amnt_0 sexhh if country == `c' & wave == 0 [aweight = weight], cluster(geo)
-		local 						pvala = r(table)[4, 1]
-		if 							`pvala' <= .1 {
-			local 						stara = "*"
-		} 
-		if 							`pvala' <= .05 {
-			local 						stara = "**" 
-		}
-		if 							`pvala' <= .01 {
-			local 						stara = "***"
-		}
-		else if 					`pvala' > .1 {
-			local 						stara = " "
-		}
-		local 				label : variable label `var'0
-		esttab 				using "$export/tables/inc_sex_sum.tex", append ///
-								posthead("`label' & `mean1' & `mean2' & `dif'\sym{`star'} & `mean1a' & `mean2a' & `difa'\sym{`stara'} \\ ") ///
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sexhh _cons)
-	}
-	esttab 					using "$export/tables/inc_sex_sum.tex", append ///		
-								booktabs nonum nomtitle collabels(none) ///
-								nogaps fragment label noobs drop(sexhh _cons) ///
-								postfoot("\multicolumn{1}{l}{Observations} & " ///
-								"`obs1' & `obs2' & & `obs1' & `obs2' & \\ \midrule `end' ")	
-
-	}
-	restore 		
 
 	
 * **********************************************************************
 **# figures
 * **********************************************************************	
 
-* stringency index
+**## stringency index	
 	preserve 
 	drop 				if wave_orig < 1
-	foreach 			c in 1 2 3 4 {
-		if 					`c' == 1 {
-			local 			t = "Ethiopia"
-			local 			s = "Stringency Score"
-		}
-		if 					`c' == 2 {
-			local 			t = "Malawi"
-			local 			s = " "
-		}
-		if 					`c' == 3 {
-			local 			t = "Nigeria"
-			local 			s = "Stringency Score"
-		}
-		if 					`c' == 4 {
-			local 			t = "Uganda"
-			local 			s = " "
-		}
-		graph bar 			(mean) stringency_index [pweight = weight] if country == `c', ///
-								over(wave, lab(labs(med) angle(45))) title("`t'", size(large)) ///
-								bar(1, color(teal*1.3)) ytitle("`s'", size(med)) ///
-								legend(label(1 "Male") label(2 "Female") col(2)) ///
-								ylabel(0 "0" 20 "20" 40 "40" 60 "60" 80 "80" 100 "100", labs(med))  ///
-								name(stringency_`c', replace)	
-	}
+		twoway 			(line stringency_index wave [pweight = weight] if country == 1, sort lcolor(teal*1.3) clp(solid)) ///
+							(line stringency_index wave [pweight = weight] if country == 2, sort lcolor(lavender*1.3) clp(dash)) ///
+							(line stringency_index wave [pweight = weight] if country == 3, sort lcolor(olive*1.3) clp(dash_dot) ///
+							ytitle("Stringency Score", size(med)) xlabel(4 "Apr20" 5 "May20" 6 "Jun20" ///
+							7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20" 11 "Nov20" 12 "Dec20" ///
+							13 "Jan21" 14 "Feb21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
+							nogrid angle(45) labs(medium)) xtitle(" ") ///
+							ylabel(0 "0" 20 "20" 40 "40" 60 "60" 80 "80" 100 "100", labs(medium)) ), ///
+							legend(label (1 "Ethiopia") label (2 "Malawi") label (3 "Nigeria") ///
+							pos(6) col(3) size(small) margin(-1.5 0 0 0)) ///
+							name(stringency, replace)
+							
 	
-	gr combine 			stringency_1 stringency_2 stringency_3 stringency_4, commonscheme col(2)
-	gr export 			"$export/figures/stringency.png", as(png) replace
-	restore 
+	gr export 			"$figures/stringency.pdf", as(pdf) replace
+	restore 	
 	
-* income sources over time 
+**## index 1 over time 	
+	preserve 
+	drop 				if wave_orig < 0
+	replace 			wave = 3 if wave == 0
+	
+	collapse (mean) 		std_pp_index, by(country wave)
+	
+		twoway 			(line std_pp_index wave if country == 1, sort lcolor(teal*1) clp(solid) fc(teal%75) alw(none) ) ///
+							(line std_pp_index wave if country == 2, sort lcolor(lavender*1) clp(dash) fc(lavender%75) alw(none) ) ///
+							(line std_pp_index wave if country == 3, sort lcolor(olive*1) clp(dash_dot) fc(olive%75) alw(none)  ///
+							ytitle("Specialization Index", size(med)) xlabel(3 "2019" 4 "Apr20" 5 "May20" 6 "Jun20" ///
+							7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20" 11 "Nov20" 12 "Dec20" ///
+							13 "Jan21" 14 "Feb21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
+							nogrid angle(45) labs(medium)) xtitle(" ") ///
+							ylabel(0 "0" .20 "20" .40 "40" .60 "60" .80 "80" 1 "100", labs(medium)) ), ///
+							legend(label (1 "Ethiopia") label (2 "Malawi") label (3 "Nigeria") ///
+							pos(6) col(3) size(small) margin(-1.5 0 0 0)) ///
+							name(index1_time, replace)
+							
+	
+	gr export 			"$figures/index1_time.pdf", as(pdf) replace
+	restore 	
+						
+**## income sources over time 
 	* Ethiopia
 	preserve
 	keep 					if country == 1
 	replace 				wave = 3 if wave == 0
 	drop 					if wave > 10
-	collapse 				(mean) farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp [pweight = weight], by(country wave)
-	line 					farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp wave, sort(wave) ///
-								lcolor(cranberry*1 navy*1 emerald*1 erose*1 khaki*1 magenta*1.5 eltblue*1.2) ///
-								lp(solid dash solid dash solid dash solid) ///
-								lwidth(thick thick thick thick thick thick thick) title("Ethiopia", size(large)) ///
+	
+	collapse (mean) 		farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp save_std_pp pen_std_pp, by(country wave)
+	
+	twoway 					(line farm_std_pp wave , lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(line wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
+								(line nfe_std_pp wave , lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
+								(line rem_std_pp wave , lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
+								(line asst_std_pp wave , lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
+								(line save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
+								(line pen_std_pp wave , lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
+								title("Ethiopia", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
 								ytitle("Percent Engaged", size(medlarge)) ///
 								xlabel(3 "2019" 4 "Apr20" 5 "May20" 6 "Jun20" 8 "Aug20" 9 "Sep20" 10 "Oct20", ///
-								nogrid angle(45) labs(medlarge)) xtitle(" ") legend(label (1 "Farm") ///
+								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (1 "Farm") ///
 								label (2 "Wages") label (3 "Non-Farm Enterprise") label (4 "Remittances") ///
 								label (5 "Assistance and Other") label (6 "Savings and Investments") ///
-								label (7 "Pension") pos(6) col(4) size(small) margin(-1.5 0 0 0)) ///
+								label (7 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0)) ///
 								name(eth_emp_line, replace)
+
 	restore 
 
 	* Malawi
@@ -446,16 +212,25 @@ preserve
 	keep 					if country == 2
 	replace 				wave = 5 if wave == 0
 	drop 					if wave > 18
-	collapse 				(mean) farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp [pweight = weight], by(country wave)
-	line 					farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp wave, sort(wave) ///
-								lcolor(cranberry*1 navy*1 emerald*1 erose*1 khaki*1 magenta*1.5 eltblue*1.2) ///
-								lp(solid dash solid dash solid dash solid) ///
-								lwidth(thick thick thick thick thick thick thick) title("Malawi", size(large)) ///
+	
+	collapse (mean) 		farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp save_std_pp pen_std_pp, by(country wave)
+	
+	twoway 					(line farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(line wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
+								(line nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
+								(line rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
+								(line asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
+								(line save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
+								(line pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
+								title("Malawi", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
+								ytitle("", size(medlarge)) ///
 								xlabel(5 "2019" 6 "Jun20" 7 "Jul20" 8 "Aug20" 9 "Sep20" 11 "Nov20" ///
-								13 "Jan21" 16 "Apr21" 18 "May21", nogrid angle(45) labs(medlarge)) xtitle(" ") ///
+								13 "Jan21" 16 "Apr21" 18 "May21", ///
+								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (1 "Farm") ///
+								label (2 "Wages") label (3 "Non-Farm Enterprise") label (4 "Remittances") ///
+								label (5 "Assistance and Other") label (6 "Savings and Investments") ///
+								label (7 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0)) ///
 								name(mwi_emp_line, replace)
 	restore 
 	
@@ -464,41 +239,33 @@ preserve
 	keep 					if country == 3
 	replace 				wave = 4 if wave == 0
 	drop 					if wave > 13 | wave < 4
-	collapse 				(mean) farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp [pweight = weight], by(country wave)
-	line 					farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp wave, sort(wave) ///
-								lcolor(cranberry*1 navy*1 emerald*1 erose*1 khaki*1 magenta*1.5 eltblue*1.2) ///
-								lp(solid dash solid dash solid dash solid) ///
-								lwidth(thick thick thick thick thick thick thick) title("Nigeria", size(large)) ///
+	
+	collapse (mean) 		farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp save_std_pp pen_std_pp, by(country wave)
+	
+	twoway 					(line farm_std_pp wave, lcolor(cranberry*1) clp(solid) fc(cranberry%75) alw(none) ) ///
+								(line wage_std_pp wave, lcolor(navy*1) clp(dash) fc(navy%75) alw(none) ) ///
+								(line nfe_std_pp wave, lcolor(emerald*1) clp(dot) fc(emerald%75) alw(none) ) ///
+								(line rem_std_pp wave, lcolor(erose*1.5) clp(dash_dot) fc(erose%75) alw(none) ) ///
+								(line asst_std_pp wave, lcolor(khaki*1.5) clp(shortdash) fc(khaki%75) alw(none) ) ///
+								(line save_std_pp wave, lcolor(magenta*1) clp(longdash) fc(magenta%75) alw(none) ) ///
+								(line pen_std_pp wave, lcolor(eltblue*1.2) clp(longdash_dot) fc(eltblue%75) alw(none) ///
+								title("Nigeria", size(large))  ///
 								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
 								ytitle("Percent Engaged", size(medlarge)) ///
-								xlabel(4 "2019" 5 "May20" 8 "Aug20" 9 "Sep20" 13 "Jan21", nogrid angle(45) ///
-								labs(medlarge)) xtitle(" ") name(nga_emp_line, replace)
+								xlabel(4 "2019" 5 "May20" 8 "Aug20" 9 "Sep20" 13 "Jan21", ///
+								nogrid angle(45) labs(medlarge)) xtitle(" ")), legend(label (1 "Farm") ///
+								label (2 "Wages") label (3 "Non-Farm Enterprise") label (4 "Remittances") ///
+								label (5 "Assistance and Other") label (6 "Savings and Investments") ///
+								label (7 "Pension") pos(3) col(1) size(small) margin(-1.5 0 0 0)) ///
+								name(nga_emp_line, replace)
 	restore 
 	
-	* Uganda 
-	preserve
-	keep 					if country == 4
-	replace 				wave = 5 if wave == 0
-	drop 					if wave > 14 
-	collapse 				(mean) farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp [pweight = weight], by(country wave)
-	line 					farm_std_pp wage_std_pp nfe_std_pp rem_std_pp asst_std_pp ///
-								save_std_pp pen_std_pp wave, sort(wave) ///
-								lcolor(cranberry*1 navy*1 emerald*1 erose*1 khaki*1 magenta*1.5 eltblue*1.2) ///
-								lp(solid dash solid dash solid dash solid) ///
-								lwidth(thick thick thick thick thick thick thick) title("Uganda", size(large)) ///
-								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(medlarge)) ///
-								xlabel(5 "2019" 6 "Jun20" 8 "Aug20" 9 "Sep20" 11 "Nov20" 14 "Feb21", nogrid angle(45) ///
-								labs(medlarge)) xtitle(" ") name(uga_emp_line, replace)
-	restore 
+	grc1leg2 				eth_emp_line mwi_emp_line nga_emp_line, col(2) iscale(.5) ///
+								ring(0) pos(4) holes(4) commonscheme
+	graph export 			"$figures/ind1_sources_time.pdf", as(pdf) replace
 	
-	grc1leg2 				eth_emp_line mwi_emp_line nga_emp_line uga_emp_line, col(2) commonscheme iscale(.5)
-	graph export 			"$export/figures/ind1_sources_time.png", as(png) replace
-	
-* Kernel density graphs for each index
-	foreach 			c in 1 2 3 4 {
+**## Kernel density graphs for each index
+	foreach 			c in 1 2 3 {
 		if `c' == 1 {
 			local 			x = "eth"
 			local 			t = "Ethiopia"
@@ -509,7 +276,7 @@ preserve
 			local 			x = "mwi"
 			local 			t = "Malawi"
 			local 			a = " "
-			local 			s = " "
+			local 			s = "Specialization Index"
 		}
 		if `c' == 3 {
 			local 			x = "nga"
@@ -517,69 +284,63 @@ preserve
 			local 			a = "Density"
 			local 			s = "Specialization Index"
 		}
-		if `c' == 4 {
-			local 			x = "uga"
-			local 			t = "Uganda"
-			local 			a = " "
-			local 			s = "Specialization Index"
-		}
 		* index 1
 		kdensity 			 std_pp_index if country == `c' & wave == 0 [aweight = weight], ///
-								color(navy%30) recast(area) ///
+								color(navy%30) recast(area) note("") bwidth(.04) ///
 								xtitle("`s'", size(medsmall)) ytitle("`a'") title("`t'", size(medlarge)) ///
 								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) ///
-								xlabel(, nogrid labsize(small)) bwidth(.04) name(`x'_std_pp, replace)
+								xlabel(, nogrid labsize(small)) name(`x'_std_pp, replace)
 		* index 2						
 		kdensity 			 `x'_pp_index if country == `c' & wave == 0 [aweight = weight], ///
-								color(navy%30) recast(area) ///
+								color(navy%30) recast(area) note("") ///
 								xtitle("`s'", size(medsmall)) ytitle("`a'") title("`t'", size(medlarge)) ///
 								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) bwidth(.04) ///
 								xlabel(, nogrid labsize(small)) name(`x'_pp, replace)
 		* index 3
 		kdensity 			 std_pre_index_frac if country == `c' & wave == 0 [aweight = weight], ///
-								color(navy%30) recast(area) ///
+								color(navy%30) recast(area) note("") bwidth(.04) ///
 								xtitle("`s'", size(medsmall)) ytitle("`a'") title("`t'", size(medlarge)) ///
 								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) ///
-								xlabel(, nogrid labsize(small)) bwidth(.04) name(`x'_std_frac, replace)
+								xlabel(, nogrid labsize(small)) name(`x'_std_frac, replace)
 		* index 4						
 		kdensity 			 std_pre_index_hhi if country == `c' & wave == 0 [aweight = weight], ///
-								color(navy%30) recast(area) ///
+								color(navy%30) recast(area) note("") ///
 								xtitle("`s'", size(medsmall)) ytitle("`a'") title("`t'", size(medlarge)) ///
 								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) ///
 								xlabel(, nogrid labsize(small)) name(`x'_std_hhi, replace)
 		* index 5
 		kdensity 			`x'_pre_index_geo if wave == 0 [aweight = weight], color(navy%30) recast(area) ///
 								xtitle("`s'", size(medsmall)) ytitle("`a'") title("`t'", size(medlarge)) ///
-								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) ///
+								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) note("") ///
 								xlabel(, nogrid labsize(small)) name(`x'_geo, replace)
 		* index 6
 		kdensity 			`x'_pre_index_hhi if wave == 0 [aweight = weight], color(navy%30) recast(area) ///
 								xtitle("`s'", size(medsmall)) ytitle("`a'") title("`t'", size(medlarge)) ///
-								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) ///
+								ylabel(0 "0" 1 "1" 2 "2" 3 "3" 4 "4", nogrid labsize(small)) note("") ///
 								xlabel(, nogrid labsize(small)) name(`x'_hhi, replace)
 	}	
 	
 	* export graphics by index type
-	gr combine 			eth_std_pp mwi_std_pp nga_std_pp  uga_std_pp, col(2) commonscheme		
-	graph export 		"$export/figures/ind1_density.png", as(png) replace
+	gr combine 			eth_std_pp mwi_std_pp nga_std_pp , col(2) commonscheme		
+	graph export 		"$figures/ind1_density.pdf", as(pdf) replace
 	
-	gr combine 			eth_pp mwi_pp nga_pp uga_pp, col(2) commonscheme		
-	graph export 		"$export/figures/ind2_density.png", as(png) replace	
+	gr combine 			eth_pp mwi_pp nga_pp, col(2) commonscheme		
+	graph export 		"$figures/ind2_density.pdf", as(pdf) replace	
 	
-	gr combine 			eth_std_frac mwi_std_frac nga_std_frac uga_std_frac, col(2) commonscheme		
-	graph export 		"$export/figures/ind3_density.png", as(png) replace	
+	gr combine 			eth_std_frac mwi_std_frac nga_std_frac, col(2) commonscheme		
+	graph export 		"$figures/ind3_density.pdf", as(pdf) replace	
 	
-	gr combine 			eth_std_hhi mwi_std_hhi nga_std_hhi uga_std_hhi, col(2) commonscheme		
-	graph export 		"$export/figures/ind4_density.png", as(png) replace
+	gr combine 			eth_std_hhi mwi_std_hhi nga_std_hhi, col(2) commonscheme		
+	graph export 		"$figures/ind4_density.pdf", as(pdf) replace
 	
-	gr combine 			eth_geo mwi_geo nga_geo uga_geo, col(2) commonscheme		
-	graph export 		"$export/figures/ind5_density.png", as(png) replace	
+	gr combine 			eth_geo mwi_geo nga_geo, col(2) commonscheme		
+	graph export 		"$figures/ind5_density.pdf", as(pdf) replace	
 	
-	gr combine 			eth_hhi mwi_hhi nga_hhi uga_hhi, col(2) commonscheme		
-	graph export 		"$export/figures/ind6_density.png", as(png) replace
+	gr combine 			eth_hhi mwi_hhi nga_hhi, col(2) commonscheme		
+	graph export 		"$figures/ind6_density.pdf", as(pdf) replace
 	
-* Kernel density graphs of HHI by gender and sector
-	foreach 			c in 1 2 3 4 {
+**## Kernel density graphs of HHI by gender and sector
+	foreach 			c in 1 2 3 {
 		if `c' == 1 {
 			local 			x = "eth"
 			local 			t = "Ethiopia"
@@ -596,12 +357,6 @@ preserve
 			local 			x = "nga"
 			local 			t = "Nigeria"
 			local 			a = "Density"
-			local 			s = "Specialization Index"
-		}
-		if `c' == 4 {
-			local 			x = "uga"
-			local 			t = "Uganda"
-			local 			a = " "
 			local 			s = "Specialization Index"
 		}
 		
@@ -717,48 +472,49 @@ preserve
 		
 	* export graphics for sec/sex by index type
 		* index 1
-		grc1leg2 				eth_std_pp_sex mwi_std_pp_sex nga_std_pp_sex uga_std_pp_sex, col(2) commonscheme			
-		graph export 			"$export/figures/std_pp_density_sex.png", as(png) replace
+		grc1leg2 				eth_std_pp_sex mwi_std_pp_sex nga_std_pp_sex, col(2) commonscheme			
+		graph export 			"$figures/std_pp_density_sex.pdf", as(pdf) replace
 	
-		grc1leg2 				eth_std_pp_sec mwi_std_pp_sec nga_std_pp_sec uga_std_pp_sec, col(2) commonscheme		
-		graph export 			"$export/figures/std_pp_density_sec.png", as(png) replace
+		grc1leg2 				eth_std_pp_sec mwi_std_pp_sec nga_std_pp_sec, col(2) commonscheme		
+		graph export 			"$figures/std_pp_density_sec.pdf", as(pdf) replace
 		
 		* index 2
-		grc1leg2 				eth_pp_sex mwi_pp_sex nga_pp_sex uga_pp_sex, col(2) commonscheme			
-		graph export 			"$export/figures/pp_density_sex.png", as(png) replace
+		grc1leg2 				eth_pp_sex mwi_pp_sex nga_pp_sex, col(2) commonscheme			
+		graph export 			"$figures/pp_density_sex.pdf", as(pdf) replace
 	
-		grc1leg2 				eth_pp_sec mwi_pp_sec nga_pp_sec uga_pp_sec, col(2) commonscheme		
-		graph export 			"$export/figures/pp_density_sec.png", as(png) replace
+		grc1leg2 				eth_pp_sec mwi_pp_sec nga_pp_sec, col(2) commonscheme		
+		graph export 			"$figures/pp_density_sec.pdf", as(pdf) replace
 			
 		* index 3
-		grc1leg2 				eth_std_frac_sex mwi_std_frac_sex nga_std_frac_sex uga_std_frac_sex, col(2) commonscheme			
-		graph export 			"$export/figures/std_frac_density_sex.png", as(png) replace
+		grc1leg2 				eth_std_frac_sex mwi_std_frac_sex nga_std_frac_sex, col(2) commonscheme			
+		graph export 			"$figures/std_frac_density_sex.pdf", as(pdf) replace
 	
-		grc1leg2 				eth_std_frac_sec mwi_std_frac_sec nga_std_frac_sec uga_std_frac_sec, col(2) commonscheme		
-		graph export 			"$export/figures/std_frac_density_sec.png", as(png) replace
+		grc1leg2 				eth_std_frac_sec mwi_std_frac_sec nga_std_frac_sec, col(2) commonscheme		
+		graph export 			"$figures/std_frac_density_sec.pdf", as(pdf) replace
 		
 		* index 4
-		grc1leg2 				eth_std_hhi_sex mwi_std_hhi_sex nga_std_hhi_sex uga_std_hhi_sex, col(2) commonscheme			
-		graph export 			"$export/figures/std_hhi_density_sex.png", as(png) replace
+		grc1leg2 				eth_std_hhi_sex mwi_std_hhi_sex nga_std_hhi_sex, col(2) commonscheme			
+		graph export 			"$figures/std_hhi_density_sex.pdf", as(pdf) replace
 	
-		grc1leg2 				eth_std_hhi_sec mwi_std_hhi_sec nga_std_hhi_sec uga_std_hhi_sec, col(2) commonscheme		
-		graph export 			"$export/figures/std_hhi_density_sec.png", as(png) replace
+		grc1leg2 				eth_std_hhi_sec mwi_std_hhi_sec nga_std_hhi_sec, col(2) commonscheme		
+		graph export 			"$figures/std_hhi_density_sec.pdf", as(pdf) replace
 
 		* index 5
-		grc1leg2 				eth_geo_sex mwi_geo_sex nga_geo_sex uga_geo_sex, col(2) commonscheme			
-		graph export 			"$export/figures/geo_density_sex.png", as(png) replace
+		grc1leg2 				eth_geo_sex mwi_geo_sex nga_geo_sex, col(2) commonscheme			
+		graph export 			"$figures/geo_density_sex.pdf", as(pdf) replace
 	
-		grc1leg2 				eth_geo_sec mwi_geo_sec nga_geo_sec uga_geo_sec, col(2) commonscheme		
-		graph export 			"$export/figures/geo_density_sec.png", as(png) replace
+		grc1leg2 				eth_geo_sec mwi_geo_sec nga_geo_sec, col(2) commonscheme		
+		graph export 			"$figures/geo_density_sec.pdf", as(pdf) replace
 		
 		* index 6
-		grc1leg2 				eth_hhi_sex mwi_hhi_sex nga_hhi_sex uga_hhi_sex, col(2) commonscheme 		
-		graph export 			"$export/figures/hhi_density_sex.png", as(png) replace
+		grc1leg2 				eth_hhi_sex mwi_hhi_sex nga_hhi_sex, col(2) commonscheme 		
+		graph export 			"$figures/hhi_density_sex.pdf", as(pdf) replace
 	
-		grc1leg2 				eth_hhi_sec mwi_hhi_sec nga_hhi_sec uga_hhi_sec, col(2) commonscheme 			
-		graph export 			"$export/figures/hhi_density_sec.png", as(png) replace
+		grc1leg2 				eth_hhi_sec mwi_hhi_sec nga_hhi_sec, col(2) commonscheme 			
+		graph export 			"$figures/hhi_density_sec.pdf", as(pdf) replace
 
-* index 1 over time 	
+
+**## index 1 over time 		
 	foreach 			c in `countries'  {
 		if `c' == 1 {
 			local 			x = "eth"
@@ -775,11 +531,6 @@ preserve
 			local 			t = "Nigeria"
 			local 			s = "Specialization Index"
 		}
-		if `c' == 4 {
-			local 			x = "uga"
-			local 			t = "Uganda"
-			local 			s = " "
-		}
 		preserve
 		keep 				if country == `c'
 		keep 				if std_pp_index != .
@@ -787,7 +538,7 @@ preserve
 								over(wave, lab(labs(med) angle(45))) title("`t'", size(large)) ///
 								bar(2, color(maroon*1.5)) bar(1, color(gray*1.3)) ///
 								ytitle("", margin( 0 -1 -1 10) size(small)) ///
-								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(med))  ///
+								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(medium))  ///
 								legend(label(1 "Mean of Specialization Index")) ///
 								name(std_pp_index_time_`c', replace)	
 		restore 
@@ -809,12 +560,12 @@ preserve
 	}
 	
 	* export graphics over time by sector
-	grc1leg2 				std_pp_index_time_1 std_pp_index_time_2 std_pp_index_time_3 std_pp_index_time_4, ///
+	grc1leg2 				std_pp_index_time_1 std_pp_index_time_2 std_pp_index_time_3, ///
 								col(2) commonscheme 
-	gr export 				"$export/figures/std_pp_index_time.png", as(png) replace
+	gr export 				"$figures/std_pp_index_time.png", as(png) replace
 		
 		
-* index 1 over time by sector	
+**## index 1 over time by sector	
 	gen 				std_pp_index_sec1 = std_pp_index if sector == 1
 	gen 				std_pp_index_sec2 = std_pp_index if sector == 2
 	foreach 			c in `countries'  {
@@ -833,11 +584,6 @@ preserve
 			local 			t = "Nigeria"
 			local 			s = "Specialization Index"
 		}
-		if `c' == 4 {
-			local 			x = "uga"
-			local 			t = "Uganda"
-			local 			s = " "
-		}
 		preserve
 		keep 				if country == `c'
 		keep 				if std_pp_index != .
@@ -846,7 +592,7 @@ preserve
 								bar(2, color(maroon*1.5)) bar(1, color(gray*1.3)) ///
 								ytitle("`s'", margin( 0 -1 -1 10) size(small)) ///
 								legend(label(1 "Rural") label(2 "Urban") col(2)) ///
-								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(med))  ///
+								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(medium))  ///
 								name(std_pp_index_time_sec_`c', replace)	
 		restore 
 	}
@@ -855,7 +601,7 @@ preserve
 	
 	* test for significance 
 	foreach 				het in sector sexhh {
-		foreach 				c in 1 2 3 4 {
+		foreach 				c in 1 2 3 {
 			preserve
 			keep 					if country == `c'
 			keep 					if std_pp_index != .
@@ -869,11 +615,11 @@ preserve
 	}
 	
 	* export graphics over time by sector
-	grc1leg2 				std_pp_index_time_sec_1 std_pp_index_time_sec_2 std_pp_index_time_sec_3 std_pp_index_time_sec_4, ///
+	grc1leg2 				std_pp_index_time_sec_1 std_pp_index_time_sec_2 std_pp_index_time_sec_3, ///
 								col(2) commonscheme 
-	gr export 				"$export/figures/std_pp_index_time_sector.png", as(png) replace
+	gr export 				"$figures/std_pp_index_time_sector.png", as(png) replace
 
-* index 1 over time by sex	
+**## index 1 over time by sex	
 	gen 				std_pp_index_sex1 = std_pp_index if sexhh == 1
 	gen 				std_pp_index_sex2 = std_pp_index if sexhh == 2
 	foreach 			c in `countries'  {
@@ -892,11 +638,6 @@ preserve
 			local 			t = "Nigeria"
 			local 			s = "Specialization Index"
 		}
-		if `c' == 4 {
-			local 			x = "uga"
-			local 			t = "Uganda"
-			local 			s = " "
-		}
 		preserve
 		keep 				if country == `c'
 		keep 				if std_pp_index != .
@@ -905,7 +646,7 @@ preserve
 								bar(2, color(eltblue*1.5)) bar(1, color(gray*1.3)) ///
 								ytitle("`s'", margin( 0 -1 -1 10) size(small)) ///
 								legend(label(1 "Male") label(2 "Female") col(2)) ///
-								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(med))  ///
+								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", labs(medium))  ///
 								name(std_pp_index_time_sex_`c', replace)	
 		restore 
 	}
@@ -913,101 +654,79 @@ preserve
 	drop 					std_pp_index_sex*
 	
 	* export graphics over time by sex
-	grc1leg2 				std_pp_index_time_sex_1 std_pp_index_time_sex_2 std_pp_index_time_sex_3 std_pp_index_time_sex_4, ///
+	grc1leg2 				std_pp_index_time_sex_1 std_pp_index_time_sex_2 std_pp_index_time_sex_3, ///
 								col(2) commonscheme 
-	gr export 				"$export/figures/std_pp_index_time_sex.png", as(png) replace	
+	gr export 				"$figures/std_pp_index_time_sex.png", as(png) replace	
 	
 	
-* FIES
+**# FIES
 	* Ethiopia
-	preserve 
+	preserve
 	keep 					if country == 1
-	foreach 				x in mild mod sev {
-		egen 					`x'_fs_mean = mean(`x'_fs), by(country wave)
-	}
 	replace 				wave = 4 if wave == 0
-	drop 					if wave > 10
-	line					 mild_fs_mean mod_fs_mean sev_fs_mean wave [pweight = weight], ///
-								sort(wave) lcolor(cranberry*.4 cranberry*.8 cranberry*1.6) ///
-								lwidth(vthick vthick vthick) title("Ethiopia", size(large)) ///
-								ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
+	drop 					if wave > 10	
+	
+	collapse (mean) 		mild_fs mod_fs sev_fs, by(country wave)
+	
+	twoway 					(line mild_fs wave, lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
+								(line mod_fs wave, lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
+								(line sev_fs wave, lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
+								title("Ethiopia", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
 								ytitle("Percent Reporting Food Insecurity", size(small)) ///
-								xlabel(4 "2019" 5 "May20" 6 "Jun20" 7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20", ///
-								nogrid angle(45) labs(small)) xtitle(" ") legend(label (1 "Mild Food Insecurity") ///
+								xlabel(4 "Jun/Jul19" 5 "May20" 6 "Jun20" 8 "Aug20" 9 "Sep20" 10 "Oct20", ///
+								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (1 "Mild Food Insecurity") ///
 								label (2 "Moderate Food Insecurity") label (3 "Severe Food Insecurity") ///
-								pos(6) col(3) size(small) margin(-1.5 0 0 0)) name(eth_fies, replace)
-	restore 
+								pos(6) col(1) size(small) margin(-1.5 0 0 0) ) name(eth_fies, replace)
+							
+	restore 		
+	
 
 	* Malawi
-	preserve 
+	preserve
 	keep 					if country == 2
-	foreach 				x in mild mod sev {
-		egen 					`x'_fs_mean = mean(`x'_fs), by(country wave)
-	}
 	replace 				wave = 5 if wave == 0
 	replace 				wave = 17 if wave == 18
-
-	line					 mild_fs_mean mod_fs_mean sev_fs_mean wave [pweight = weight], ///
-								sort(wave) lcolor(cranberry*.4 cranberry*.8 cranberry*1.6) ///
-								lwidth(vthick vthick vthick) title("Malawi", size(large)) ///
-								yscale(range(0(.2) 1)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", ///
-								nogrid labs(small)) ///
-								xlabel(5 "2019" 6 "Jun20" 7 "Jul20" 8 "Aug20" 9 "Sep20" 10 "Oct20" 11 "Nov20" ///
-								12 "Dec20" 13 "Jan21" 14 "Feb21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
-								nogrid angle(45) labs(small)) xtitle(" ") legend(label (1 "Mild Food Insecurity") ///
+	
+	collapse (mean) 		mild_fs mod_fs sev_fs, by(country wave)
+	
+	twoway 					(line mild_fs wave, lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
+								(line mod_fs wave, lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
+								(line sev_fs wave, lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
+								title("Malawi", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
+								ytitle(" ", size(small)) ///
+								xlabel(5 "2019" 6 "Jun20" 7 "Jul20" 8 "Aug20" 11 "Nov20" ///
+								12 "Dec20" 13 "Jan21" 15 "Mar21" 16 "Apr21" 17 "May21", ///
+								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (1 "Mild Food Insecurity") ///
 								label (2 "Moderate Food Insecurity") label (3 "Severe Food Insecurity") ///
-								pos(6) col(3) size(small) margin(-1.5 0 0 0)) name(mwi_fies, replace)
-	restore 
-
+								pos(6) col(1) size(small) margin(-1.5 0 0 0) )  name(mwi_fies, replace)
+							
+	restore
+	
 	* Nigeria
-	preserve 
+	preserve
 	keep 					if country == 3
 	drop 					if mild_fs >= .
-	foreach 				x in mild mod sev {
-		egen 					`x'_fs_mean = mean(`x'_fs), by(country wave)
-	}
 	replace 				wave = 4 if wave == -1
 	replace 				wave = 5 if wave == 0
-
-	line					 mild_fs_mean mod_fs_mean sev_fs_mean wave [pweight = weight], ///
-								sort(wave) lcolor(cranberry*.4 cranberry*.8 cranberry*1.6) ///
-								lwidth(vthick vthick vthick) title("Nigeria", size(large)) ///
-								yscale(range(0(.2) 1)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", ///
-								nogrid labs(small)) ///
-								xlabel(4 "2019pp" 5 "2019ph" 6 "Jun20" 7 "Jul20" 8 "Aug20" ///
-								9 "Sep20" 10 "Oct20" 11 "Nov20", nogrid angle(45) labs(small)) ///
-								xtitle(" ") legend(label (3 "Mild Food Insecurity") ///
-								label (2 "Moderate Food Insecurity") label (1 "Severe Food Insecurity") ///
-								pos(6) col(3) size(small) margin(-1.5 0 0 0)) name(nga_fies, replace)
-	restore 
-
-	grc1leg2 			eth_fies mwi_fies nga_fies, col(3) commonscheme name(fies_line, replace)			
-	graph export 		"$export/figures/fies_line.png", as(png) replace
 	
-* Education	
-	catplot 			edu_act wave country [aweight = weight_child] if country == 1, percent(wave) stack ///
-							bar(1, color(maroon*1.5)) bar(2, color(stone*1.5)) ytitle(" ") ///
-							var1opts(label(labsize(large))) var3opts(label(angle(90) labsize(large))) ///
-							legend(col(2) margin(-1.5 0 0 0)) name(eth_edu, replace)
+	collapse (mean) 		mild_fs mod_fs sev_fs, by(country wave)
+	
+	twoway 					(line mild_fs wave, lcolor(cranberry*.4) clp(solid) fc(cranberry%25) alw(none)) ///
+								(line mod_fs wave, lcolor(cranberry*.8) clp(solid) fc(cranberry%25) alw(none)) ///
+								(line sev_fs wave, lcolor(cranberry*1.6) clp(solid) fc(cranberry%25) alw(none) ///
+								title("Nigeria", size(large)) ylabel(0 "0" .2 "20" .4 "40" .6 "60" .8 "80" 1 "100", nogrid labs(small)) ///
+								ytitle(" ", size(small)) ///
+								xlabel(4 "Aug/Sep18" 5 "Jan/Feb19" 6 "Jun20" 8 "Aug20" 11 "Nov20", ///
+								nogrid angle(45) labs(small)) xtitle(" ")), legend(label (1 "Mild Food Insecurity") ///
+								label (2 "Moderate Food Insecurity") label (3 "Severe Food Insecurity") ///
+								pos(6) col(1) size(small) margin(-1.5 0 0 0) )  name(nga_fies, replace)
 							
-	catplot 			edu_act wave country [aweight = weight_child] if country == 2, percent(wave) stack ///
-							bar(1, color(maroon*1.5)) bar(2, color(stone*1.5)) ytitle(" ") ///
-							var1opts(label(labsize(large))) var3opts(label(angle(90) labsize(large))) ///
-							legend(col(2) margin(-1.5 0 0 0)) name(mwi_edu, replace)
-							
-	catplot 			edu_act wave country [aweight = weight_child] if country == 3, percent(wave) stack ///
-							bar(1, color(maroon*1.5)) bar(2, color(stone*1.5)) ytitle(" ") ///
-							var1opts(label(labsize(large))) var3opts(label(angle(90) labsize(large))) ///
-							name(nga_edu, replace)	
+	restore
 	
-	catplot 			edu_act wave country [aweight = weight_child] if country == 4, percent(wave) stack ///
-							bar(1, color(maroon*1.5)) bar(2, color(stone*1.5)) ytitle("Percent", size(small)) ///
-							var1opts(label(labsize(large))) var3opts(label(angle(90) labsize(large))) ///
-							name(uga_edu, replace) 
+	grc1leg2 				eth_fies mwi_fies nga_fies, col(2) iscale(.5) ///
+								ring(0) pos(4) holes(4) commonscheme		
+	graph export 		"$figures/fies_line.pdf", as(pdf) replace
 	
-	grc1leg2 			eth_edu mwi_edu nga_edu uga_edu, col(1) iscale(.5) commonscheme imargin(0 0 0 0)				
-	graph export 		"$export/figures/edu_bar.png", as(png) replace 
-
 	
 ************************************************************************
 **# sectors summary wages & NFE
@@ -1065,14 +784,7 @@ preserve
 	use 				"$data/nigeria/raw/wave_00/sect3a_harvestw4.dta", clear
 	// NOTE: MAIN JOB
 	tab 				s3q14
-	
-* UGANDA
-	* NFE - gen this differently than other countries because prior section uses dif qualifier so nums do not match
-	use 			"$data/uganda/raw/wave_00//Household/GSEC12_2", clear	
-	tab 			N01_1
 
-	* wages
-	// no data
 	
 ************************************************************************
 **# end matters

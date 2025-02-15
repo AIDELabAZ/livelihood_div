@@ -1,9 +1,9 @@
 * Project: DIVERSIFICATION
 * Created on: Sept 2021
 * Created by: amf
-* Edited by: amf
-* Last edit: 24 Sept 2021
-* Stata v.17.0
+* Edited by: jdm
+* Last edit: 12 Feb 2025
+* Stata v.18.0
 
 
 * does
@@ -15,7 +15,7 @@
 	* cleaned country data
 
 * TO DO:
-	* add new rounds 
+	* done
 	
 	
 ************************************************************************
@@ -23,21 +23,19 @@
 ************************************************************************
 
 * define
-	global  root    =	"$data/analysis"
+	global  root    =	"$data/cleaned_data"
 	global	eth		=	"$data/ethiopia/refined/wave_00"
 	global	mwi		=	"$data/malawi/refined/wave_00"
 	global	nga		=	"$data/nigeria/refined/wave_00"
-	global	uga		=	"$data/uganda/refined/wave_00"
-	global	bf		=	"$data/burkina_faso/refined/wave_00"
-	global	export	=	"$data/analysis/diversification"
-	global	logout	=	"$data/analysis/diversification/logs"
+	global	export	=	"$output"
+	global	logout	=	"$output/logs"
 
 * open log
 	cap log 			close
 	log using			"$logout/pnl_cleaning_div", append
 
 * local countries
-	local 				countries = "1 2 3 4"
+	local 				countries = "1 2 3"
 
 	
 ************************************************************************
@@ -52,7 +50,6 @@
 	append 				using "$eth/r0"
 	append 				using "$mwi/r0"
 	append 				using "$nga/r0"
-	append 				using "$uga/r0"
 
 * redo hhid
 	drop 				hhid
@@ -62,24 +59,13 @@
 	replace 			hhid_nga1 = "n" + hhid_nga1 if hhid_nga1 != "."
 	replace				hhid_nga1 = "" if hhid_nga1 == "."
 	
-	tostring 			hhid_uga, gen(hhid_uga1) format("%12.0f")
-	replace 			hhid_uga1 = baseline_hhid if baseline_hhid != ""
-	replace 			hhid_uga1 = "u" + hhid_uga1 if hhid_uga1 != "."
-	replace				hhid_uga1 = "" if hhid_uga1 == "."
-	
-	tostring			hhid_bf, gen(hhid_bf1)
-	replace 			hhid_bf1 = "b" + hhid_bf1 if hhid_bf1 != "."
-	replace				hhid_bf1 = "" if hhid_bf1 == "."
-	
 	gen					HHID = hhid_eth1 if hhid_eth1 != ""
 	replace				HHID = hhid_mwi1 if hhid_mwi1 != ""
 	replace				HHID = hhid_nga1 if hhid_nga1 != ""
-	replace				HHID = hhid_uga1 if hhid_uga1 != ""
-	replace				HHID = hhid_bf1 if hhid_bf1 != ""
 	
 	sort				HHID
 	egen				hhid = group(HHID)
-	drop				HHID hhid_eth1 hhid_mwi1 hhid_nga1 hhid_uga1 hhid_bf1
+	drop				HHID hhid_eth1 hhid_mwi1 hhid_nga1
 	lab var				hhid "Unique household ID"
 	order 				country wave hhid resp_id hhid*
 
@@ -93,7 +79,6 @@
 ************************************************************************
 
 * xfill geographic areas in uga and nigeria
-	xfill 				region if country == 4, i(hhid) 
 	xfill 				region zone lga if country == 3, i(hhid) 
 	xfill 				ea if country == 3, i(hhid)
 	drop 				state
@@ -103,8 +88,6 @@
 	xfill 				ea if country == 1 & wave == 0, i(hhid)
 	
 	xfill 				ta_code if country == 2, i(hhid)
-	
-	xfill 				district county town ward ea if country == 4, i(hhid)
 	
 * fix sector in nga 
 	replace 			sector = 100 if sector == 2 & country == 3 	& wave == 0
@@ -117,16 +100,10 @@
 		replace 			`var' = `var' * 0.0343 if country == 1
 		replace 			`var' = `var' * 0.0014 if country == 2
 		replace 			`var' = `var' * 0.0028 if country == 3
-		replace 			`var' = `var' *  0.0003 if country == 4
 	}
 * https://www.exchangerates.org.uk/ETB-USD-spot-exchange-rates-history-2019.html
 * https://www.exchangerates.org.uk/MWK-USD-spot-exchange-rates-history-2019.html
-* https://www.exchangerates.org.uk/NGN-USD-spot-exchange-rates-history-2019.html
-* https://www.exchangerates.org.uk/UGX-USD-spot-exchange-rates-history-2019.html	
-	
-* combine edu_act with sch_att var in post rounds
-	replace 			edu_act = sch_att if edu_act >= . & sch_att != .
-	replace 			edu_act = 1 if sch_att == 1
+* https://www.exchangerates.org.uk/NGN-USD-spot-exchange-rates-history-2019.html	
 
 * gender in ethiopia 0 for consistency
 	replace 			sexhh = 2 if sexhh == 0 & country == 1 & wave == 0
@@ -181,16 +158,16 @@
 	
 	replace 			rem_std_pp = 1 if cash_trans_0 == 1 | food_trans_0 == 1 | kind_trans_0 == 1 ///
 							| cash_child_0 == 1 | kind_child_0 == 1 | cash_for_0 == 1 | cash_dom_0 == 1 ///
-							| kind_inc_0 == 1 | kind_dom_0 == 1 | kind_for_0 == 1
+							| kind_inc_0 == 1
 
 	replace				save_std_pp = 1 if rent_inc_0 == 1 | save_inc_0 == 1 | rent_nonag_0 == 1 | ///
-							ag_rent_0 == 1 | interest_0 == 1
+							ag_rent_0 == 1
 	
 	replace 			pen_std_pp = 1 if pen_inc_0 == 1
 	
 	replace 			asst_std_pp = 1 if asset_0 == 1 | oth_inc_0 == 1 | asst_cash_0 == 1 | ///
 							asst_food_0 == 1 | asst_kind_0 == 1 | masaf_0 == 1 | for_wrk_0 == 1 | ///
-							asst_inc_0 == 1 | sage_0 == 1
+							asst_inc_0 == 1
 							
 	replace 			farm_std_pp = 1 if crop_inc_0 == 1 | live_inc_0 == 1 | live_prod_0 == 1 | ///
 							tree_inc_0 == 1 
@@ -202,7 +179,7 @@
 	* Fraction Standardized across all countries (1)
 		* gen smallest geographic level with at leave 10 observations
 		gen 			one = 1
-		foreach 		l in region district zone woreda kebele county town ward ea ta_code lga {
+		foreach 		l in region zone woreda kebele ea ta_code lga {
 			foreach v 		of varlist *_std_pp {
 				egen 			`v'_count_`l' = max(`v'), by(`l')
 			}
@@ -225,22 +202,21 @@
 		replace 		geo_count = lga_count if lga_obs >= 10 & country == 3
 		replace 		geo_count = ea_count if ea_obs >= 10 & country == 3
 		
-		replace	 		geo_count = district_count if district_obs >= 10 & country == 4
-		replace 		geo_count = county_count if county_obs >= 10 & country == 4
-		replace 		geo_count = town_count if town_obs >= 10 & country == 4
-		replace 		geo_count = ward_count if ward_obs >= 10 & country == 4
-		replace 		geo_count = ea_count if ea_obs >= 10 & country == 4
-		
+		gen				geo_count2 = region_count
 
 		* generate index
 		egen 				hh_count_pp = rowtotal(*_std_pp)
 		gen 				std_pp_index = 1 - (hh_count_pp / geo_count1)
+		gen 				std_pp_indexa = 1 - (hh_count_pp / geo_count2)
 		lab var 			std_pp_index "Index 1"
+		lab var 			std_pp_indexa "Index 1a"
 		ds					*_std_pp 
 		foreach 			var in `r(varlist)' {
 			replace 			std_pp_index = . if `var' == .
+			replace 			std_pp_indexa = . if `var' == .
 		}
-		drop 				*_count* *_obs 
+		rename				geo_count1 geo_control
+		drop 				*_obs *_count*
 		
 		* only keep waves with sufficient data
 		ds 					*std_pp 
@@ -429,70 +405,11 @@
 	foreach 			var in `r(varlist)' {
 		replace 			nga_pp_index = . if `var' == .
 	}
-	
-	* Uganda (waves 1-5)
-	gen 				save_std_uga = isp_inc if country == 4 & wave != 0
-	replace 			save_std_uga = cond(interest_0 == 1 | rent_inc_0 == 1, 1, 0) ///
-							if country == 4 & wave == 0
-	
-	gen 				pen_std_uga = pen_inc if country == 4 & wave != 0
-	replace 			pen_std_uga = pen_inc_0 if country == 4 & wave == 0
-	
-	gen 				rem_std_uga = cond(rem_dom == 1 | rem_for == 1 | asst_inc == 1 , 1, 0) ///
-							if country == 4 & wave != 0
-	replace 			rem_std_uga = cond(cash_dom_0 == 1 | cash_for_0 == 1 | kind_dom_0 == 1 | ///
-							kind_for_0 == 1, 1, 0) if country == 4 & wave == 0
-							
-	gen 				oth_std_uga = cond(oth_inc == 1 | gov_inc == 1 | ngo_inc == 1, 1, 0) ///
-							if country == 4 & wave != 0
-	replace 			oth_std_uga = oth_inc_0 if country == 4 & wave == 0
-	
-	gen 				wage_std_uga = wage_emp_0 if country == 4 & wave == 0
-	replace 			wage_std_uga = wage_inc if country == 4 & wave != 0
-	
-	gen 				farm_std_uga = cond(live_inc_0 == 1 | crop_inc_0 == 1 | live_prod_0 == 1, 1, 0) ///
-							if country == 4 & wave == 0
-	replace 			farm_std_uga = farm_inc if country == 4 & wave != 0
-	
-	gen 				nfe_std_uga = nfe_inc_0 if country == 4 & wave == 0
-	replace 			nfe_std_uga = bus_inc if country ==4 & wave != 0 
-	
-	gen 				asst_std_uga = cond(asst_cash == 1 | asst_food == 1 | asst_kind == 1, 1, 0) ///
-							if country == 4 & wave != 0
-	replace 			asst_std_uga = sage_0 if country == 4 & wave == 0
-	
-	* generate uga index 
-	foreach 		l in district county town ward ea {
-		foreach v 		of varlist *_std_uga {
-			egen 			`v'_count_`l' = max(`v'), by(`l')
-		}
-		egen			`l'_count = rowtotal(*_count_`l')
-		egen 			`l'_obs = total(one), by(`l')
-	}
-	
-	* generate combined variable that uses the smallest geographic area with at least 10 observations
-	gen 	 		geo_count_uga = district_count if district_obs >= 10 & country == 4
-	replace 		geo_count = county_count if county_obs >= 10 & country == 4
-	replace 		geo_count = town_count if town_obs >= 10 & country == 4
-	replace 		geo_count = ward_count if ward_obs >= 10 & country == 4
-	replace 		geo_count = ea_count if ea_obs >= 10 & country == 4
-	
-	* generate uga index 
-	egen 				hh_count_uga = rowtotal(*_std_uga)
-	gen 				uga_pp_index = 1 - (hh_count_uga / geo_count_uga)
 
-	drop 				*_count* *_obs 
-	
-	ds 					*_std_uga
-	foreach 			var in `r(varlist)' {
-		replace 			uga_pp_index = . if `var' == .
-	}
-	
 	* combine countries into one variable
 	gen 				pp_index = eth_pp_index if country == 1
 	replace 			pp_index = mwi_pp_index if country == 2
 	replace 			pp_index = nga_pp_index if country == 3
-	replace 			pp_index = uga_pp_index if country == 4
 	lab var 			pp_index "Index 2"
 	
 * all standard pre (indices 3-4)
@@ -597,47 +514,6 @@
 	replace 			oth_std_pre = oth_inc_0 if country == 3 & wave == 0
 	replace 			oth_std_amnt_pre = oth_inc_amnt_0 if country == 3 & wave == 0
 	
-	* Uganda 
-	replace 			rem_std_pre = cond(cash_dom_0 == 1 | cash_for_0 == 1, 1, 0 ) ///
-							if country == 4 & wave == 0
-	replace 			rem_std_amnt_pre = cash_dom_amnt_0 + cash_for_amnt_0 ///
-							if country == 4 & wave == 0
-	
-	replace 			kind_std_pre = cond(kind_dom_0 == 1 | kind_for_0 == 1, 1, 0) ///
-							if country == 4 & wave == 0
-	replace 			kind_std_amnt_pre = kind_dom_amnt_0 + kind_for_amnt_0 ///
-							if country == 4 & wave == 0
-							
-	replace 			save_std_pre = interest_0 if country == 4 & wave == 0
-	replace 			save_inc_amnt_0 = interest_amnt_0 if country == 4 & wave == 0
-	
-	replace 			rent_std_pre = rent_inc_0 if country == 4 & wave == 0
-	replace 			rent_std_amnt_pre = rent_inc_amnt_0 if country == 4 & wave == 0
-	
-	replace 			pen_std_pre = pen_inc_0 if country == 4 & wave == 0
-	replace 			pen_std_amnt_pre = pen_inc_amnt_0 if country == 4 & wave == 0
-	
-	replace 			nfe_std_pre = nfe_inc_0 if country == 4 & wave == 0
-	replace 			nfe_std_amnt_pre = nfe_inc_amnt_0 if country == 4 & wave == 0
-	
-	replace 			crop_std_pre = crop_inc_0 if country == 4 & wave == 0
-	replace 			crop_std_amnt_pre = crop_inc_amnt_0 if country == 4 & wave == 0
-	
-	replace 			live_std_pre = live_inc_0 if country == 4 & wave == 0
-	replace 			live_std_amnt_pre = live_inc_amnt_0 if country == 4 & wave == 0
-	
-	replace 			live_prod_std_pre = live_prod_0 if country == 4 & wave == 0
-	replace 			live_prod_std_amnt_pre = live_prod_amnt_0 if country == 4 & wave == 0
-	
-	replace 			wage_std_pre = wage_emp_0 if country == 4 & wave == 0
-	replace 			wage_std_amnt_pre = wage_emp_amnt_0 if country == 4 & wave == 0
-	
-	replace 			asst_std_pre = sage_0 if country == 4 & wave == 0
-	replace 			asst_std_amnt_pre = sage_amnt_0 if country == 4 & wave == 0
-	
-	replace 			oth_std_pre = oth_inc_0 if country == 4 & wave == 0
-	replace 			oth_std_amnt_pre = oth_inc_amnt_0 if country == 4 & wave == 0
-	
 	* Ethiopia 
 	replace 			rem_std_pre = cash_trans_0 if country == 1 & wave == 0
 	replace 			rem_std_amnt_pre = cash_trans_amnt_0 if country == 1 & wave == 0
@@ -684,7 +560,7 @@
 	
 	* Fraction Index (3)
 	* gen smallest geographic level with at leave 10 observations
-		foreach 		l in region district zone woreda kebele county town ward ea ta_code lga {
+		foreach 		l in region zone woreda kebele ea ta_code lga {
 			foreach v 		of varlist *_std_pre {
 				egen 			`v'_count_`l' = max(`v'), by(`l')
 			}
@@ -706,13 +582,6 @@
 		replace 		geo_count3 = region_count if region_obs >= 10 & country == 3 
 		replace 		geo_count3 = lga_count if lga_obs >= 10 & country == 3
 		replace 		geo_count3 = ea_count if ea_obs >= 10 & country == 3
-		
-		replace	 		geo_count3 = district_count if district_obs >= 10 & country == 4
-		replace 		geo_count3 = county_count if county_obs >= 10 & country == 4
-		replace 		geo_count3 = town_count if town_obs >= 10 & country == 4
-		replace 		geo_count3 = ward_count if ward_obs >= 10 & country == 4
-		replace 		geo_count3 = ea_count if ea_obs >= 10 & country == 4
-		
 
 		* generate index
 		egen 				hh_count = rowtotal(*_std_pre) if wave == 0
@@ -737,13 +606,11 @@
 	gen 			pre_index_frac = eth_pre_index_geo if country == 1
 	replace 		pre_index_frac = mwi_pre_index_geo if country == 2
 	replace 		pre_index_frac = nga_pre_index_geo if country == 3
-	replace 		pre_index_frac = uga_pre_index_geo if country == 4
 	lab var 		pre_index_frac "Index 5"
 	
 	gen 			pre_index_hhi = eth_pre_index_hhi if country == 1
 	replace 		pre_index_hhi = mwi_pre_index_hhi if country == 2
 	replace 		pre_index_hhi = nga_pre_index_hhi if country == 3
-	replace 		pre_index_hhi = uga_pre_index_hhi if country == 4
 	lab var 		pre_index_hhi "Index 6"
 
 	
@@ -763,7 +630,7 @@
 
 * prep fies baseline 
 	preserve
-		use 			"$data/analysis/food_security/ld_reg_data", clear
+		use 			"$root/ld_reg_data", clear
 		keep 			if wave <= 0 & (country == 1 | country == 2 | country == 3)
 		tempfile 		fies
 		save 			`fies'
@@ -781,7 +648,7 @@
 
 * prep fies post rounds
 	preserve
-		use 			"$data/analysis/food_security/ld_reg_data", clear
+		use 			"$root/ld_reg_data", clear
 		keep			if wave > 0 & (country == 1 | country == 2 | country == 3)
 		tempfile		post 
 		save 			`post'
@@ -816,21 +683,20 @@
 preserve 
 
 * import data from https://ourworldindata.org/covid-stringency-index
-	insheet 			using "$data\shocks\raw\covid_stringency_index.csv", clear
-	keep 				if entity == "Ethiopia" | entity == "Malawi" | ///
-							entity == "Nigeria" | entity == "Uganda"
-	gen 				country = 1 if entity == "Ethiopia"
-	replace 			country = 2 if entity == "Malawi"
-	replace 			country = 3 if entity == "Nigeria" 
-	replace 			country = 4 if entity == "Uganda" 
+	insheet 			using "$root/covid_stringency_index.csv", clear
+	keep 				if location == "Ethiopia" | location == "Malawi" | ///
+							location == "Nigeria"
+	gen 				country = 1 if location == "Ethiopia"
+	replace 			country = 2 if location == "Malawi"
+	replace 			country = 3 if location == "Nigeria" 
 							
 * generate day month year variables
-	split 				day, parse("/")
-	drop 				day
-	destring 			day*, replace
-	rename 				day1 month
-	rename 				day2 day
-	rename 				day3 year
+	split 				date, parse("-")
+	drop 				date
+	destring 			date*, replace
+	rename 				date1 year
+	rename 				date2 month
+	rename 				date3 day
 	
 * bin data to match waves (from end date of prior wave to end date of current wave)
 	* ethiopia 
@@ -904,21 +770,6 @@ preserve
 							((month == 1 & day > 25) | (month == 2 & day <= 22))
 	replace 			wave = 11 if country == 3 & year == 2021 & ///
 							((month == 2 & day > 22) | (month == 3 & day <= 28))
-	* uganda 
-	replace 			wave = 1 if country == 4 & year == 2020 & ///
-							month == 6 & day >= 3 & day <= 20
-	replace 			wave = 2 if country == 4 & year == 2020 & ///
-							((month == 6 & day > 20) | month == 7 | ///
-							(month == 8 & day <= 21))
-	replace 			wave = 3 if country == 4 & year == 2020 & ///
-							((month == 8 & day > 21) | month == 9 & day <= 30)
-	replace 			wave = 4 if country == 4 & year == 2020 & ///
-							((month == 10) | month == 11 & day <= 17)	
-	replace 			wave = 5 if country == 4 & ///
-							((year == 2020 & month == 11 & day > 17) | ///
-							(year == 2020 & month == 12) | ///
-							(year == 2021 & month == 1)	| ///
-							(year == 2021 & month == 2 & day < 21))
 				
 * take average stringency score by wave
 	drop 				if wave == .
@@ -967,6 +818,8 @@ restore
 
 	gen 				wave_orig = wave
 
+	replace 			wave = 19 if wave_orig == 12 & country == 1
+	replace 			wave = 16 if wave_orig == 11 & country == 1
 	replace 			wave = 14 if wave_orig == 10 & country == 1
 	replace 			wave = 13 if wave_orig == 9 & country == 1
 	replace 			wave = 12 if wave_orig == 8 & country == 1
@@ -978,6 +831,7 @@ restore
 	replace 			wave = 5 if wave_orig == 2 & country == 1
 	replace 			wave = 4 if wave_orig == 1 & country == 1
 	
+	replace 			wave = 19 if wave_orig == 12 & country == 2
 	replace 			wave = 18 if wave_orig == 11 & country == 2
 	replace 			wave = 17 if wave_orig == 10 & country == 2
 	replace 			wave = 16 if wave_orig == 9 & country == 2
@@ -990,6 +844,8 @@ restore
 	replace 			wave = 7 if wave_orig == 2 & country == 2
 	replace 			wave = 6 if wave_orig == 1 & country == 2 
 	
+	replace 			wave = 16 if wave_orig == 12 & country == 3 
+	replace 			wave = 15 if wave_orig == 11 & country == 3 
 	replace 			wave = 14 if wave_orig == 10 & country == 3 
 	replace 			wave = 13 if wave_orig == 9 & country == 3 
 	replace 			wave = 12 if wave_orig == 8 & country == 3 
@@ -1001,24 +857,7 @@ restore
 	replace 			wave = 6 if wave_orig == 2 & country == 3
 	replace 			wave = 5 if wave_orig == 1 & country == 3
 	
-	replace 			wave = 14 if wave_orig == 5 & country == 4	
-	replace 			wave = 11 if wave_orig == 4 & country == 4
-	replace 			wave = 9 if wave_orig == 3 & country == 4
-	replace 			wave = 8 if wave_orig == 2 & country == 4
-	replace 			wave = 6 if wave_orig == 1 & country == 4
-	
-	replace 			wave = 19 if wave_orig == 10 & country == 5
-	replace 			wave = 16 if wave_orig == 9 & country == 5
-	replace 			wave = 15 if wave_orig == 8 & country == 5 
-	replace 			wave = 14 if wave_orig == 7 & country == 5 
-	replace 			wave = 13 if wave_orig == 6 & country == 5 
-	replace 			wave = 12 if wave_orig == 5 & country == 5	
-	replace 			wave = 11 if wave_orig == 4 & country == 5
-	replace 			wave = 10 if wave_orig == 3 & country == 5
-	replace 			wave = 8 if wave_orig == 2 & country == 5
-	replace 			wave = 6 if wave_orig == 1 & country == 5
-	
-	lab def 			months -1 "2019" 0 "2019" 4 "Apr20" 5 "May20" 6 "Jun20" 7 "Jul20" 8 "Aug20" ///
+	lab def 			months -1 "2018" 0 "2019" 4 "Apr20" 5 "May20" 6 "Jun20" 7 "Jul20" 8 "Aug20" ///
 							9 "Sep20" 10 "Oct20" 11 "Nov20" 12 "Dec20" 13 "Jan21" 14 "Feb21" ///
 							15 "Mar21" 16 "Apr21" 17 "May21" 18 "May21" 19 "Jun21"
 	lab val				wave months
@@ -1035,8 +874,8 @@ restore
 
 * format & QC
 	compress
-	sort hhid wave_orig
-	isid hhid wave_orig
+	sort hhid wave
+	isid hhid wave
 
 * save 
 	save 			"$export/ld_pnl", replace
