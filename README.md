@@ -2,6 +2,8 @@
 
 This README describes the directory structure & Stata packages necessary to replicate all analysis for the paper "Coping or Hoping? Livelihood Diversification and Food Insecurity in the COVID-19 Pandemic" in *Food Policy*. The work relies on the World Bank LSMS and World Bank COVID phone surveys. For more information and to access these surveys, visit the [World Bank Microdata Library][4]. The relevant surveys are available under under the [High-Frequency Phone Survey collection][2] and the [LSMS - Integrated Surveys on Agriculture (ISA) collection][3]. To replicate the analysis, one needs to download the LSMS-ISA data and merge it with the already cleaned phone survey data. The phone survey data was cleaned at part of another project and code for the cleaning is [available available on a Github repo][5]. We provide the cleaned data as part of this current repo. The replication code does the merging. We make no guarantee that variables not used in the analysis are cleaned or accurate. THe analysis is based on a [pre-analysis plan][1] filed with the Open Science Framework (OSF).
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14876700.svg)](https://doi.org/10.5281/zenodo.14876700)
+
 Last updated: February 2025. 
 
 For issues or concerns with this repo, please contact Anna Josephson or Jeffrey Michler.
