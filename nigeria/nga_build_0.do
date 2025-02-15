@@ -25,7 +25,6 @@
 	global	root	=	"$data/nigeria/raw"
 	global	export	=	"$data/nigeria/refined"
 	global	logout	=	"$data/nigeria/logs"
-	global  fies 	= 	"$data/analysis/raw/Nigeria"
 
 * open log
 	cap log 		close
